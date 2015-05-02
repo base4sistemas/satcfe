@@ -1,0 +1,11 @@
+__pycache__/
+
+/build/
+/dist/
+/satcfe.egg-info/
+/*.egg/
+
+*.pyc
+*.pyo
+*.pyd
+*.sublime-workspace
