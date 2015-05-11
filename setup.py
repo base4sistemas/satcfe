@@ -66,6 +66,8 @@ setup(
         install_requires=[
                 'cerberus >= 0.8.1',
                 'satcomum >= 0.0.2',
+                'requests >= 2.7.0',
+                'unidecode >= 0.4.17',
             ],
         extras_require={
                 'testing': [

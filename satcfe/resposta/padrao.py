@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/resposta.py
+# satcfe/resposta/padrao.py
 #
 # Copyright 2015 Base4 Sistemas Ltda ME
 #
@@ -17,9 +17,11 @@
 # limitations under the License.
 #
 
-from unidecode import unidecode
+from satcomum.util import forcar_unicode
 
-from satcomum import util
+from ..excecoes import ExcecaoRespostaSAT
+from ..excecoes import ErroRespostaSATInvalida
+from ..util import as_ascii
 
 
 CAMPOS_PADRAO = (
@@ -30,63 +32,26 @@ CAMPOS_PADRAO = (
         ('mensagemSEFAZ', unicode),)
 
 
-class ErroRespostaSATInvalida(Exception):
-    """
-    Lançada quando a resposta dada por uma função da DLL SAT não contém
-    informação que faça sentido dentro do contexto. Este erro é diferente de
-    uma :exc:`ExcecaoRespostaSAT` que é lançada quando a resposta faz sentido
-    mas é interpretada como uma exceção a um comando que falhou.
-    """
-    pass
-
-
-class ExcecaoRespostaSAT(Exception):
-    """
-    Lançada quando uma resposta à uma função da DLL SAT (comando SAT) é
-    interpretada como tendo falhado. São casos em que a resposta é perfeitamente
-    válida mas é interpretada como falha.
-
-    Por exemplo, quando a função ``ConsultarSAT`` é invocada e a resposta
-    indica um código ``EEEEE`` diferente de ``08000``, então uma exceção como
-    esta será lançada.
-    """
-
-    def __init__(self, resposta):
-        _x = lambda p: unidecode(p) if isinstance(p, unicode) else p
-        super(ExcecaoRespostaSAT, self).__init__(
-                '%s, numeroSessao=%s, EEEEE="%s", mensagem="%s", '
-                'cod="%s", mensagemSEFAZ="%s"' % (
-                        resposta.atributos.funcao or 'F(?)',
-                        _x(getattr(resposta, 'numeroSessao', '?')),
-                        _x(getattr(resposta, 'EEEEE', '?')),
-                        _x(getattr(resposta, 'mensagem', '?')),
-                        _x(getattr(resposta, 'cod', '?')),
-                        _x(getattr(resposta, 'mensagemSEFAZ', '?')),))
-        self._resposta = resposta
-
-
-    @property
-    def resposta(self):
-        return self._resposta
-
-
-class Atributos(object):
-    def __init__(self, **kwargs):
-        super(Atributos, self).__init__()
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-
 class RespostaSAT(object):
+
+
+    class _Atributos(object):
+        pass
+
+
     def __init__(self, **kwargs):
         super(RespostaSAT, self).__init__()
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+        self.atributos = RespostaSAT._Atributos()
+        self.atributos.funcao = None
+        self.atributos.verbatim = None
+
 
     @staticmethod
     def enviar_dados_venda(retorno):
-        resposta = analisar_retorno(util.forcar_unicode(retorno),
+        resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='EnviarDadosVenda',
                 campos=(
                         ('numeroSessao', int),
@@ -125,27 +90,16 @@ class RespostaSAT(object):
 
     @staticmethod
     def consultar_sat(retorno):
-        resposta = analisar_retorno(util.forcar_unicode(retorno),
+        resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='ConsultarSAT')
         if resposta.EEEEE not in ('08000',):
             raise ExcecaoRespostaSAT(resposta)
         return resposta
 
 
-    @staticmethod
-    def extrair_logs(retorno):
-        resposta = analisar_retorno(util.forcar_unicode(retorno),
-                funcao='ExtrairLogs',
-                campos=CAMPOS_PADRAO + (
-                        ('arquivoLog', unicode)
-                    )
-            )
-        if resposta.EEEEE not in ('15000',):
-            raise ExcecaoRespostaSAT(resposta)
-        return resposta
-
 
 def analisar_retorno(retorno,
+        classe_resposta=RespostaSAT,
         campos=CAMPOS_PADRAO,
         campos_alternativos=[],
         funcao=None,
@@ -206,7 +160,7 @@ def analisar_retorno(retorno,
 
     if '|' not in retorno:
         raise ErroRespostaSATInvalida('Resposta nao possui pipes separando os '
-                'campos: "%s"' % retorno)
+                'campos: "%s"' % as_ascii(retorno))
 
     partes = retorno.split('|')
 
@@ -220,7 +174,7 @@ def analisar_retorno(retorno,
             raise ErroRespostaSATInvalida('Resposta nao possui o numero '
                     'esperado de campos. Esperados %d campos, mas '
                     'contem %d: "%s"' % (
-                            len(campos), len(partes), retorno,))
+                            len(campos), len(partes), as_ascii(retorno),))
     else:
         relacao_campos = campos
 
@@ -233,11 +187,8 @@ def analisar_retorno(retorno,
     for indice, campo, conversor in _enumerate(relacao_campos):
         resultado[campo] = conversor(partes[indice])
 
-    resposta = RespostaSAT(**resultado)
-    resposta.atributos = Atributos(**dict(
-            funcao=funcao,
-            verbatim=retorno if manter_verbatim else None))
+    resposta = classe_resposta(**resultado)
+    resposta.atributos.funcao = funcao
+    resposta.atributos.verbatim = retorno if manter_verbatim else None
 
     return resposta
-
-

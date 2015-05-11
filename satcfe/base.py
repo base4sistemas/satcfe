@@ -27,7 +27,7 @@ from ctypes import c_char_p
 from satcomum import constantes
 
 from .config import conf
-from .resposta import RespostaSAT
+
 
 
 class _Prototype(object):
@@ -111,7 +111,11 @@ class DLLSAT(object):
 
 
 class NumeroSessaoMemoria(object):
-
+    """
+    Implementa um numerador de sessão simples, baseado em memória, não
+    persistente, que irá gerar um número de sessão (seis dígitos) diferente
+    entre os 100 últimos números de sessão gerados, conforme recomendação.
+    """
 
     def __init__(self, tamanho=100):
         super(NumeroSessaoMemoria, self).__init__()
@@ -130,12 +134,11 @@ class NumeroSessaoMemoria(object):
         return numero
 
 
-
-class FuncoesSAT(object):
+class _FuncoesSAT(object):
 
 
     def __init__(self, dll=None, numerador_sessao=None):
-        super(FuncoesSAT, self).__init__()
+        super(_FuncoesSAT, self).__init__()
         self._dll = dll
         self._numerador_sessao = numerador_sessao or NumeroSessaoMemoria()
 
@@ -156,42 +159,28 @@ class FuncoesSAT(object):
                 self.__class__.__name__, name,))
 
 
-    def enviar_dados_venda(self,
-            numero_sessao=None, codigo_ativacao=None, dados_venda=None):
+    def enviar_dados_venda(self, dados_venda):
         """
         ER SAT, item 6.1.3. Envia o CF-e de venda para o equipamento SAT, que o
         completará e o enviará para autorização pela SEFAZ.
         """
-        if dados_venda is None:
-            raise ValueError("Parametro 'dados_venda', esperado objeto "
-                    "'satcfe.entidades.CFeVenda'; obtido {}".format(
-                            dados_venda.__class__.__name__))
-
-        _numero_sessao = numero_sessao or self.gerar_numero_sessao()
-        _codigo_ativacao = codigo_ativacao or conf.codigo_ativacao
-        _dados_venda = dados_venda.xml
-
-        retorno = self.invocar__EnviarDadosVenda(
-                _numero_sessao, _codigo_ativacao, _dados_venda)
-
-        return RespostaSAT.enviar_dados_venda(retorno)
+        numero_sessao = self.gerar_numero_sessao()
+        codigo_ativacao = conf.codigo_ativacao
+        return self.invocar__EnviarDadosVenda(
+                numero_sessao, codigo_ativacao, dados_venda.xml)
 
 
-    def consultar_sat(self, numero_sessao=None):
+    def consultar_sat(self):
         """
         ER SAT, item 6.1.5. Usada para testes de comunicação entre a AC e o
         equipamento SAT.
         """
-        _numero_sessao = numero_sessao or self.gerar_numero_sessao()
-        retorno = self.invocar__ConsultarSAT(_numero_sessao)
-        return RespostaSAT.consultar_sat(retorno)
+        return self.invocar__ConsultarSAT(self.gerar_numero_sessao())
 
 
-    def extrair_logs(self, numero_sessao=None, codigo_ativacao=None):
+    def extrair_logs(self):
         """
         ER SAT, item 6.1.12. Extração dos registro de log do equipamento SAT.
         """
-        _numero_sessao = numero_sessao or self.gerar_numero_sessao()
-        _codigo_ativacao = codigo_ativacao or conf.codigo_ativacao
-        retorno = self.invocar__ExtrairLogs(_numero_sessao, _codigo_ativacao)
-        return RespostaSAT.extrair_logs(retorno)
+        return self.invocar__ExtrairLogs(
+                self.gerar_numero_sessao(), conf.codigo_ativacao)

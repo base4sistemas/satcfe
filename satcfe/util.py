@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/__init__.py
+# satcfe/util.py
 #
 # Copyright 2015 Base4 Sistemas Ltda ME
 #
@@ -17,10 +17,7 @@
 # limitations under the License.
 #
 
-__version__ = '0.0.1'
+from unidecode import unidecode
 
-from satcomum.constantes import VERSAO_ER
 
-from .base import DLLSAT
-from .clientelocal import ClienteSATLocal
-from .clientesathub import ClienteSATHub
+as_ascii = lambda p: unidecode(p) if isinstance(p, unicode) else p

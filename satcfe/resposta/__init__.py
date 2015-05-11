@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/__init__.py
+# satcfe/resposta/__init__.py
 #
 # Copyright 2015 Base4 Sistemas Ltda ME
 #
@@ -17,10 +17,5 @@
 # limitations under the License.
 #
 
-__version__ = '0.0.1'
-
-from satcomum.constantes import VERSAO_ER
-
-from .base import DLLSAT
-from .clientelocal import ClienteSATLocal
-from .clientesathub import ClienteSATHub
+from .padrao import RespostaSAT
+from .extrairlogs import RespostaExtrairLogs
