@@ -20,6 +20,7 @@
 import base64
 import errno
 import os
+import tempfile
 
 from satcomum.util import forcar_unicode
 
@@ -63,7 +64,7 @@ class RespostaExtrairLogs(RespostaSAT):
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='ExtrairLogs',
                 classe_resposta=RespostaExtrairLogs,
-                campos=CAMPOS_PADRAO + (
+                campos=RespostaSAT.CAMPOS + (
                         ('arquivoLog', unicode),
                     )
             )

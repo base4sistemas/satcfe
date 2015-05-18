@@ -17,5 +17,9 @@
 # limitations under the License.
 #
 
-from .padrao import RespostaSAT
+from .cancelarultimavenda import RespostaCancelarUltimaVenda
+from .consultarstatusoperacional import RespostaConsultarStatusOperacional
+from .enviardadosvenda import RespostaEnviarDadosVenda
 from .extrairlogs import RespostaExtrairLogs
+from .padrao import RespostaSAT
+from .testefimafim import RespostaTesteFimAFim

@@ -31,7 +31,24 @@ Projeto SAT-CF-e
 
 
 Este projeto implementa uma abstração para acesso às funções da DLL do
-`SAT-CF-e`_ para acesso ao equipamento SAT.
+`SAT-CF-e`_ para acesso ao equipamento SAT. Por exemplo:
+
+.. sourcecode:: Python
+
+    >>> from satcomum import constantes
+    >>> from satcfe import DLLSAT
+    >>> from satcfe import ClienteSATLocal
+    >>> from satcfe import conf
+
+    >>> conf.codigo_ativacao = '123456789'
+
+    >>> cliente = ClienteSATLocal(DLLSAT(
+    ...        caminho='/caminho/para/sat.dll',
+    ...        convecao=constantes.WINDOWS_STDCALL))
+
+    >>> resposta = cliente.consultar_sat()
+    >>> resposta.mensagem
+    u'SAT em Opera\xe7\xe3o'
 
 
 Extratos do CF-e-SAT
@@ -41,16 +58,35 @@ Para gerar os extratos do CF-e de venda e/ou cancelamento, consulte o
 projeto `satextrato`_.
 
 
+Executando os Testes
+====================
+
+Para executar os testes faça:
+
+.. sourcecode:: shell
+
+    $ python setup.py test
+
+Em ambientes Microsoft |reg| Windows |trade|, é possível executar uma série de
+testes contra o equipamento SAT. Atualmente estão implementados testes apenas o
+equipamento SAT D-Sat |trade| da `Dimep`_ |reg|. Como a implementação em si
+independe do fabricante do equipamento SAT é fácil alterar os testes para
+executar contra quaisquer outros equipamentos SAT disponíveis.
+
+.. sourcecode:: shell
+
+    > python setup.py test -a "--cnpj-ac=01234567000199 --codigo-ativacao=123"
+
+
 Possíveis Questões
 ==================
 
 Talvez você esteja se perguntando:
 
 **Nas entidades, por que vocês não usaram o schema XSD?**
-    Qual *schema XSD*? Eu detesto responder uma pergunta com outra, mas vamos
-    aos fatos. O governo de São Paulo não disponibilizou os *schemas XSD* para o
-    CF-e que é gerado pela AC, mas disponibilizou *schemas XSD* para o CF-e que
-    é "completado" pelo equipamento SAT, que é o documento que será submetido
+    O governo de São Paulo não disponibilizou os *schemas XSD* para o documento
+    CF-e que é gerado pela AC. Existem *schemas XSD* apenas para serem usados
+    pelo software do equipamento SAT, que completa o CF-e gerado pela e o envia
     para autorização pela SEFAZ.
 
     Tenho visto algumas pessoas muito bem intencionadas pela internet editando
@@ -75,6 +111,23 @@ Talvez você esteja se perguntando:
     cancelamento que será enviado ao equipamento SAT.
 
 
+..
+    Sphinx Documentation: Substitutions at
+    http://sphinx-doc.org/rest.html#substitutions
+    Codes copied from reStructuredText Standard Definition Files at
+    http://docutils.sourceforge.net/docutils/parsers/rst/include/isonum.txt
+
+.. |copy| unicode:: U+00A9 .. COPYRIGHT SIGN
+    :ltrim:
+
+.. |reg|  unicode:: U+00AE .. REGISTERED SIGN
+    :ltrim:
+
+.. |trade|  unicode:: U+2122 .. TRADE MARK SIGN
+    :ltrim:
+
+
 .. _`SAT-CF-e`: http://www.fazenda.sp.gov.br/sat/
 .. _`Cerberus`: https://cerberus.readthedocs.org/
 .. _`satextrato`: https://github.com/base4sistemas/satextrato
+.. _`Dimep`: http://www.dimep.com.br/

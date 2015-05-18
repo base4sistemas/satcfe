@@ -17,7 +17,14 @@
 # limitations under the License.
 #
 
+from datetime import datetime
 from unidecode import unidecode
 
 
 as_ascii = lambda p: unidecode(p) if isinstance(p, unicode) else p
+
+a2date = lambda p: datetime.strptime(p, '%Y%m%d').date()
+
+a2datetime = lambda p: datetime.strptime(p, '%Y%m%d%H%M%S')
+
+normalizar_ip = lambda p: '.'.join([str(int(i, 10)) for i in p.split('.')])

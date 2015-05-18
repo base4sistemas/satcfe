@@ -24,24 +24,59 @@ import pytest
 
 from satcomum.constantes import WINDOWS_STDCALL
 
-# assume plataforma windows, por enquanto
+
+# assume apenas plataforma windows, por enquanto
 pytestmark = pytest.mark.skipif(
         sys.platform != 'win32',
         reason='requires Microsoft Windows')
 
-# define os atributos que serão lidos pelas fixtures
-convencao = WINDOWS_STDCALL # será lido pela fixture fsat
-caminho_dll = os.path.join(os.path.abspath(os.path.dirname(__file__)), 
-        'kit', 'windows', 'dllsat.dll') # será lido pela fixture fsat
+# os seguintes atributos que serão lidos pelas fixtures (via request.module)
+convencao = WINDOWS_STDCALL
+caminho_dll = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+        'kit', 'windows', 'dllsat.dll')
 
 
-def test_consultar_sat(fsat):
-    resposta = fsat.consultar_sat()
+def test_consultar_sat(clientesatlocal):
+    resposta = clientesatlocal.consultar_sat()
+    assert resposta.EEEEE == '08000', _assert_msg(resposta, 'ConsultarSAT')
 
 
-def test_consultar_status_operacional(fsat):
-    pass
+def test_consultar_status_operacional(clientesatlocal):
+    resposta = clientesatlocal.consultar_status_operacional()
+    assert resposta.EEEEE == '10000', \
+            _assert_msg(resposta, 'ConsultarStatusOperacional')
 
 
-def test_teste_fim_a_fim(fimafim, fsat):
-    pass
+def test_extrair_logs(clientesatlocal):
+    resposta = clientesatlocal.extrair_logs()
+    assert resposta.EEEEE == '15000', _assert_msg(resposta, 'ExtrairLogs')
+
+
+def test_teste_fim_a_fim(cfevenda, clientesatlocal):
+    resposta = clientesatlocal.teste_fim_a_fim(cfevenda)
+    assert resposta.EEEEE == '09000', _assert_msg(resposta, 'TesteFimAFim')
+
+
+def test_enviar_dados_venda(cfevenda, clientesatlocal):
+    resposta = clientesatlocal.enviar_dados_venda(cfevenda)
+    assert resposta.EEEEE == '06000', _assert_msg(resposta, 'EnviarDadosVenda')
+
+
+def test_cancelar_ultima_venda(cfevenda, cfecanc, clientesatlocal):
+    resposta_venda = clientesatlocal.enviar_dados_venda(cfevenda)
+    assert resposta_venda.EEEEE == '06000', \
+            _assert_msg(resposta_venda, 'EnviarDadosVenda')
+
+    cfecanc.chCanc=resposta_venda.chaveConsulta
+    resposta_canc = clientesatlocal.cancelar_ultima_venda(canc)
+    assert resposta_canc.EEEEE == '07000', \
+            _assert_msg(resposta_canc, 'CancelarUltimaVenda')
+
+
+def _assert_msg(resposta, funcao):
+    return 'Resposta "{}" '\
+            'numeroSessao={}, EEEEE={}, mensagem={}'.format(
+                    funcao,
+                    resposta.numeroSessao,
+                    resposta.EEEEE,
+                    resposta.mensagem)

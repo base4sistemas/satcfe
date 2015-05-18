@@ -19,8 +19,13 @@
 
 from .base import _FuncoesSAT
 from .config import conf
+
+from .resposta import RespostaCancelarUltimaVenda
+from .resposta import RespostaConsultarStatusOperacional
+from .resposta import RespostaEnviarDadosVenda
 from .resposta import RespostaExtrairLogs
 from .resposta import RespostaSAT
+from .resposta import RespostaTesteFimAFim
 
 
 class ClienteSATLocal(_FuncoesSAT):
@@ -33,17 +38,66 @@ class ClienteSATLocal(_FuncoesSAT):
         super(ClienteSATLocal, self).__init__(*args, **kwargs)
 
 
-    def enviar_dados_venda(self, *args, **kwargs):
+    def comunicar_certificado_icpbrasil(self, certificado):
         retorno = super(ClienteSATLocal, self).\
-                enviar_dados_venda(*args, **kwargs)
-        return RespostaSAT.enviar_dados_venda(retorno)
+                comunicar_certificado_icpbrasil(certificado)
+        return RespostaSAT.comunicar_certificado_icpbrasil(retorno)
 
 
-    def consultar_sat(self, *args, **kargs):
-        retorno = super(ClienteSATLocal, self).consultar_sat(*args, **kwargs)
+    def enviar_dados_venda(self, dados_venda):
+        retorno = super(ClienteSATLocal, self).enviar_dados_venda(dados_venda)
+        return RespostaEnviarDadosVenda.analisar(retorno)
+
+
+    def cancelar_ultima_venda(self, dados_cancelamento):
+        retorno = super(ClienteSATLocal, self).\
+                cancelar_ultima_venda(dados_cancelamento)
+        return RespostaCancelarUltimaVenda.analisar(retorno)
+
+
+    def consultar_sat(self):
+        retorno = super(ClienteSATLocal, self).consultar_sat()
         return RespostaSAT.consultar_sat(retorno)
 
 
-    def extrair_logs(self, *args, **kwargs):
-        retorno = super(ClienteSATLocal, self).consultar_sat(*args, **kwargs)
+    def teste_fim_a_fim(self, dados_venda):
+        retorno = super(ClienteSATLocal, self).teste_fim_a_fim(dados_venda)
+        return RespostaTesteFimAFim.analisar(retorno)
+
+
+    def consultar_status_operacional(self):
+        retorno = super(ClienteSATLocal, self).consultar_status_operacional()
+        return RespostaConsultarStatusOperacional.analisar(retorno)
+
+
+    def configurar_interface_de_rede(self, configuracao):
+        retorno = super(ClienteSATLocal, self).\
+                configurar_interface_de_rede(configuracao)
+        return RespostaSAT.configurar_interface_de_rede(retorno)
+
+
+    def associar_assinatura(self, sequencia_cnpj, assinatura_ac):
+        retorno = super(ClienteSATLocal, self).\
+                associar_assinatura(sequencia_cnpj, assinatura_ac)
+        # (!) resposta baseada na redação com efeitos até 31-12-2016
+        return RespostaSAT.associar_assinatura(retorno)
+
+
+    def atualizar_software_sat(self):
+        retorno = super(ClienteSATLocal, self).atualizar_software_sat()
+        return RespostaSAT.atualizar_software_sat(retorno)
+
+
+    def extrair_logs(self):
+        retorno = super(ClienteSATLocal, self).extrair_logs()
         return RespostaExtrairLogs.analisar(retorno)
+
+
+    def bloquear_sat(self):
+        retorno = super(ClienteSATLocal, self).bloquear_sat()
+        return RespostaSAT.bloquear_sat(retorno)
+
+
+    def desbloquear_sat(self):
+        retorno = super(ClienteSATLocal, self).desbloquear_sat()
+        return RespostaSAT.desbloquear_sat(retorno)

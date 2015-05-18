@@ -62,7 +62,10 @@ setup(
         version=satcfe.__version__,
         description=u'Abstração do acesso ao equipamento SAT-CF-e (SAT Fiscal)',
         long_description=long_description,
-        packages=['satcfe'],
+        packages=[
+                'satcfe',
+                'satcfe.resposta',
+            ],
         install_requires=[
                 'cerberus >= 0.8.1',
                 'satcomum >= 0.0.2',

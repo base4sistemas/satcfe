@@ -236,6 +236,14 @@ class ExtendedValidator(cerberus.Validator):
                     cerberus.errors.ERROR_BAD_TYPE % Decimal.__name__)
 
 
+    def _validate_type_ipv4(self, field, value):
+            if isinstance(value, basestring):
+                _bytes = [int(b, 10) for b in value.split('.') \
+                        if int(b, 10) in xrange(0, 256)]
+                if len(_bytes) != 4:
+                    self._error(field, cerberus.errors.ERROR_BAD_TYPE % 'IPv4')
+
+
     def _validate_type_cnpj(self, field, value):
         if not br.is_cnpj(value, estrito=True):
             self._error(field, 'numero CNPJ "%s" invalido' % value)
@@ -253,7 +261,7 @@ class ExtendedValidator(cerberus.Validator):
                     "valida: %s" % (field, value,))
 
 
-class Entity(object):
+class Entidade(object):
     """
     Classe base para todas as classes que representem as entidades da
     implementação do SAT-CF-e. Aqui, chamaremos de "entidade" as classes que
@@ -261,9 +269,9 @@ class Entity(object):
     e/ou do cancelamento.
 
     Basicamente, as subclasses precisam sobre-escrever a implementação do
-    método :meth:`_build_xml_element`, definir o :attr:`_schema` de validação e,
+    método ``_construir_elemento_xml``, definir o atributo ``_schema`` e,
     quando necessário, implementar uma especialização do validador *Cerberus*
-    no atributo :attr:`_validator_class`.
+    no atributo ``_validator_class``.
     """
 
     _schema = {}
@@ -272,33 +280,55 @@ class Entity(object):
 
 
     def __init__(self, **kwargs):
-        super(Entity, self).__init__()
+        super(Entidade, self).__init__()
         self._validator = self._validator_class(self._schema)
         self._validator.allow_unknown = True
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+
     @property
-    def errors(self):
+    def erros(self):
         return self._validator.errors
 
 
-    def validate(self):
+    def validar(self):
         if not self._validator.validate(self.__dict__):
-            raise cerberus.ValidationError('Entidade "%s" possui '
-                    'atributos invalidos.' % self.__class__.__name__)
+            raise cerberus.ValidationError('Entidade "{}" possui '
+                    'atributos invalidos.'.format(self.__class__.__name__))
 
 
-    def xml(self, *args, **kwargs):
-        self.validate()
-        return self._build_xml_element(*args, **kwargs)
+    def documento(self, *args, **kwargs):
+        """
+        Resulta no documento XML como string, que pode ou não incluir a
+        declaração XML no início do documento.
+        """
+        forcar_unicode = kwargs.pop('forcar_unicode', False)
+        incluir_xml_decl = kwargs.pop('incluir_xml_decl', True)
+        doc = ET.tostring(self._xml(*args, **kwargs),
+                encoding='utf-8').decode('utf-8')
+        if forcar_unicode:
+            if incluir_xml_decl:
+                doc = u'{}\n{}'.format(constantes.XML_DECL_UNICODE, doc)
+        else:
+            if incluir_xml_decl:
+                doc = '{}\n{}'.format(constantes.XML_DECL, unidecode(doc))
+            else:
+                doc = unidecode(doc)
+        return doc
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _xml(self, *args, **kwargs):
+        self.validar()
+        return self._construir_elemento_xml(*args, **kwargs)
+
+
+    def _construir_elemento_xml(self, *args, **kwargs):
         raise NotImplementedError()
 
 
-class Emitente(Entity):
+
+class Emitente(Entidade):
     """
     Grupo de identificação do emitente do CF-e.
     Representa o grupo C01 ``emit``.
@@ -306,7 +336,7 @@ class Emitente(Entity):
     .. sourcecode:: python
 
         >>> emit = Emitente(CNPJ='08427847000169', IE='111222333444', indRatISSQN='S')
-        >>> ET.tostring(emit.xml())
+        >>> ET.tostring(emit._xml())
         '<emit><CNPJ>08427847000169</CNPJ><IE>111222333444</IE><indRatISSQN>S</indRatISSQN></emit>'
 
         >>> emit = Emitente(
@@ -315,7 +345,7 @@ class Emitente(Entity):
         ...         IM='123456789012345',
         ...         cRegTribISSQN='1',
         ...         indRatISSQN='S')
-        >>> ET.tostring(emit.xml())
+        >>> ET.tostring(emit._xml())
         '<emit><CNPJ>08427847000169</CNPJ><IE>111222333444</IE><IM>123456789012345</IM><cRegTribISSQN>1</cRegTribISSQN><indRatISSQN>S</indRatISSQN></emit>'
 
     """
@@ -344,7 +374,7 @@ class Emitente(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
 
         emit = ET.Element('emit')
         ET.SubElement(emit, 'CNPJ').text = self.CNPJ
@@ -361,7 +391,7 @@ class Emitente(Entity):
         return emit
 
 
-class Destinatario(Entity):
+class Destinatario(Entidade):
     """
     Identificação do Destinatário do CF-e, item "E" da ER, grupo ``E01``,
     ``dest``.
@@ -369,19 +399,24 @@ class Destinatario(Entity):
     .. sourcecode:: python
 
         >>> dest = Destinatario()
-        >>> ET.tostring(dest.xml(), encoding='utf-8')
+        >>> ET.tostring(dest._xml(), encoding='utf-8')
         '<dest />'
         >>> dest = Destinatario(CNPJ='08427847000169')
-        >>> ET.tostring(dest.xml(), encoding='utf-8')
+        >>> ET.tostring(dest._xml(), encoding='utf-8')
         '<dest><CNPJ>08427847000169</CNPJ></dest>'
         >>> dest = Destinatario(CPF='11122233396', xNome=u'Fulano Beltrano')
-        >>> ET.tostring(dest.xml(), encoding='utf-8')
+        >>> ET.tostring(dest._xml(), encoding='utf-8')
         '<dest><CPF>11122233396</CPF><xNome>Fulano Beltrano</xNome></dest>'
         >>> dest = Destinatario(CPF='11122233396', CNPJ='08427847000169')
-        >>> dest.xml()
+        >>> dest._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
+
+        # testa criação do XML para cancelamento; o nome deverá ser ignorado
+        >>> dest = Destinatario(CPF='11122233396', xNome=u'Fulano Beltrano')
+        >>> ET.tostring(dest._xml(cancelamento=True), encoding='utf-8')
+        '<dest><CPF>11122233396</CPF></dest>'
 
     """
 
@@ -413,7 +448,7 @@ class Destinatario(Entity):
     _validator_class = _Validator
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
 
         is_cancelamento = kwargs.pop('cancelamento', False)
 
@@ -431,7 +466,7 @@ class Destinatario(Entity):
         return dest
 
 
-class LocalEntrega(Entity):
+class LocalEntrega(Entidade):
     """
     Identificação do Local de Entrega, item "G" da ER, grupo ``G01``,
     ``entrega``.
@@ -439,7 +474,7 @@ class LocalEntrega(Entity):
     .. sourcecode:: python
 
         >>> entrega = LocalEntrega()
-        >>> ET.tostring(entrega.xml(), encoding='utf-8')
+        >>> ET.tostring(entrega._xml(), encoding='utf-8')
         Traceback (most recent call last):
          ...
         ValidationError: ...
@@ -448,7 +483,7 @@ class LocalEntrega(Entity):
         >>> entrega.xBairro = 'Parque Gloria III'
         >>> entrega.xMun = 'Catanduva'
         >>> entrega.UF = 'SP'
-        >>> ET.tostring(entrega.xml(), encoding='utf-8')
+        >>> ET.tostring(entrega._xml(), encoding='utf-8')
         '<entrega><xLgr>Rua Armando Gulim</xLgr><nro>65</nro><xBairro>Parque Gloria III</xBairro><xMun>Catanduva</xMun><UF>SP</UF></entrega>'
     """
 
@@ -487,7 +522,7 @@ class LocalEntrega(Entity):
     _validator_class = _Validator
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
 
         entrega = ET.Element('entrega')
         ET.SubElement(entrega, 'xLgr').text = self.xLgr
@@ -503,7 +538,7 @@ class LocalEntrega(Entity):
         return entrega
 
 
-class Detalhamento(Entity):
+class Detalhamento(Entidade):
     """
     Grupo de detalhamento do produto ou serviço do CF-e-SAT.
 
@@ -528,7 +563,7 @@ class Detalhamento(Entity):
         ...                 cofins=COFINSSN(CST='49'),
         ...                 icms=ICMSSN102(Orig='2', CSOSN='500')),
         ...         infAdProd='Teste')
-        >>> ET.tostring(det.xml(nItem=1))
+        >>> ET.tostring(det._xml(nItem=1))
         '<det nItem="1"><prod><cProd>123456</cProd><xProd>BORRACHA STAEDTLER</xProd><CFOP>5102</CFOP><uCom>UN</uCom><qCom>1.0000</qCom><vUnCom>5.75</vUnCom><indRegra>A</indRegra></prod><imposto><ICMSSN102><Orig>2</Orig><CSOSN>500</CSOSN></ICMSSN102><PISSN><CST>49</CST></PISSN><COFINSSN><CST>49</CST></COFINSSN></imposto><infAdProd>Teste</infAdProd></det>'
 
     """
@@ -553,13 +588,13 @@ class Detalhamento(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
 
         det = ET.Element('det')
         det.attrib['nItem'] = str(kwargs.pop('nItem'))
 
-        det.append(self.produto.xml())
-        det.append(self.imposto.xml())
+        det.append(self.produto._xml())
+        det.append(self.imposto._xml())
 
         if hasattr(self, 'infAdProd'):
             ET.SubElement(det, 'infAdProd').text = self.infAdProd
@@ -567,7 +602,7 @@ class Detalhamento(Entity):
         return det
 
 
-class ProdutoServico(Entity):
+class ProdutoServico(Entidade):
     """
     Grupo do produto ou serviço do CF-e-SAT.
     Representa o grupo I01 ``prod``.
@@ -585,7 +620,7 @@ class ProdutoServico(Entity):
         ...         qCom=Decimal('1.0000'),
         ...         vUnCom=Decimal('5.75'),
         ...         indRegra='A')
-        >>> ET.tostring(prod.xml())
+        >>> ET.tostring(prod._xml())
         '<prod><cProd>123456</cProd><xProd>BORRACHA STAEDTLER</xProd><CFOP>5102</CFOP><uCom>UN</uCom><qCom>1.0000</qCom><vUnCom>5.75</vUnCom><indRegra>A</indRegra></prod>'
 
         # todos os atributos (se vDesc for informado, então não informa vOutro)
@@ -600,7 +635,7 @@ class ProdutoServico(Entity):
         ...         vUnCom=Decimal('5.75'),
         ...         indRegra='A',
         ...         vDesc=Decimal('0.25'))
-        >>> ET.tostring(prod.xml())
+        >>> ET.tostring(prod._xml())
         '<prod><cProd>123456</cProd><cEAN>4007817525074</cEAN><xProd>BORRACHA STAEDTLER</xProd><NCM>40169200</NCM><CFOP>5102</CFOP><uCom>UN</uCom><qCom>1.0000</qCom><vUnCom>5.75</vUnCom><indRegra>A</indRegra><vDesc>0.25</vDesc></prod>'
 
         # todos os atributos (informando vOutro)
@@ -615,7 +650,7 @@ class ProdutoServico(Entity):
         ...         vUnCom=Decimal('5.75'),
         ...         indRegra='A',
         ...         vOutro=Decimal('0.25'))
-        >>> ET.tostring(prod.xml())
+        >>> ET.tostring(prod._xml())
         '<prod><cProd>123456</cProd><cEAN>4007817525074</cEAN><xProd>BORRACHA STAEDTLER</xProd><NCM>40169200</NCM><CFOP>5102</CFOP><uCom>UN</uCom><qCom>1.0000</qCom><vUnCom>5.75</vUnCom><indRegra>A</indRegra><vOutro>0.25</vOutro></prod>'
 
         # informa vDesc e vOutro, não deve validar
@@ -629,7 +664,7 @@ class ProdutoServico(Entity):
         ...         indRegra='A',
         ...         vDesc=Decimal('0.25'),
         ...         vOutro=Decimal('0.25'))
-        >>> prod.xml()
+        >>> prod._xml()
         Traceback (most recent call last):
          ...
         ValidationError: 'ProdutoServico' (grupo H01 'prod') atributos 'vDesc' e 'vOutro' sao mutuamente exclusivos
@@ -687,7 +722,7 @@ class ProdutoServico(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
 
         if hasattr(self, 'vDesc') and hasattr(self, 'vOutro'):
             raise cerberus.ValidationError("'%s' (grupo H01 'prod') atributos "
@@ -719,12 +754,12 @@ class ProdutoServico(Entity):
 
         if self.observacoes_fisco:
             for obs in self.observacoes_fisco:
-                prod.append(obs.xml())
+                prod.append(obs._xml())
 
         return prod
 
 
-class ObsFiscoDet(Entity):
+class ObsFiscoDet(Entidade):
     """
     Grupo do campo de uso livre do Fisco.
     Representa o elemento I17 ``obsFiscoDet``.
@@ -732,7 +767,7 @@ class ObsFiscoDet(Entity):
     .. sourcecode:: python
 
         >>> obs = ObsFiscoDet(xCampoDet='Cod. Produto ANP', xTextoDet='320101001')
-        >>> ET.tostring(obs.xml())
+        >>> ET.tostring(obs._xml())
         '<obsFiscoDet xCampoDet="Cod. Produto ANP"><xTextoDet>320101001</xTextoDet></obsFiscoDet>'
 
     """
@@ -749,19 +784,19 @@ class ObsFiscoDet(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         obs = ET.Element('obsFiscoDet')
         obs.attrib['xCampoDet'] = self.xCampoDet
         ET.SubElement(obs, 'xTextoDet').text = self.xTextoDet
         return obs
 
 
-class ICMS00(Entity):
+class ICMS00(Entidade):
     """
     Grupo de tributação do ICMS 00, 20 e 90. Representa o grupo N02 ``ICMS00``.
 
     >>> icms = ICMS00(Orig='0', CST='00', pICMS=Decimal('18.00'))
-    >>> ET.tostring(icms.xml())
+    >>> ET.tostring(icms._xml())
     '<ICMS00><Orig>0</Orig><CST>00</CST><pICMS>18.00</pICMS></ICMS00>'
     """
 
@@ -780,7 +815,7 @@ class ICMS00(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         icms00 = ET.Element(self.__class__.__name__)
         ET.SubElement(icms00, 'Orig').text = self.Orig
         ET.SubElement(icms00, 'CST').text = self.CST
@@ -788,13 +823,13 @@ class ICMS00(Entity):
         return icms00
 
 
-class ICMS40(Entity):
+class ICMS40(Entidade):
     """
     Grupo de tributação do ICMS 40, 41, 50 e 60.
     Representa o grupo N03 ``ICMS40``.
 
     >>> icms = ICMS40(Orig='0', CST='60')
-    >>> ET.tostring(icms.xml())
+    >>> ET.tostring(icms._xml())
     '<ICMS40><Orig>0</Orig><CST>60</CST></ICMS40>'
     """
 
@@ -810,20 +845,20 @@ class ICMS40(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         icms40 = ET.Element('ICMS40')
         ET.SubElement(icms40, 'Orig').text = self.Orig
         ET.SubElement(icms40, 'CST').text = self.CST
         return icms40
 
 
-class ICMSSN102(Entity):
+class ICMSSN102(Entidade):
     """
     Grupo de tributação do ICMS Simples Nacional, CSOSN 102, 300 e 500.
     Representa o grupo N04 ``ICMSSN102``.
 
     >>> icms = ICMSSN102(Orig='0', CSOSN='500')
-    >>> ET.tostring(icms.xml())
+    >>> ET.tostring(icms._xml())
     '<ICMSSN102><Orig>0</Orig><CSOSN>500</CSOSN></ICMSSN102>'
     """
 
@@ -839,20 +874,20 @@ class ICMSSN102(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         icmssn102 = ET.Element('ICMSSN102')
         ET.SubElement(icmssn102, 'Orig').text = self.Orig
         ET.SubElement(icmssn102, 'CSOSN').text = self.CSOSN
         return icmssn102
 
 
-class ICMSSN900(Entity):
+class ICMSSN900(Entidade):
     """
     Grupo de tributação do ICMS Simples Nacional, CSOSN 900.
     Representa o grupo N05 ``ICMSSN900``.
 
     >>> icms = ICMSSN900(Orig='0', CSOSN='900', pICMS=Decimal('18.00'))
-    >>> ET.tostring(icms.xml())
+    >>> ET.tostring(icms._xml())
     '<ICMSSN900><Orig>0</Orig><CSOSN>900</CSOSN><pICMS>18.00</pICMS></ICMSSN900>'
     """
 
@@ -870,7 +905,7 @@ class ICMSSN900(Entity):
                     'required': True},
         }
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         icmssn900 = ET.Element('ICMSSN900')
         ET.SubElement(icmssn900, 'Orig').text = self.Orig
         ET.SubElement(icmssn900, 'CSOSN').text = self.CSOSN
@@ -878,13 +913,13 @@ class ICMSSN900(Entity):
         return icmssn900
 
 
-class PISAliq(Entity):
+class PISAliq(Entidade):
     """
     Grupo de PIS tributado pela alíquota, CST 01, 02 ou 05.
     Representa o grupo Q02 ``PISAliq``.
 
     >>> pis = PISAliq(CST='01', vBC=Decimal('1.00'), pPIS=Decimal('0.0065'))
-    >>> ET.tostring(pis.xml())
+    >>> ET.tostring(pis._xml())
     '<PISAliq><CST>01</CST><vBC>1.00</vBC><pPIS>0.0065</pPIS></PISAliq>'
     """
 
@@ -902,7 +937,7 @@ class PISAliq(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         pisaliq = ET.Element('PISAliq')
         ET.SubElement(pisaliq, 'CST').text = self.CST
         ET.SubElement(pisaliq, 'vBC').text = '{:n}'.format(self.vBC)
@@ -910,13 +945,13 @@ class PISAliq(Entity):
         return pisaliq
 
 
-class PISQtde(Entity):
+class PISQtde(Entidade):
     """
     Grupo de PIS tributado por quantidade, CST 03.
     Representa o grupo Q03 ``PISQtde``.
 
     >>> pis = PISQtde(CST='03', qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-    >>> ET.tostring(pis.xml())
+    >>> ET.tostring(pis._xml())
     '<PISQtde><CST>03</CST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></PISQtde>'
     """
 
@@ -934,7 +969,7 @@ class PISQtde(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         pisqtde = ET.Element('PISQtde')
         ET.SubElement(pisqtde, 'CST').text = self.CST
         ET.SubElement(pisqtde, 'qBCProd').text = '{:n}'.format(self.qBCProd)
@@ -942,13 +977,13 @@ class PISQtde(Entity):
         return pisqtde
 
 
-class PISNT(Entity):
+class PISNT(Entidade):
     """
     Grupo de PIS não tributado, CST 04, 06, 07 08 ou 09.
     Representa o grupo Q04 ``PISNT``.
 
     >>> pis = PISNT(CST='04')
-    >>> ET.tostring(pis.xml())
+    >>> ET.tostring(pis._xml())
     '<PISNT><CST>04</CST></PISNT>'
     """
 
@@ -960,19 +995,19 @@ class PISNT(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         pisnt = ET.Element('PISNT')
         ET.SubElement(pisnt, 'CST').text = self.CST
         return pisnt
 
 
-class PISSN(Entity):
+class PISSN(Entidade):
     """
     Grupo de PIS para contribuíntes do Simples Nacional, CST 49.
     Representa o grupo Q05 ``PISSN``.
 
     >>> pis = PISSN(CST='49')
-    >>> ET.tostring(pis.xml())
+    >>> ET.tostring(pis._xml())
     '<PISSN><CST>49</CST></PISSN>'
     """
 
@@ -984,13 +1019,13 @@ class PISSN(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         pissn = ET.Element('PISSN')
         ET.SubElement(pissn, 'CST').text = self.CST
         return pissn
 
 
-class PISOutr(Entity):
+class PISOutr(Entidade):
     """
     Grupo de PIS para outras operações, CST 99.
     Representa o grupo Q06 ``PISOutr``.
@@ -998,29 +1033,29 @@ class PISOutr(Entity):
     .. sourcecode:: python
 
         >>> pis = PISOutr(CST='99', vBC=Decimal('1.00'), pPIS=Decimal('0.0065'))
-        >>> ET.tostring(pis.xml())
+        >>> ET.tostring(pis._xml())
         '<PISOutr><CST>99</CST><vBC>1.00</vBC><pPIS>0.0065</pPIS></PISOutr>'
         >>> pis = PISOutr(CST='99', qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-        >>> ET.tostring(pis.xml())
+        >>> ET.tostring(pis._xml())
         '<PISOutr><CST>99</CST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></PISOutr>'
 
         # atributo vBC depende de pPIS que não foi informado
         >>> pis = PISOutr(CST='99', vBC=Decimal('1.00')) # vBC depende de pPIS
-        >>> pis.xml()
+        >>> pis._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
 
         # atributo qBCProd depende de vAliqProd que não foi informado
         >>> pis = PISOutr(CST='99', qBCProd=Decimal('100.0000'))
-        >>> pis.xml()
+        >>> pis._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
 
         # neste caso, deve falhar pois vBC ou qBCProd não foram informados
         >>> pis = PISOutr(CST='99')
-        >>> pis.xml()
+        >>> pis._xml()
         Traceback (most recent call last):
          ...
         ValidationError: Grupo 'PISOutr' requer exclusivamente 'vBC' ou 'qBCProd' (nenhum informado)
@@ -1028,7 +1063,7 @@ class PISOutr(Entity):
         # neste caso, deve falhar pois apenas um ou outro grupo pode ser informado:
         # ou informa-se vBC e pPIS ou informa-se qBCProd e vAliqProd
         >>> pis = PISOutr(CST='99', vBC=Decimal('1.00'), pPIS=Decimal('1.00'), qBCProd=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> pis.xml()
+        >>> pis._xml()
         Traceback (most recent call last):
          ...
         ValidationError: Grupo 'PISOutr' requer exclusivamente 'vBC' ou 'qBCProd' (ambos informados)
@@ -1036,7 +1071,7 @@ class PISOutr(Entity):
         # neste caso as falhara pela ausencia das dependencias:
         # pPIS depende de vBC e vAliqProd depende de qBCProd
         >>> pis = PISOutr(CST='99', pPIS=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> pis.xml()
+        >>> pis._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
@@ -1067,7 +1102,7 @@ class PISOutr(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
 
         if hasattr(self, 'vBC') and hasattr(self, 'qBCProd'):
             raise cerberus.ValidationError("Grupo '%s' requer "
@@ -1094,7 +1129,7 @@ class PISOutr(Entity):
         return pisoutr
 
 
-class PISST(Entity):
+class PISST(Entidade):
     """
     Grupo de PIS substituição tributária.
     Representa o grupo R01 ``PISST``.
@@ -1102,29 +1137,29 @@ class PISST(Entity):
     .. sourcecode:: python
 
         >>> pis = PISST(vBC=Decimal('1.00'), pPIS=Decimal('0.0065'))
-        >>> ET.tostring(pis.xml())
+        >>> ET.tostring(pis._xml())
         '<PISST><vBC>1.00</vBC><pPIS>0.0065</pPIS></PISST>'
         >>> pis = PISST(qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-        >>> ET.tostring(pis.xml())
+        >>> ET.tostring(pis._xml())
         '<PISST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></PISST>'
 
         # atributo vBC depende de pPIS que não foi informado
         >>> pis = PISST(vBC=Decimal('1.00')) # vBC depende de pPIS
-        >>> pis.xml()
+        >>> pis._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
 
         # atributo qBCProd depende de vAliqProd que não foi informado
         >>> pis = PISST(qBCProd=Decimal('100.0000'))
-        >>> pis.xml()
+        >>> pis._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
 
         # neste caso, deve falhar pois vBC ou qBCProd não foram informados
         >>> pis = PISST()
-        >>> pis.xml()
+        >>> pis._xml()
         Traceback (most recent call last):
          ...
         ValidationError: Grupo 'PISST' requer exclusivamente 'vBC' ou 'qBCProd' (nenhum informado)
@@ -1132,7 +1167,7 @@ class PISST(Entity):
         # neste caso, deve falhar pois apenas um ou outro grupo pode ser informado:
         # ou informa-se vBC e pPIS ou informa-se qBCProd e vAliqProd
         >>> pis = PISST(vBC=Decimal('1.00'), pPIS=Decimal('1.00'), qBCProd=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> pis.xml()
+        >>> pis._xml()
         Traceback (most recent call last):
          ...
         ValidationError: Grupo 'PISST' requer exclusivamente 'vBC' ou 'qBCProd' (ambos informados)
@@ -1140,7 +1175,7 @@ class PISST(Entity):
         # neste caso as falhara pela ausencia das dependencias:
         # pPIS depende de vBC e vAliqProd depende de qBCProd
         >>> pis = PISST(pPIS=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> pis.xml()
+        >>> pis._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
@@ -1167,7 +1202,7 @@ class PISST(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
 
         if hasattr(self, 'vBC') and hasattr(self, 'qBCProd'):
             raise cerberus.ValidationError("Grupo '%s' requer "
@@ -1193,13 +1228,13 @@ class PISST(Entity):
         return pisst
 
 
-class COFINSAliq(Entity):
+class COFINSAliq(Entidade):
     """
     Grupo de COFINS tributado pela alíquota, CST 01, 02 ou 05.
     Representa o grupo S02 ``COFINSAliq``.
 
     >>> cofins = COFINSAliq(CST='01', vBC=Decimal('1.00'), pCOFINS=Decimal('0.0065'))
-    >>> ET.tostring(cofins.xml())
+    >>> ET.tostring(cofins._xml())
     '<COFINSAliq><CST>01</CST><vBC>1.00</vBC><pCOFINS>0.0065</pCOFINS></COFINSAliq>'
     """
 
@@ -1217,7 +1252,7 @@ class COFINSAliq(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         cofinsaliq = ET.Element(self.__class__.__name__)
         ET.SubElement(cofinsaliq, 'CST').text = self.CST
         ET.SubElement(cofinsaliq, 'vBC').text = '{:n}'.format(self.vBC)
@@ -1225,13 +1260,13 @@ class COFINSAliq(Entity):
         return cofinsaliq
 
 
-class COFINSQtde(Entity):
+class COFINSQtde(Entidade):
     """
     Grupo de COFINS tributado por quantidade, CST 03.
     Representa o grupo S03 ``COFINSQtde``.
 
     >>> cofins = COFINSQtde(CST='03', qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-    >>> ET.tostring(cofins.xml())
+    >>> ET.tostring(cofins._xml())
     '<COFINSQtde><CST>03</CST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></COFINSQtde>'
     """
 
@@ -1249,7 +1284,7 @@ class COFINSQtde(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         cofinsqtde = ET.Element(self.__class__.__name__)
         ET.SubElement(cofinsqtde, 'CST').text = self.CST
         ET.SubElement(cofinsqtde, 'qBCProd').text = '{:n}'.format(self.qBCProd)
@@ -1258,13 +1293,13 @@ class COFINSQtde(Entity):
         return cofinsqtde
 
 
-class COFINSNT(Entity):
+class COFINSNT(Entidade):
     """
     Grupo de COFINS não tributado, CST 04, 06, 07 08 ou 09.
     Representa o grupo S04 ``COFINSNT``.
 
     >>> cofins = COFINSNT(CST='04')
-    >>> ET.tostring(cofins.xml())
+    >>> ET.tostring(cofins._xml())
     '<COFINSNT><CST>04</CST></COFINSNT>'
     """
 
@@ -1276,19 +1311,19 @@ class COFINSNT(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         cofinsnt = ET.Element(self.__class__.__name__)
         ET.SubElement(cofinsnt, 'CST').text = self.CST
         return cofinsnt
 
 
-class COFINSSN(Entity):
+class COFINSSN(Entidade):
     """
     Grupo de COFINS para contribuíntes do Simples Nacional, CST 49.
     Representa o grupo S05 ``COFINSSN``.
 
     >>> cofins = COFINSSN(CST='49')
-    >>> ET.tostring(cofins.xml())
+    >>> ET.tostring(cofins._xml())
     '<COFINSSN><CST>49</CST></COFINSSN>'
     """
 
@@ -1300,13 +1335,13 @@ class COFINSSN(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         cofinssn = ET.Element(self.__class__.__name__)
         ET.SubElement(cofinssn, 'CST').text = self.CST
         return cofinssn
 
 
-class COFINSOutr(Entity):
+class COFINSOutr(Entidade):
     """
     Grupo de COFINS para outras operações, CST 99.
     Representa o grupo S06 ``COFINSOutr``.
@@ -1314,29 +1349,29 @@ class COFINSOutr(Entity):
     .. sourcecode:: python
 
         >>> cofins = COFINSOutr(CST='99', vBC=Decimal('1.00'), pCOFINS=Decimal('0.0065'))
-        >>> ET.tostring(cofins.xml())
+        >>> ET.tostring(cofins._xml())
         '<COFINSOutr><CST>99</CST><vBC>1.00</vBC><pCOFINS>0.0065</pCOFINS></COFINSOutr>'
         >>> cofins = COFINSOutr(CST='99', qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-        >>> ET.tostring(cofins.xml())
+        >>> ET.tostring(cofins._xml())
         '<COFINSOutr><CST>99</CST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></COFINSOutr>'
 
         # atributo vBC depende de pCOFINS que não foi informado
         >>> cofins = COFINSOutr(CST='99', vBC=Decimal('1.00')) # vBC depende de pCOFINS
-        >>> cofins.xml()
+        >>> cofins._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
 
         # atributo qBCProd depende de vAliqProd que não foi informado
         >>> cofins = COFINSOutr(CST='99', qBCProd=Decimal('100.0000'))
-        >>> cofins.xml()
+        >>> cofins._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
 
         # neste caso, deve falhar pois vBC ou qBCProd não foram informados
         >>> cofins = COFINSOutr(CST='99')
-        >>> cofins.xml()
+        >>> cofins._xml()
         Traceback (most recent call last):
          ...
         ValidationError: Grupo 'COFINSOutr' requer exclusivamente 'vBC' ou 'qBCProd' (nenhum informado)
@@ -1344,7 +1379,7 @@ class COFINSOutr(Entity):
         # neste caso, deve falhar pois apenas um ou outro grupo pode ser informado:
         # ou informa-se vBC e pCOFINS ou informa-se qBCProd e vAliqProd
         >>> cofins = COFINSOutr(CST='99', vBC=Decimal('1.00'), pCOFINS=Decimal('1.00'), qBCProd=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> cofins.xml()
+        >>> cofins._xml()
         Traceback (most recent call last):
          ...
         ValidationError: Grupo 'COFINSOutr' requer exclusivamente 'vBC' ou 'qBCProd' (ambos informados)
@@ -1352,7 +1387,7 @@ class COFINSOutr(Entity):
         # neste caso as falhara pela ausencia das dependencias:
         # pCOFINS depende de vBC e vAliqProd depende de qBCProd
         >>> cofins = COFINSOutr(CST='99', pCOFINS=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> cofins.xml()
+        >>> cofins._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
@@ -1383,7 +1418,7 @@ class COFINSOutr(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
 
         if hasattr(self, 'vBC') and hasattr(self, 'qBCProd'):
             raise cerberus.ValidationError("Grupo '%s' requer "
@@ -1412,7 +1447,7 @@ class COFINSOutr(Entity):
         return cofinsoutr
 
 
-class COFINSST(Entity):
+class COFINSST(Entidade):
     """
     Grupo de COFINS substituição tributária.
     Representa o grupo T01 ``COFINSST``.
@@ -1420,29 +1455,29 @@ class COFINSST(Entity):
     .. sourcecode:: python
 
         >>> cofins = COFINSST(vBC=Decimal('1.00'), pCOFINS=Decimal('0.0065'))
-        >>> ET.tostring(cofins.xml())
+        >>> ET.tostring(cofins._xml())
         '<COFINSST><vBC>1.00</vBC><pCOFINS>0.0065</pCOFINS></COFINSST>'
         >>> cofins = COFINSST(qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-        >>> ET.tostring(cofins.xml())
+        >>> ET.tostring(cofins._xml())
         '<COFINSST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></COFINSST>'
 
         # atributo vBC depende de pCOFINS que não foi informado
         >>> cofins = COFINSST(vBC=Decimal('1.00')) # vBC depende de pCOFINS
-        >>> cofins.xml()
+        >>> cofins._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
 
         # atributo qBCProd depende de vAliqProd que não foi informado
         >>> cofins = COFINSST(qBCProd=Decimal('100.0000'))
-        >>> cofins.xml()
+        >>> cofins._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
 
         # neste caso, deve falhar pois vBC ou qBCProd não foram informados
         >>> cofins = COFINSST()
-        >>> cofins.xml()
+        >>> cofins._xml()
         Traceback (most recent call last):
          ...
         ValidationError: Grupo 'COFINSST' requer exclusivamente 'vBC' ou 'qBCProd' (nenhum informado)
@@ -1450,7 +1485,7 @@ class COFINSST(Entity):
         # neste caso, deve falhar pois apenas um ou outro grupo pode ser informado:
         # ou informa-se vBC e pCOFINS ou informa-se qBCProd e vAliqProd
         >>> cofins = COFINSST(vBC=Decimal('1.00'), pCOFINS=Decimal('1.00'), qBCProd=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> cofins.xml()
+        >>> cofins._xml()
         Traceback (most recent call last):
          ...
         ValidationError: Grupo 'COFINSST' requer exclusivamente 'vBC' ou 'qBCProd' (ambos informados)
@@ -1458,7 +1493,7 @@ class COFINSST(Entity):
         # neste caso as falhara pela ausencia das dependencias:
         # pCOFINS depende de vBC e vAliqProd depende de qBCProd
         >>> cofins = COFINSST(pCOFINS=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> cofins.xml()
+        >>> cofins._xml()
         Traceback (most recent call last):
          ...
         ValidationError: ...
@@ -1485,7 +1520,7 @@ class COFINSST(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
 
         if hasattr(self, 'vBC') and hasattr(self, 'qBCProd'):
             raise cerberus.ValidationError("Grupo '%s' requer "
@@ -1511,18 +1546,18 @@ class COFINSST(Entity):
         return pisst
 
 
-class ISSQN(Entity):
+class ISSQN(Entidade):
     """
     Grupo do ISSQN. Representa o grupo U01 ``ISSQN``.
 
     .. sourcecode:: python
 
         >>> issqn = ISSQN(vDeducISSQN=Decimal('10.00'), vAliq=Decimal('7.00'), cNatOp='01', indIncFisc='2')
-        >>> ET.tostring(issqn.xml())
+        >>> ET.tostring(issqn._xml())
         '<ISSQN><vDeducISSQN>10.00</vDeducISSQN><vAliq>7.00</vAliq><cNatOp>01</cNatOp><indIncFisc>2</indIncFisc></ISSQN>'
 
         >>> issqn = ISSQN(vDeducISSQN=Decimal('10.00'), vAliq=Decimal('7.00'), cNatOp='01', indIncFisc='2', cMunFG='3511102', cListServ='01.01', cServTribMun='01234567890123456789')
-        >>> ET.tostring(issqn.xml())
+        >>> ET.tostring(issqn._xml())
         '<ISSQN><vDeducISSQN>10.00</vDeducISSQN><vAliq>7.00</vAliq><cMunFG>3511102</cMunFG><cListServ>01.01</cListServ><cServTribMun>01234567890123456789</cServTribMun><cNatOp>01</cNatOp><indIncFisc>2</indIncFisc></ISSQN>'
     """
 
@@ -1555,7 +1590,7 @@ class ISSQN(Entity):
                     'allowed': [v for v,s in constantes.U10_INDINCFISC_ISSQN]},
         }
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
 
         issqn = ET.Element(self.__class__.__name__)
 
@@ -1579,7 +1614,7 @@ class ISSQN(Entity):
         return issqn
 
 
-class Imposto(Entity):
+class Imposto(Entidade):
     """
     Grupo de tributos incidentes no produto ou serviço.
     Representa o grupo M01 ``imposto``.
@@ -1591,19 +1626,19 @@ class Imposto(Entity):
         ...         icms=ICMS00(Orig='0', CST='00', pICMS=Decimal('18.00')),
         ...         pis=PISSN(CST='49'),
         ...         cofins=COFINSSN(CST='49'))
-        >>> ET.tostring(imposto.xml())
+        >>> ET.tostring(imposto._xml())
         '<imposto><vItem12741>0.10</vItem12741><ICMS00><Orig>0</Orig><CST>00</CST><pICMS>18.00</pICMS></ICMS00><PISSN><CST>49</CST></PISSN><COFINSSN><CST>49</CST></COFINSSN></imposto>'
 
         # sem pis
         >>> imposto = Imposto(cofins=COFINSSN(CST='49'))
-        >>> imposto.xml()
+        >>> imposto._xml()
         Traceback (most recent call last):
          ...
         ValidationError: 'Imposto' (grupo M01 'imposto') atributo 'pis' nao pode ser 'None'
 
         # sem cofins
         >>> imposto = Imposto(pis=PISSN(CST='49'))
-        >>> imposto.xml()
+        >>> imposto._xml()
         Traceback (most recent call last):
          ...
         ValidationError: 'Imposto' (grupo M01 'imposto') atributo 'cofins' nao pode ser 'None'
@@ -1655,7 +1690,7 @@ class Imposto(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
 
         if self.pis is None:
             raise cerberus.ValidationError("'%s' (grupo M01 'imposto') "
@@ -1674,25 +1709,25 @@ class Imposto(Entity):
                     '{:n}'.format(self.vItem12741)
 
         if self.icms is not None:
-            imposto.append(self.icms.xml())
+            imposto.append(self.icms._xml())
 
-        imposto.append(self.pis.xml())
+        imposto.append(self.pis._xml())
 
         if self.pisst is not None:
-            imposto.append(self.pisst.xml())
+            imposto.append(self.pisst._xml())
 
-        imposto.append(self.cofins.xml())
+        imposto.append(self.cofins._xml())
 
         if self.cofinsst is not None:
-            imposto.append(self.cofinsst.xml())
+            imposto.append(self.cofinsst._xml())
 
         if self.issqn is not None:
-            imposto.append(self.issqn.xml())
+            imposto.append(self.issqn._xml())
 
         return imposto
 
 
-class DescAcrEntr(Entity):
+class DescAcrEntr(Entidade):
     """
     Grupo de valores de entrada de desconto/acréscimo sobre subtotal.
     Representa o grupo W19 ``DescAcrEntr``.
@@ -1700,14 +1735,14 @@ class DescAcrEntr(Entity):
     .. sourcecode:: python
 
         >>> grupo = DescAcrEntr()
-        >>> ET.tostring(grupo.xml())
+        >>> ET.tostring(grupo._xml())
         '<DescAcrEntr />'
 
         >>> grupo = DescAcrEntr(
         ...         vDescSubtot=Decimal('0.01'),
         ...         vAcresSubtot=Decimal('0.02'),
         ...         vCFeLei12741=Decimal('0.03'))
-        >>> ET.tostring(grupo.xml())
+        >>> ET.tostring(grupo._xml())
         '<DescAcrEntr><vDescSubtot>0.01</vDescSubtot><vAcresSubtot>0.02</vAcresSubtot><vCFeLei12741>0.03</vCFeLei12741></DescAcrEntr>'
 
     """
@@ -1725,7 +1760,7 @@ class DescAcrEntr(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         grupo = ET.Element(self.__class__.__name__)
 
         if hasattr(self, 'vDescSubtot'):
@@ -1743,7 +1778,7 @@ class DescAcrEntr(Entity):
         return grupo
 
 
-class MeioPagamento(Entity):
+class MeioPagamento(Entidade):
     """
     Grupo de informação do meio de pagamento.
     Representa o grupo WA02 ``MP``.
@@ -1751,11 +1786,11 @@ class MeioPagamento(Entity):
     .. sourcecode:: python
 
         >>> mp = MeioPagamento(cMP='01', vMP=Decimal('10.00'))
-        >>> ET.tostring(mp.xml())
+        >>> ET.tostring(mp._xml())
         '<MP><cMP>01</cMP><vMP>10.00</vMP></MP>'
 
         >>> mp = MeioPagamento(cMP='01', vMP=Decimal('10.00'), cAdmC='999')
-        >>> ET.tostring(mp.xml())
+        >>> ET.tostring(mp._xml())
         '<MP><cMP>01</cMP><vMP>10.00</vMP><cAdmC>999</cAdmC></MP>'
 
     """
@@ -1776,7 +1811,7 @@ class MeioPagamento(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         mp = ET.Element('MP')
         ET.SubElement(mp, 'cMP').text = self.cMP
         ET.SubElement(mp, 'vMP').text = '{:n}'.format(self.vMP)
@@ -1785,18 +1820,18 @@ class MeioPagamento(Entity):
         return mp
 
 
-class InformacoesAdicionais(Entity):
+class InformacoesAdicionais(Entidade):
     """
     Grupo de informações adicionais. Representa o grupo Z01 ``infAdic``.
 
     .. sourcecode:: python
 
         >>> grupo = InformacoesAdicionais()
-        >>> ET.tostring(grupo.xml())
+        >>> ET.tostring(grupo._xml())
         '<infAdic />'
 
         >>> grupo = InformacoesAdicionais(infCpl='Teste')
-        >>> ET.tostring(grupo.xml())
+        >>> ET.tostring(grupo._xml())
         '<infAdic><infCpl>Teste</infCpl></infAdic>'
 
     """
@@ -1809,14 +1844,14 @@ class InformacoesAdicionais(Entity):
         }
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
         grupo = ET.Element('infAdic')
         if hasattr(self, 'infCpl'):
             ET.SubElement(grupo, 'infCpl').text = self.infCpl
         return grupo
 
 
-class CFeVenda(Entity):
+class CFeVenda(Entidade):
     """
     Representa o CF-e-SAT de venda.
 
@@ -1829,7 +1864,7 @@ class CFeVenda(Entity):
         ...         CNPJ='08427847000169',
         ...         signAC=constantes.ASSINATURA_AC_TESTE,
         ...         numeroCaixa=1)
-        >>> ET.tostring(cfe.xml())
+        >>> ET.tostring(cfe._xml())
         '<CFe><infCFe versaoDadosEnt="0.06"><ide><CNPJ>08427847000169</CNPJ><signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC><numeroCaixa>001</numeroCaixa></ide><dest /><total /><pagto /><infAdic /></infCFe></CFe>'
 
     """
@@ -1889,7 +1924,7 @@ class CFeVenda(Entity):
                 **kwargs)
 
 
-    def _build_xml_element(self, *args, **kwargs):
+    def _construir_elemento_xml(self, *args, **kwargs):
 
         cfe = ET.Element('CFe')
         infCFe = ET.SubElement(cfe, 'infCFe')
@@ -1902,37 +1937,87 @@ class CFeVenda(Entity):
                 '{:03d}'.format(self.numeroCaixa)
 
         dest = self.destinatario or Destinatario()
-        infCFe.append(dest.xml())
+        infCFe.append(dest._xml())
 
         if self.entrega is not None:
-            infCFe.append(self.entrega.xml())
+            infCFe.append(self.entrega._xml())
 
         for n, det in enumerate(self.detalhamentos):
-            infCFe.append(det.xml(nItem=n+1))
+            infCFe.append(det._xml(nItem=n+1))
 
         total = ET.SubElement(infCFe, 'total')
 
         if self.descontos_acrescimos_subtotal is not None:
-            total.append(self.descontos_acrescimos_subtotal.xml())
+            total.append(self.descontos_acrescimos_subtotal._xml())
 
         pagto = ET.SubElement(infCFe, 'pagto')
         for pg in self.pagamentos:
-            pagto.append(pg.xml())
+            pagto.append(pg._xml())
 
         infAdic = self.informacoes_adicionais or InformacoesAdicionais()
-        infCFe.append(infAdic.xml())
+        infCFe.append(infAdic._xml())
 
         return cfe
 
 
-    def documento(self, as_unicode=False, incluir_decl_xml=True):
-        doc = ET.tostring(self.xml(), encoding='utf-8').decode('utf-8')
-        if as_unicode:
-            if incluir_decl_xml:
-                doc = u'{}\n{}'.format(constantes.XML_DECL_UNICODE, doc)
-        else:
-            if incluir_decl_xml:
-                doc = '{}\n{}'.format(constantes.XML_DECL, unidecode(doc))
-            else:
-                doc = unidecode(doc)
-        return doc
+class CFeCancelamento(Entidade):
+    """
+    Representa o CF-e-SAT de cancelamento.
+
+    .. sourcecode:: python
+
+        >>> cfecanc = CFeCancelamento(
+        ...         chCanc='CFe01234567890123456789012345678901234567890123',
+        ...         CNPJ='08427847000169',
+        ...         signAC=constantes.ASSINATURA_AC_TESTE,
+        ...         numeroCaixa=1)
+        >>> ET.tostring(cfecanc._xml())
+        '<CFeCanc><infCFe chCanc="CFe01234567890123456789012345678901234567890123"><ide><CNPJ>08427847000169</CNPJ><signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC><numeroCaixa>001</numeroCaixa></ide><dest /><total /><infAdic /></infCFe></CFeCanc>'
+
+    """
+
+    destinatario = None
+    """
+    Instância de :class:`Destinatario` ou ``None``
+    """
+
+    _schema = {
+            'chCanc': {
+                    'type': 'string',
+                    'required': True,
+                    'regex': r'^CFe\d{44}$'},
+            'CNPJ': {
+                    'type': 'cnpj',
+                    'required': True},
+            'signAC': {
+                    'type': 'assinatura_ac',
+                    'required': True},
+            'numeroCaixa': {
+                    'type': 'integer',
+                    'required': True,
+                    'min': 0, 'max': 999},
+        }
+
+
+    def _construir_elemento_xml(self, *args, **kwargs):
+
+        cfecanc = ET.Element('CFeCanc')
+
+        infCFe = ET.SubElement(cfecanc, 'infCFe')
+        infCFe.attrib['chCanc'] = self.chCanc
+
+        ide = ET.SubElement(infCFe, 'ide')
+        ET.SubElement(ide, 'CNPJ').text = self.CNPJ
+        ET.SubElement(ide, 'signAC').text = self.signAC
+        ET.SubElement(ide, 'numeroCaixa').text = \
+                '{:03d}'.format(self.numeroCaixa)
+
+        dest = self.destinatario or Destinatario()
+        infCFe.append(dest._xml(cancelamento=True))
+
+        ET.SubElement(infCFe, 'total')
+
+        infAdic = InformacoesAdicionais()
+        infCFe.append(infAdic._xml())
+
+        return cfecanc

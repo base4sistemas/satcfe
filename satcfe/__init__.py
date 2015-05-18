@@ -21,6 +21,7 @@ __version__ = '0.0.1'
 
 from satcomum.constantes import VERSAO_ER
 
+from .config import conf
 from .base import DLLSAT
 from .clientelocal import ClienteSATLocal
 from .clientesathub import ClienteSATHub

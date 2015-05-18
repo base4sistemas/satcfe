@@ -24,7 +24,8 @@ import pytest
 from satcomum import constantes
 
 from satcfe import DLLSAT
-from satcfe import FuncoesSAT
+from satcfe.clientelocal import ClienteSATLocal
+from satcfe.entidades import CFeCancelamento
 from satcfe.entidades import CFeVenda
 from satcfe.entidades import Destinatario
 from satcfe.entidades import LocalEntrega
@@ -37,20 +38,40 @@ from satcfe.entidades import COFINSSN
 from satcfe.entidades import MeioPagamento
 
 
+def pytest_addoption(parser):
+
+    parser.addoption('--cnpj-ac', action='store', default='08427847000169',
+            help='CNPJ da empresa desenvolvedora da AC')
+
+    parser.addoption('--codigo-ativacao', action='store', default='123456789',
+            help='Codigo de ativacao configurado no equipamento SAT')
+
+    parser.addoption('--assinatura-ac', action='store',
+            default=constantes.ASSINATURA_AC_TESTE,
+            help='Conteudo da assinatura da AC')
+
+    parser.addoption('--numero-caixa', action='store', default='1',
+            help='Numero do caixa de origem')
+
+    parser.addoption('--ch-canc', action='store',
+            default='CFe{}'.format('0' * 44),
+            help='Chave do CF-e de venda que foi/sera cancelado')
+
+
 @pytest.fixture(scope='module')
-def fsat(request):
+def clientesatlocal(request):
     caminho_dll = getattr(request.module, 'caminho_dll')
     convencao = getattr(request.module, 'convencao')
-    funcoes = FuncoesSAT(DLLSAT(caminho=caminho_dll, convencao=convencao))
+    funcoes = ClienteSATLocal(DLLSAT(caminho=caminho_dll, convencao=convencao))
     return funcoes
 
 
 @pytest.fixture(scope='module')
-def cfevenda():
+def cfevenda(request):
     cfe = CFeVenda(
-            CNPJ='08427847000169',
-            signAC=constantes.ASSINATURA_AC_TESTE,
-            numeroCaixa=1,
+            CNPJ=request.config.getoption('--cnpj-ac'),
+            signAC=request.config.getoption('--assinatura-ac'),
+            numeroCaixa=request.config.getoption('--numero-caixa'),
             destinatario=Destinatario(
                     CPF='11122233396',
                     xNome=u'João de Teste'),
@@ -84,6 +105,10 @@ def cfevenda():
 
 
 @pytest.fixture(scope='module')
-def fimafim():
-    return None
-
+def cfecanc(request):
+    cfecanc = CFeCancelamento(
+            chCanc=request.config.getoption('--ch-canc'),
+            CNPJ=request.config.getoption('--cnpj-ac'),
+            signAC=request.config.getoption('--assinatura-ac'),
+            numeroCaixa=request.config.getoption('--numero-caixa'))
+    return cfecanc

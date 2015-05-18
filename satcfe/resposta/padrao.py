@@ -24,15 +24,20 @@ from ..excecoes import ErroRespostaSATInvalida
 from ..util import as_ascii
 
 
-CAMPOS_PADRAO = (
-        ('numeroSessao', int),
-        ('EEEEE', unicode),
-        ('mensagem', unicode),
-        ('cod', unicode),
-        ('mensagemSEFAZ', unicode),)
-
-
 class RespostaSAT(object):
+
+
+    CAMPOS = (
+            ('numeroSessao', int),
+            ('EEEEE', unicode),
+            ('mensagem', unicode),
+            ('cod', unicode),
+            ('mensagemSEFAZ', unicode),
+        )
+    """
+    Campos padrão esperados em uma resposta e a sua função de conversão para o
+    tipo Python, a partir da resposta original (unicode).
+    """
 
 
     class _Atributos(object):
@@ -50,42 +55,12 @@ class RespostaSAT(object):
 
 
     @staticmethod
-    def enviar_dados_venda(retorno):
+    def comunicar_certificado_icpbrasil(retorno):
         resposta = analisar_retorno(forcar_unicode(retorno),
-                funcao='EnviarDadosVenda',
-                campos=(
-                        ('numeroSessao', int),
-                        ('EEEEE', unicode),
-                        ('CCCC', unicode),
-                        ('mensagem', unicode),
-                        ('cod', unicode),
-                        ('mensagemSEFAZ', unicode),
-                        ('arquivoCFeSAT', unicode),
-                        ('timeStamp', utils.from_ansi_datetime),
-                        ('chaveConsulta', unicode),
-                        ('valorTotalCFe', Decimal),
-                        ('CPFCNPJValue', unicode),
-                        ('assinaturaQRCODE', unicode),
-                    ),
-                campos_alternativos=[
-                        # se a venda falhar apenas os primeiros seis campos
-                        # especificados na ER deverão ser retornados...
-                        (
-                                ('numeroSessao', int),
-                                ('EEEEE', unicode),
-                                ('CCCC', unicode),
-                                ('mensagem', unicode),
-                                ('cod', unicode),
-                                ('mensagemSEFAZ', unicode),
-                        ),
-                        # por via das dúvidas, considera o padrão de campos,
-                        # caso não haja nenhuma coincidência...
-                        CAMPOS_PADRAO,
-                    ]
-            )
-        if resposta.EEEEE not in ('06000',):
+                funcao='ComunicarCertificadoICPBRASIL')
+        if resposta.EEEEE not in ('05000',):
             raise ExcecaoRespostaSAT(resposta)
-        return RespostaVenda(resposta)
+        return resposta
 
 
     @staticmethod
@@ -97,10 +72,54 @@ class RespostaSAT(object):
         return resposta
 
 
+    @staticmethod
+    def configurar_interface_de_rede(retorno):
+        resposta = analisar_retorno(forcar_unicode(retorno),
+                funcao='ConfigurarInterfaceDeRede')
+        if resposta.EEEEE not in ('12000',):
+            raise ExcecaoRespostaSAT(resposta)
+        return resposta
+
+
+    @staticmethod
+    def associar_assinatura(retorno):
+        resposta = analisar_retorno(forcar_unicode(retorno),
+                funcao='AssociarAssinatura')
+        if resposta.EEEEE not in ('13000',):
+            raise ExcecaoRespostaSAT(resposta)
+        return resposta
+
+
+    @staticmethod
+    def atualizar_software_sat(retorno):
+        resposta = analisar_retorno(forcar_unicode(retorno),
+                funcao='AtualizarSoftwareSAT')
+        if resposta.EEEEE not in ('14000',):
+            raise ExcecaoRespostaSAT(resposta)
+        return resposta
+
+
+    @staticmethod
+    def bloquear_sat(retorno):
+        resposta = analisar_retorno(forcar_unicode(retorno),
+                funcao='BloquearSAT')
+        if resposta.EEEEE not in ('16000',):
+            raise ExcecaoRespostaSAT(resposta)
+        return resposta
+
+
+    @staticmethod
+    def desbloquear_sat(retorno):
+        resposta = analisar_retorno(forcar_unicode(retorno),
+                funcao='DesbloquearSAT')
+        if resposta.EEEEE not in ('17000',):
+            raise ExcecaoRespostaSAT(resposta)
+        return resposta
+
 
 def analisar_retorno(retorno,
         classe_resposta=RespostaSAT,
-        campos=CAMPOS_PADRAO,
+        campos=RespostaSAT.CAMPOS,
         campos_alternativos=[],
         funcao=None,
         manter_verbatim=True):
