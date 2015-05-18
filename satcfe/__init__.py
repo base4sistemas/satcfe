@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 from satcomum.constantes import VERSAO_ER
 
