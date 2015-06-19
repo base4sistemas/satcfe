@@ -81,8 +81,9 @@ class ClienteSATHub(_FuncoesSAT):
         return RespostaEnviarDadosVenda.analisar(conteudo.get('retorno'))
 
 
-    def cancelar_ultima_venda(self, dados_cancelamento):
+    def cancelar_ultima_venda(self, chave_cfe, dados_cancelamento):
         resp = self._http_post('cancelarultimavenda',
+                chave_cfe=chave_cfe,
                 dados_cancelamento=dados_cancelamento.documento())
         conteudo = resp.json()
         return RespostaCancelarUltimaVenda.analisar(conteudo.get('retorno'))

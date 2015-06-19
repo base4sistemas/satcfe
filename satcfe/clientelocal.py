@@ -49,9 +49,9 @@ class ClienteSATLocal(_FuncoesSAT):
         return RespostaEnviarDadosVenda.analisar(retorno)
 
 
-    def cancelar_ultima_venda(self, dados_cancelamento):
+    def cancelar_ultima_venda(self, chave_cfe, dados_cancelamento):
         retorno = super(ClienteSATLocal, self).\
-                cancelar_ultima_venda(dados_cancelamento)
+                cancelar_ultima_venda(chave_cfe, dados_cancelamento)
         return RespostaCancelarUltimaVenda.analisar(retorno)
 
 

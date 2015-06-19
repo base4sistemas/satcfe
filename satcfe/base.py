@@ -182,10 +182,13 @@ class _FuncoesSAT(object):
                 self.gerar_numero_sessao(), conf.codigo_ativacao, _cfe_venda)
 
 
-    def cancelar_ultima_venda(self, dados_cancelamento):
+    def cancelar_ultima_venda(self, chave_cfe, dados_cancelamento):
         """
         ER SAT, item 6.1.4. Envia o CF-e de cancelamento para o equipamento SAT,
         que o completará e o enviará para cancelamento do CF-e pela SEFAZ.
+
+        :param chave_cfe: String contendo a chave do CF-e a ser cancelado,
+            prefixada com o literal ``CFe``.
 
         :param dados_cancelamento: String contendo o XML de cancelamento ou uma
             instância de :class:`~satcfe.entidades.CFeCancelamento`.
@@ -195,7 +198,10 @@ class _FuncoesSAT(object):
                 else dados_cancelamento.documento()
 
         return self.invocar__CancelarUltimaVenda(
-                self.gerar_numero_sessao(), conf.codigo_ativacao, _cfe_canc)
+                self.gerar_numero_sessao(),
+                conf.codigo_ativacao,
+                chave_cfe,
+                _cfe_canc)
 
 
     def consultar_sat(self):
