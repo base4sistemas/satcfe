@@ -4,6 +4,7 @@ __pycache__/
 /dist/
 /satcfe.egg-info/
 /*.egg/
+/docs/_build/
 
 *.pyc
 *.pyo
