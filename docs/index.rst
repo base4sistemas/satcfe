@@ -7,16 +7,28 @@ Projeto SATCFe
 
 A Secretaria da Fazenda do Estado de São Paulo, `SEFAZ/SP`_ desenvolveu o
 projeto conhecido como **SAT-CF-e**, Sistema de Autorização e Transmissão de
-Cupons Fiscais eletrônicos. Na prática esse sistema torna obsoletos os Emissores
-de Cupons Fiscais (ECF) no Estado de São Paulo.
-Visite o `site oficial <http://www.fazenda.sp.gov.br/sat>`_ do projeto para
-conhecer os detalhes ou obter documentação e a legislação vigente.
+Cupons Fiscais eletrônicos, conforme descrito na `Portaria CAT 147`_ de 05
+de novembro de 2012. Na prática esse sistema torna obsoletos os Emissores de
+Cupons Fiscais (ECF) no Estado de São Paulo.
+Visite o `site oficial <http://www.fazenda.sp.gov.br/sat>`_ do projeto
+para conhecer os detalhes ou obter documentação e a legislação vigente.
 
 Esta documentação diz respeito ao projeto `SATCFe`_ desenvolvido pela Base4
 Sistemas Ltda com o objetivo de abstrair o acesso ao Equipamento SAT através da
 linguagem `Python`_, tornando trivial o acesso às funções da biblioteca SAT,
 resultando em respostas prontas para serem utilizadas pela aplicação cliente,
 normalmente um software de ponto-de-venda (PDV).
+
+A figura abaixo ilustra a topologia básica do SAT-CF-e no estabelecimento
+comercial. Em uma operação típica, o aplicativo comercial envia o CF-e de venda
+para o equipamento SAT que irá completar, validar, assinar e transmitir o
+documento para a SEFAZ para autorização. Se o documento for autorizado ele será
+devolvido para o aplicativo comercial que irá emitir o extrato do CF-e para o
+consumidor.
+
+.. image:: _static/images/modelo-op-sat.png
+    :alt: Topologia básica do SAT-CF-e no estabelecimento comercial
+    :align: center
 
 Na maioria das vezes, a aplicação cliente acessa as funções da biblioteca SAT
 para transmitir à SEFAZ os dados de uma venda, o CF-e de venda, ou para cancelar
@@ -80,8 +92,9 @@ Conteúdo
 .. toctree::
    :maxdepth: 2
 
-.. todo::
-    Agregar o restante da documentação e escrever o que ainda não existe.
+   basico
+   entidades
+   funcoes
 
 
 Tabelas e Índices
@@ -123,10 +136,17 @@ Glossário
         eletrônico autorizado pela SEFAZ.
 
     Equipamento SAT
-        Definir este termo.
+        Hardware responsável por receber, validar, assinar e transmitir os
+        documentos XML que representam vendas ou cancelamentos. O equipamento
+        também é responsável pelo modelo de contingência de operação, quando não
+        é possível que seja estabelecida comunicação com a SEFAZ por qualquer
+        razão, entre outras funções importantes.
 
     ER SAT
-        Definir este termo.
+        Especificação de Requisitos do SAT. É o documento oficial, escrito e
+        mantido pela SEFAZ, que detalha a tecnologia SAT-CF-e do ponto de vista
+        dos fabricantes dos equipamentos SAT e das empresas de software que
+        desenvolvem os aplicativos comerciais. **Este documento não é a legislação.**
 
     AC-SAT
         Refere-se à **Autoridade Certificadora** que gerencia (emite e revoga)
@@ -158,3 +178,4 @@ Glossário
 .. _`Python`: https://www.python.org/
 .. _`SATCFe`: https://github.com/base4sistemas/satcfe
 .. _`SEFAZ/SP`: http://www.fazenda.sp.gov.br/
+.. _`Portaria CAT 147`: http://www.fazenda.sp.gov.br/sat/legislacao/vigentes.asp
