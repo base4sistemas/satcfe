@@ -97,6 +97,22 @@ Conteúdo
    funcoes
 
 
+.. _documentacao-da-api:
+
+Documentação da API
+===================
+
+.. toctree::
+   :maxdepth: 2
+
+   api/satcfe/base
+   api/satcfe/clientelocal
+   api/satcfe/clientesathub
+   api/satcfe/entidades
+   api/satcfe/excecoes
+   api/satcfe/rede
+
+
 Tabelas e Índices
 ==================
 
