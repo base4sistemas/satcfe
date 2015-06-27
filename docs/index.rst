@@ -5,6 +5,10 @@
 Projeto SATCFe
 ==============
 
+.. note::
+
+    Esta documentação é um trabalho em andamento.
+
 A Secretaria da Fazenda do Estado de São Paulo, `SEFAZ/SP`_ desenvolveu o
 projeto conhecido como **SAT-CF-e**, Sistema de Autorização e Transmissão de
 Cupons Fiscais eletrônicos, conforme descrito na `Portaria CAT 147`_ de 05
