@@ -159,8 +159,8 @@ ConsutarSAT
 -----------
 
 A função ``ConsultarSAT`` (ER item 6.1.5) é usada para testar a comunicação com
-o equipamento SAT. Se uso é simples e direto e se nenhuma exceção for lançada é
-seguro acessar os atributos da resposta conforme esperado.
+o equipamento SAT. Seu uso é simples e direto e, se nenhuma exceção for lançada,
+é seguro acessar os atributos da resposta conforme esperado.
 
 .. sourcecode:: python
 
