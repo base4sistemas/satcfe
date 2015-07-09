@@ -25,7 +25,7 @@ from satcomum.util import dados_qrcode
 from satcomum.util import forcar_unicode
 
 from ..excecoes import ExcecaoRespostaSAT
-from ..util import a2datetime
+from ..util import as_datetime
 from .padrao import RespostaSAT
 from .padrao import analisar_retorno
 
@@ -54,7 +54,7 @@ class RespostaTesteFimAFim(RespostaSAT):
                         ('cod', unicode),
                         ('mensagemSEFAZ', unicode),
                         ('arquivoCFeBase64', unicode),
-                        ('timeStamp', a2datetime),
+                        ('timeStamp', as_datetime),
                         ('numDocFiscal', int),
                         ('chaveConsulta', unicode),
                     ),

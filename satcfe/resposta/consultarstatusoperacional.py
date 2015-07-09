@@ -25,8 +25,8 @@ import tempfile
 from satcomum.util import forcar_unicode
 
 from ..excecoes import ExcecaoRespostaSAT
-from ..util import a2date
-from ..util import a2datetime
+from ..util import as_date
+from ..util import as_datetime
 from ..util import normalizar_ip
 from .padrao import RespostaSAT
 from .padrao import analisar_retorno
@@ -78,16 +78,16 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
                         ('NIVEL_BATERIA', unicode),
                         ('MT_TOTAL', unicode), # int ?
                         ('MT_USADA', unicode), # int ?
-                        ('DH_ATUAL', a2datetime),
+                        ('DH_ATUAL', as_datetime),
                         ('VER_SB', unicode),
                         ('VER_LAYOUT', unicode),
                         ('ULTIMO_CF_E_SAT', unicode),
                         ('LISTA_INICIAL', unicode),
                         ('LISTA_FINAL', unicode),
-                        ('DH_CFE', a2datetime),
-                        ('DH_ULTIMA', a2datetime),
-                        ('CERT_EMISSAO', a2date),
-                        ('CERT_VENCIMENTO', a2date),
+                        ('DH_CFE', as_datetime),
+                        ('DH_ULTIMA', as_datetime),
+                        ('CERT_EMISSAO', as_date),
+                        ('CERT_VENCIMENTO', as_date),
                         ('ESTADO_OPERACAO', int),
                     )
             )

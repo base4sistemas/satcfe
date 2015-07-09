@@ -21,10 +21,67 @@ from datetime import datetime
 from unidecode import unidecode
 
 
-as_ascii = lambda p: unidecode(p) if isinstance(p, unicode) else p
+def as_ascii(value):
+    """Converte a sequência unicode para ``str`` ou apenas retorna o argumento.
 
-a2date = lambda p: datetime.strptime(p, '%Y%m%d').date()
+    .. sourcecode:: python
 
-a2datetime = lambda p: datetime.strptime(p, '%Y%m%d%H%M%S')
+        >>> type(as_ascii('testando'))
+        <type 'str'>
+        >>> type(as_ascii(u'bênção'))
+        <type 'str'>
+        >>> as_ascii(u'b\u00EAn\u00E7\u00E3o')
+        'bencao'
 
-normalizar_ip = lambda p: '.'.join([str(int(i, 10)) for i in p.split('.')])
+    """
+    if isinstance(value, unicode):
+        return unidecode(value)
+    return value
+
+
+def as_date(value):
+    """Converte uma sequência string para um objeto :class:`datetime.date`.
+
+    .. sourcecode:: python
+
+        >>> import datetime
+        >>> as_date('20150709')
+        datetime.date(2015, 7, 9)
+
+    """
+    return datetime.strptime(value, '%Y%m%d').date()
+
+
+def as_datetime(value):
+    """Converte uma sequência string para um objeto :class:`datetime.datetime`.
+
+    .. sourcecode:: python
+
+        >>> import datetime
+        >>> as_datetime('20150709143944')
+        datetime.datetime(2015, 7, 9, 14, 39, 44)
+
+    """
+    return datetime.strptime(value, '%Y%m%d%H%M%S')
+
+
+def normalizar_ip(ip):
+    """Normaliza uma sequência string que contenha um endereço IP.
+
+    Normalmente os equipamentos SAT, seguindo a ER SAT, resultam endereços IP
+    com um aspecto similar a ``010.000.000.001``, visualmente desagradável e
+    difícil de ler. Esta função normaliza o endereço acima como ``10.0.0.1``.
+
+    .. sourcecode:: python
+
+        >>> normalizar_ip('010.000.000.001')
+        '10.0.0.1'
+        >>> normalizar_ip('10.0.0.1')
+        '10.0.0.1'
+        >>> normalizar_ip('')
+        Traceback (most recent call last):
+         ...
+        ValueError: invalid literal for int() with base 10: ''
+
+    """
+    return '.'.join([str(int(n, 10)) for n in ip.split('.')])
