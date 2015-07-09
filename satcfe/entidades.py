@@ -590,7 +590,7 @@ class Detalhamento(Entidade):
 
     Note que o atributo XML ``nItem`` (``H02``) não é determinado aqui, mas
     atribuído automaticamente, conforme a sua posição na lista de
-    :attr:`~CFeVenda.detalhamentos.
+    :attr:`~CFeVenda.detalhamentos`.
 
     .. sourcecode:: python
 

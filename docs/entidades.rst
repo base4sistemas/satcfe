@@ -98,6 +98,8 @@ Para obter o fragmento XML de uma entidade, faça:
     '<entrega><xLgr>Rua Armando Gulim</xLgr><nro>65</nro><xBairro>Parque Gloria III</xBairro><xMun>Catanduva</xMun><UF>SP</UF></entrega>'
 
 
+.. _entidades-criando-um-cfe-de-venda:
+
 Criando um CF-e de Venda
 ------------------------
 
@@ -110,6 +112,7 @@ equipamento SAT e seus dados.
 .. sourcecode:: python
 
     from satcomum import constantes
+    from satcfe.entidades import Emitente
     from satcfe.entidades import Destinatario
     from satcfe.entidades import LocalEntrega
     from satcfe.entidades import Detalhamento
@@ -123,7 +126,10 @@ equipamento SAT e seus dados.
     cfe = CFeVenda(
             CNPJ='08427847000169',
             signAC=constantes.ASSINATURA_AC_TESTE,
-            numeroCaixa=1,
+            numeroCaixa=2,
+            emitente=Emitente(
+                    CNPJ='61099008000141',
+                    IE='111111111111'),
             destinatario=Destinatario(
                     CPF='11122233396',
                     xNome=u'João de Teste'),
@@ -156,15 +162,16 @@ equipamento SAT e seus dados.
 
 O XML produzido por este código é um documento CF-e ainda incompleto, que deverá
 ser enviado ao equipamento SAT pra que seja completado, assinado e transmitido
-para a SEFAZ. Você poderá vê-lo em (INCLUIR REF AQUI).
+para a SEFAZ. Você poderá ver um exemplo do documento XML gerado por esse
+código em :ref:`exemplos-xml-do-cfe-de-venda`.
 
-Para submeter o documento ao equipamento SAT:
+Para submeter o documento ao equipamento SAT, faça:
 
 .. sourcecode:: python
 
     resposta = cliente.enviar_dados_venda(cfe)
 
-A resposta...
+A resposta será uma instância de :class:`~satcfe.resposta.enviardadosvenda.RespostaEnviarDadosVenda`
 
 
 Criando um CF-e de Cancelamento

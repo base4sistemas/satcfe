@@ -67,6 +67,8 @@ DesbloquearSAT
 .. todo: Escrever este tópico
 
 
+.. _funcao-enviardadosvenda:
+
 EnviarDadosVenda
 ----------------
 
@@ -78,6 +80,8 @@ ExtrairLogs
 
 .. todo: Escrever este tópico
 
+
+.. _funcao-testefimafim:
 
 TesteFimAFim
 ------------

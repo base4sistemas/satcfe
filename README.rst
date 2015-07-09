@@ -1,6 +1,6 @@
 
-Projeto SAT-CF-e
-================
+Projeto SATCFe
+==============
 
 .. image:: https://img.shields.io/badge/status-planning-red.svg
     :target: https://pypi.python.org/pypi/satcfe/
@@ -18,6 +18,11 @@ Projeto SAT-CF-e
     :target: https://pypi.python.org/pypi/satcfe/
     :alt: Latest version
 
+.. image:: https://img.shields.io/badge/docs-latest-green.svg
+    :target: http://satcfe.readthedocs.org/
+    :alt: Latest Documentation
+
+
 -------
 
     This project is about `SAT-CF-e`_ which is a system for autorization and
@@ -29,9 +34,23 @@ Projeto SAT-CF-e
     Refer to the `oficial web site <http://www.fazenda.sp.gov.br/sat/>`_ for
     more information (in brazilian portuguese only).
 
+Este projeto refere-se à tecnologia `SAT-CF-e`_ desenvolvida pela Secretaria da
+Fazenda do Estado de São Paulo e faz parte de um grupo de cinco projetos que
+resolvem problemas específicos, mas relacionados.
 
-Este projeto implementa uma abstração para acesso às funções da DLL do
-`SAT-CF-e`_ para acesso ao equipamento SAT. Por exemplo:
+Especificamente, este projeto é uma abstração que fornece acesso às funções da
+biblioteca SAT, que é fornecida pelos fabricantes de equipamentos SAT. Para
+maiores informações, consulte a `documentação do projeto
+<http://satcfe.readthedocs.org/>`_.
+
+Se estiver procurando meios para emitir um extrato do CF-e-SAT, consulte o
+projeto `satextrato`_.
+
+
+Utilização
+----------
+
+Este é um exemplo básico de uso, para consultar o equipamento SAT:
 
 .. sourcecode:: Python
 
@@ -51,15 +70,8 @@ Este projeto implementa uma abstração para acesso às funções da DLL do
     u'SAT em Opera\xe7\xe3o'
 
 
-Extratos do CF-e-SAT
-====================
-
-Para gerar os extratos do CF-e de venda e/ou cancelamento, consulte o
-projeto `satextrato`_.
-
-
 Executando os Testes
-====================
+--------------------
 
 Para executar os testes faça:
 
@@ -76,39 +88,6 @@ executar contra quaisquer outros equipamentos SAT disponíveis.
 .. sourcecode:: shell
 
     > python setup.py test -a "--cnpj-ac=01234567000199 --codigo-ativacao=123"
-
-
-Possíveis Questões
-==================
-
-Talvez você esteja se perguntando:
-
-**Nas entidades, por que vocês não usaram o schema XSD?**
-    O governo de São Paulo não disponibilizou os *schemas XSD* para o documento
-    CF-e que é gerado pela AC. Existem *schemas XSD* apenas para serem usados
-    pelo software do equipamento SAT, que completa o CF-e gerado pela e o envia
-    para autorização pela SEFAZ.
-
-    Tenho visto algumas pessoas muito bem intencionadas pela internet editando
-    os *schemas XSD* à mão, mas isso não é prático porque, primeiro os schemas
-    XSD normalmente são gerados automaticamente por softwares como Apache AXIS
-    ou seja lá qual ferramenta estejam usando para manter as regras de negócio e
-    os *web-services*; segundo porque editar um arquivo desses à mão é
-    totalmente suscetível à erros e, afinal, quem vai testar o XSD que irá
-    validar o seu XML?
-
-    A escolha de implementar as entidades usando `Cerberus`_ permite uma
-    abordagem simples e leve, fácil de manter e de testar e, no futuro, caso o
-    governo resolva publicar *schemas XSD* para a AC usar, então modificaremos a
-    abordagem **mantendo os nomes dos atributos atuais**, tornando (espero) a
-    modificação o mais simples possível para a aplicação cliente.
-
-    Além disso, a especificação do XML do CF-e é simples e bem documentada.
-    Veja na Especificação de Requisitos do SAT-CF-e os itens 4.2.2 e 4.2.3, nas
-    tabelas de atributos, onde a primeira coluna "Origem" indica "SAT" ou "AC".
-    Os elementos e atributos com origem na "AC" são aqueles em que a Automação
-    Comercial (o aplicativo cliente) deverá incluir no XML de venda ou de
-    cancelamento que será enviado ao equipamento SAT.
 
 
 ..
@@ -128,6 +107,5 @@ Talvez você esteja se perguntando:
 
 
 .. _`SAT-CF-e`: http://www.fazenda.sp.gov.br/sat/
-.. _`Cerberus`: https://cerberus.readthedocs.org/
 .. _`satextrato`: https://github.com/base4sistemas/satextrato
 .. _`Dimep`: http://www.dimep.com.br/

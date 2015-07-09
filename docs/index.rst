@@ -5,9 +5,25 @@
 Projeto SATCFe
 ==============
 
+    This project is about **SAT-CF-e** which is a system for autorization and
+    transmission of fiscal documents, developed by Finance Secretary of
+    state of São Paulo, Brazil. This entire project, variables, methods and
+    class names, as well as documentation, are written in brazilian
+    portuguese.
+
+    Refer to the `oficial web site <http://www.fazenda.sp.gov.br/sat/>`_ for
+    more information (in brazilian portuguese only).
+
+
 .. note::
 
-    Esta documentação é um trabalho em andamento.
+    **This is a work in progress**
+
+
+.. note::
+
+    **Esta documentação é um trabalho em andamento**
+
 
 A Secretaria da Fazenda do Estado de São Paulo, `SEFAZ/SP`_ desenvolveu o
 projeto conhecido como **SAT-CF-e**, Sistema de Autorização e Transmissão de
@@ -99,6 +115,7 @@ Conteúdo
    basico
    entidades
    funcoes
+   exemplos
 
 
 .. _documentacao-da-api:
@@ -115,6 +132,7 @@ Documentação da API
    api/satcfe/entidades
    api/satcfe/excecoes
    api/satcfe/rede
+   api/satcfe/respostas
 
 
 Tabelas e Índices
@@ -166,7 +184,10 @@ Glossário
         Especificação de Requisitos do SAT. É o documento oficial, escrito e
         mantido pela SEFAZ, que detalha a tecnologia SAT-CF-e do ponto de vista
         dos fabricantes dos equipamentos SAT e das empresas de software que
-        desenvolvem os aplicativos comerciais. **Este documento não é a legislação.**
+        desenvolvem os aplicativos comerciais. Note que a ER SAT **não é a
+        legislação** que introduz o SAT-CF-e. A legislação é a `CAT 147
+        <http://www.fazenda.sp.gov.br/sat/legislacao/vigentes.asp>`_ de 05 de
+        novembro de 2012.
 
     AC-SAT
         Refere-se à **Autoridade Certificadora** que gerencia (emite e revoga)

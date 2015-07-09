@@ -136,6 +136,8 @@ As palavras são separadas por um caracter de sublinha e o nome é todo converti
 para letras minúsculas.
 
 
+.. _basico-funcoes-basicas:
+
 Funções Básicas
 ===============
 
@@ -155,8 +157,8 @@ Portanto, os atributos ``numeroSessao``, ``EEEEE``, ``mensagem``, ``cod`` e
 em :ref:`lidando-com-as-respostas`:
 
 
-ConsutarSAT
------------
+ConsultarSAT
+------------
 
 A função ``ConsultarSAT`` (ER item 6.1.5) é usada para testar a comunicação com
 o equipamento SAT. Seu uso é simples e direto e, se nenhuma exceção for lançada,
@@ -267,7 +269,7 @@ sessão que é encontrada na classe :class:`satcfe.base.NumeroSessaoMemoria`, qu
 implementação básica não é capaz (ainda) de persistir os números gerados.
 
 Se for necessário utilizar um esquema de numeração de sessão diferente, basta
-escrever um e passar como argumento durante a criação do cliente local. Um
+escrever um e passá-lo como argumento durante a criação do cliente local. Um
 numerador de sessão é apenas um *callable* que, quando invocado, resulta no
 próximo número de sessão a ser usado em uma função SAT. Por exemplo:
 
@@ -287,3 +289,98 @@ que as requisições tem origem em caixas (pontos-de-venda) diferentes, o
 requisito é resolvido de maneira a evitar colisões de numeração ou repetição de
 numeração mesmo atendendo requisições concorrentes. Consulte a documentação do
 `projeto SATHub <https://github.com/base4sistemas/sathub>`_ para os detalhes.
+
+
+.. _basico-lidando-com-excecoes:
+
+Lidando com Exceções
+====================
+
+Quando uma função é invocada, seja através de um
+:class:`~satcfe.clientelocal.ClienteSATLocal` ou
+:class:`~satcfe.clientesathub.ClienteSATHub`, existem duas exceções principais
+que podem ocorrer: :exc:`~satcfe.excecoes.ErroRespostaSATInvalida` ou
+:exc:`~satcfe.excecoes.ExcecaoRespostaSAT`.
+
+Quando a exceção ``ErroRespostaSATInvalida`` é levantada, significa que a
+resposta retornada pelo equipamento SAT não está em conformidade com a ER SAT,
+geralmente por que a biblioteca resultou em uma sequência que não possui os
+elementos que deveriam estar presentes, seja uma resposta de sucesso na execução
+da função ou não.
+
+Por outro lado será comum lidar com ``ExcecaoRespostaSAT``. Esta exceção indica
+que a comunicação entre a AC e o equipamento correu bem mas execução da função
+não obteve êxito. É o caso quando invocar a função ``ConsultarSAT`` e o
+equipamento estiver ocupado processando uma outra coisa; a exceção poderá
+indicar o erro, já que ela contém uma resposta:
+
+.. sourcecode:: python
+
+    >>> # suponha que o equipamento SAT está ocupado
+    >>> import sys
+    >>> resposta = cliente.consultar_sat()
+    Traceback (most recent call last):
+     ...
+    ExcecaoRespostaSAT: ConsultarSAT, numeroSessao=567192, EEEEE='08098', mensagem="SAT em processamento. Tente novamente.", cod="", mensagemSEFAZ=""
+
+    >>> resposta = sys.last_value
+    >>> resposta.mensagem
+    'SAT em processamento. Tente novamente.'
+
+    >>> resposta.EEEEE
+    '08098'
+
+    >>> resposta.numeroSessao
+    567192
+
+O truque acima foi obter o objeto da exceção levantada de ``sys.last_value``,
+que é similar ao que deveria fazer no bloco de tratamento da exceção
+``ExcecaoRespostaSAT``, por exemplo:
+
+.. sourcecode:: python
+
+    try:
+        resposta = cliente.consultar_sat()
+        # faz algo com a resposta...
+
+    except ErroRespostaSATInvalida as ex_resp_invalida:
+        # exibe o erro para o operador...
+        break
+
+    except ExcecaoRespostaSAT as ex_resposta:
+        resposta = ex_resposta.resposta
+        if resposta.EEEEE == '08098':
+            # o equipamento SAT está ocupado
+            # pergunta ao operador de caixa se quer tentar novamente...
+            pass
+
+Obviamente, muita coisa pode dar errado entre o aplicativo comercial e a SEFAZ,
+então utilize a regra básica de tratamento de exceções recomendada, mantendo uma
+cláusula ``except`` de *fallback*, por exemplo:
+
+.. sourcecode:: python
+
+    try:
+        resposta = cliente.enviar_dados_venda(cfe)
+        # faz algo com a resposta aqui
+
+    except ErroRespostaSATInvalida as ex_sat_invalida:
+        # o equipamento retornou uma resposta que não faz sentido
+        # loga, e lança novamente ou outro tratamento
+        pass
+
+    except ExcecaoRespostaSAT as ex_resposta:
+        # o equipamento retornou mas a função não foi bem sucedida
+        # analise 'EEEEE' para decidir o que pode ser feito
+        pass
+
+    except Exception as ex:
+        # uma outra coisa aconteceu
+        pass
+
+
+.. warning::
+
+    Evite ``pass`` em tratamentos de exceções. Se não sabe o porque, veja
+    `Tratando Exceções <https://docs.python.org/2.7/tutorial/errors.html#handling-exceptions>`_
+    no tutorial de Python.
