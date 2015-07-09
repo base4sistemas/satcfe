@@ -33,16 +33,12 @@ from .padrao import analisar_retorno
 class RespostaTesteFimAFim(RespostaSAT):
 
     def xml(self):
-        """
-        Retorna o XML do CF-e-SAT decodificado.
-        """
-        return base64.b64decode(self.resposta.arquivoCFeBase64)
+        """Retorna o XML do CF-e-SAT decodificado."""
+        return base64.b64decode(self.arquivoCFeBase64)
 
 
     def qrcode(self):
-        """
-        Resulta nos dados que compõem o QRCode.
-        """
+        """Resulta nos dados que compõem o QRCode."""
         return dados_qrcode(self.xml())
 
 

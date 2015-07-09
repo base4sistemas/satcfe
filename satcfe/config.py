@@ -20,50 +20,39 @@
 
 class ConfiguracoesSATHub(object):
 
-    host = '10.0.0.117'
-    """
-    Nome ou endereço IP do host para o SATHub.
-    """
+    def __init__(self):
+        self.host = '10.0.0.117'
+        """Nome ou endereço IP do host para o SATHub."""
 
-    port = 5000
-    """
-    Número da porta em que o serviço HTTP responde.
-    """
+        self.port = 5000
+        """Número da porta em que o serviço HTTP responde."""
 
-    baseurl = '/hub/v1/'
-    """
-    Prefixo base da URL para os serviços da API.
-    """
+        self.baseurl = '/hub/v1/'
+        """Prefixo base da URL para os serviços da API."""
 
-    username = 'ninguem'
-    """
-    Nome de usuário para autenticação na API do serviço RESTful.
-    """
+        self.username = 'ninguem'
+        """Nome de usuário para autenticação na API do serviço RESTful."""
 
-    password = ''
-    """
-    Senha do usuário para autenticação na API do serviço RESTful.
-    """
+        self.password = ''
+        """Senha do usuário para autenticação na API do serviço RESTful."""
 
 
 class Configuracoes(object):
 
-    codigo_ativacao = '123456789'
-    """
-    Código de ativação. Senha definida pelo contribuinte no software de
-    ativação, conforme item 2.1.1 da ER SAT.
-    """
+    def __init__(self):
 
-    numero_caixa = 1
-    """
-    Número do caixa, conforme atributo B14 do item 4.2.2 da ER SAT.
-    Deve ser um número inteiro entre 0 e 999.
-    """
+        self.codigo_ativacao = '123456789'
+        """Código de ativação. Senha definida pelo contribuinte no software de
+        ativação, conforme item 2.1.1 da ER SAT.
+        """
 
-    sathub = ConfiguracoesSATHub()
-    """
-    Configurações para acesso à API RESTful SATHub.
-    """
+        self.numero_caixa = 1
+        """Número do caixa, conforme atributo ``B14`` do item 4.2.2 da ER SAT.
+        Deve ser um número inteiro entre 0 e 999.
+        """
+
+        self.sathub = ConfiguracoesSATHub()
+        """Configurações para acesso à API RESTful SATHub."""
 
 
 conf = Configuracoes()

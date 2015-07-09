@@ -32,17 +32,14 @@ from .padrao import analisar_retorno
 class RespostaExtrairLogs(RespostaSAT):
 
     def conteudo(self):
-        """
-        Retorna o conteúdo do log decodificado.
-        """
+        """Retorna o conteúdo do log decodificado."""
         return base64.b64decode(self.arquivoLog)
 
 
     def salvar(self, destino=None, prefix='tmp', suffix='-sat.log'):
-        """
-        Salva o arquivo de log decodificado e retorna o caminho absoluto do
+        """Salva o arquivo de log decodificado e retorna o caminho absoluto do
         arquivo. Se o destino não for informado, então será criado um arquivo
-        temporário.
+        temporário via :func:`tempfile.mkstemp`.
         """
         if destino:
             if os.path.exists(destino):

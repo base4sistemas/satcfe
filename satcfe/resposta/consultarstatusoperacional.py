@@ -48,12 +48,12 @@ ESTADOS_OPERACAO = (
 
 
 class RespostaConsultarStatusOperacional(RespostaSAT):
-    """
-    ER SAT, item 6.1.7. Consulta do status operacional do equipamento SAT.
-    """
 
     @property
     def status(self):
+        """Nome amigável do campo ``ESTADO_OPERACAO``, conforme a "Tabela de
+        Informações do Status do SAT".
+        """
         for valor, rotulo in ESTADOS_OPERACAO:
             if self.ESTADO_OPERACAO == valor:
                 return rotulo

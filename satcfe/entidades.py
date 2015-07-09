@@ -17,84 +17,82 @@
 # limitations under the License.
 #
 
-"""
-    A documentação oficial para os atributos que as classes de entidades
-    referenciam, estão na Especificação Técnica de Requisitos (ER) do SAT,
-    Item 4.2.2, Layout do Arquivo de Venda (CF-e-SAT) que pode ser obtido
-    no `site oficial <http://www.fazenda.sp.gov.br/sat/>`_.
+"""Representação das entidades que compõem o layout do CF-e.
 
-    Nem todas as classes que representam os grupos de informações do CF-e
-    possuem o mesmo nome usado no item 4.2.2 do layout do arquivo de venda ou
-    no item 4.2.3 do layout do arquivo de cancelamento. **Entretanto, todos os
-    elementos e atributos, possuem exatamente o mesmo nome usado na ER SAT**.
+A documentação oficial para os atributos que as classes de entidades
+referenciam, estão na Especificação Técnica de Requisitos (ER) do SAT, item
+4.2.2, Layout do Arquivo de Venda (CF-e-SAT) que pode ser obtido no `site
+oficial <http://www.fazenda.sp.gov.br/sat/>`_.
 
-    A tabela abaixo, relaciona as classes de entidades com os grupos que elas
-    representam:
+Nem todas as classes que representam os grupos de informações do CF-e possuem o
+mesmo nome usado no item 4.2.2 do layout do arquivo de venda ou no item 4.2.3 do
+layout do arquivo de cancelamento. **Entretanto, todos os elementos e atributos,
+possuem exatamente o mesmo nome usado na ER SAT**.
 
-    +--------------------------------+------------------+------+
-    | Classe de Entidade             | Grupo            | ID   |
-    +================================+==================+======+
-    | :class:`CFeVenda`              | ``infCFe``       | A01  |
-    +--------------------------------+------------------+------+
-    | :class:`Emitente`              | ``emit``         | C01  |
-    +--------------------------------+------------------+------+
-    | :class:`Destinatario`          | ``dest``         | E01  |
-    +--------------------------------+------------------+------+
-    | :class:`LocalEntrega`          | ``entrega``      | G01  |
-    +--------------------------------+------------------+------+
-    | :class:`Detalhamento`          | ``det``          | H01  |
-    +--------------------------------+------------------+------+
-    | :class:`ProdutoServico`        | ``prod``         | I01  |
-    +--------------------------------+------------------+------+
-    | :class:`ObsFiscoDet`           | ``obsFiscoDet``  | I17  |
-    +--------------------------------+------------------+------+
-    | :class:`ICMS00`                | ``ICMS00``       | N02  |
-    +--------------------------------+------------------+------+
-    | :class:`ICMS40`                | ``ICMS40``       | N03  |
-    +--------------------------------+------------------+------+
-    | :class:`ICMSSN102`             | ``ICMSSN102``    | N04  |
-    +--------------------------------+------------------+------+
-    | :class:`ICMSSN900`             | ``ICMSSN900``    | N05  |
-    +--------------------------------+------------------+------+
-    | :class:`PISAliq`               | ``PISAliq``      | Q02  |
-    +--------------------------------+------------------+------+
-    | :class:`PISQtde`               | ``PISQtde``      | Q03  |
-    +--------------------------------+------------------+------+
-    | :class:`PISNT`                 | ``PISNT``        | Q04  |
-    +--------------------------------+------------------+------+
-    | :class:`PISSN`                 | ``PISSN``        | Q05  |
-    +--------------------------------+------------------+------+
-    | :class:`PISOutr`               | ``PISOutr``      | Q06  |
-    +--------------------------------+------------------+------+
-    | :class:`PISST`                 | ``PISST``        | R01  |
-    +--------------------------------+------------------+------+
-    | :class:`COFINSAliq`            | ``COFINSAliq``   | S02  |
-    +--------------------------------+------------------+------+
-    | :class:`COFINSQtde`            | ``COFINSQtde``   | S03  |
-    +--------------------------------+------------------+------+
-    | :class:`COFINSNT`              | ``COFINSNT``     | S04  |
-    +--------------------------------+------------------+------+
-    | :class:`COFINSSN`              | ``COFINSSN``     | S05  |
-    +--------------------------------+------------------+------+
-    | :class:`COFINSOutr`            | ``COFINSOutr``   | S06  |
-    +--------------------------------+------------------+------+
-    | :class:`COFINSST`              | ``COFINSST``     | T01  |
-    +--------------------------------+------------------+------+
-    | :class:`ISSQN`                 | ``ISSQN``        | U01  |
-    +--------------------------------+------------------+------+
-    | :class:`Imposto`               | ``imposto``      | M01  |
-    +--------------------------------+------------------+------+
-    | :class:`DescAcrEntr`           | ``DescAcrEntr``  | W19  |
-    +--------------------------------+------------------+------+
-    | :class:`MeioPagamento`         | ``MP``           | WA02 |
-    +--------------------------------+------------------+------+
-    | :class:`InformacoesAdicionais` | ``infAdic``      | Z01  |
-    +--------------------------------+------------------+------+
+A tabela abaixo, relaciona as classes de entidades com os grupos que elas
+representam:
 
-    Hierarquia dos elementos XML do layout do CF-e, Item 4.2.2 da ER.
++------------------+------+--------------------------------+
+| Grupo            | ID   | Classe de Entidade             |
++==================+======+================================+
+| ``emit``         | C01  | :class:`Emitente`              |
++------------------+------+--------------------------------+
+| ``dest``         | E01  | :class:`Destinatario`          |
++------------------+------+--------------------------------+
+| ``entrega``      | G01  | :class:`LocalEntrega`          |
++------------------+------+--------------------------------+
+| ``det``          | H01  | :class:`Detalhamento`          |
++------------------+------+--------------------------------+
+| ``prod``         | I01  | :class:`ProdutoServico`        |
++------------------+------+--------------------------------+
+| ``obsFiscoDet``  | I17  | :class:`ObsFiscoDet`           |
++------------------+------+--------------------------------+
+| ``ICMS00``       | N02  | :class:`ICMS00`                |
++------------------+------+--------------------------------+
+| ``ICMS40``       | N03  | :class:`ICMS40`                |
++------------------+------+--------------------------------+
+| ``ICMSSN102``    | N04  | :class:`ICMSSN102`             |
++------------------+------+--------------------------------+
+| ``ICMSSN900``    | N05  | :class:`ICMSSN900`             |
++------------------+------+--------------------------------+
+| ``PISAliq``      | Q02  | :class:`PISAliq`               |
++------------------+------+--------------------------------+
+| ``PISQtde``      | Q03  | :class:`PISQtde`               |
++------------------+------+--------------------------------+
+| ``PISNT``        | Q04  | :class:`PISNT`                 |
++------------------+------+--------------------------------+
+| ``PISSN``        | Q05  | :class:`PISSN`                 |
++------------------+------+--------------------------------+
+| ``PISOutr``      | Q06  | :class:`PISOutr`               |
++------------------+------+--------------------------------+
+| ``PISST``        | R01  | :class:`PISST`                 |
++------------------+------+--------------------------------+
+| ``COFINSAliq``   | S02  | :class:`COFINSAliq`            |
++------------------+------+--------------------------------+
+| ``COFINSQtde``   | S03  | :class:`COFINSQtde`            |
++------------------+------+--------------------------------+
+| ``COFINSNT``     | S04  | :class:`COFINSNT`              |
++------------------+------+--------------------------------+
+| ``COFINSSN``     | S05  | :class:`COFINSSN`              |
++------------------+------+--------------------------------+
+| ``COFINSOutr``   | S06  | :class:`COFINSOutr`            |
++------------------+------+--------------------------------+
+| ``COFINSST``     | T01  | :class:`COFINSST`              |
++------------------+------+--------------------------------+
+| ``ISSQN``        | U01  | :class:`ISSQN`                 |
++------------------+------+--------------------------------+
+| ``imposto``      | M01  | :class:`Imposto`               |
++------------------+------+--------------------------------+
+| ``DescAcrEntr``  | W19  | :class:`DescAcrEntr`           |
++------------------+------+--------------------------------+
+| ``MP``           | WA02 | :class:`MeioPagamento`         |
++------------------+------+--------------------------------+
+| ``infAdic``      | Z01  | :class:`InformacoesAdicionais` |
++------------------+------+--------------------------------+
 
+Hierarquia dos elementos XML do layout do CF-e, ER SAT, item 4.2.2.
 
-    Destinatário e Local de entrega:
+Destinatário e Local de entrega:
 
     .. sourcecode:: text
 
@@ -106,7 +104,7 @@
         :
 
 
-    Detalhamento dos produtos/serviços e impostos:
+Detalhamento dos produtos/serviços e impostos:
 
     .. sourcecode:: text
 
@@ -184,7 +182,7 @@
                   +--- ISSQN (U01, 0..1)
 
 
-    Totais:
+Totais:
 
     .. sourcecode:: text
 
@@ -203,14 +201,14 @@
              +--- DescAcrEntr (W19, 0..1)
 
 
-    Pagamento:
+Pagamento:
 
     .. sourcecode:: text
 
         infCFe (A01, 1)
         |
         +--- pgto (WA01, 1)
-             |
+        :    |
              +--- MP (WA02, 1..10)
 
 """
@@ -262,45 +260,53 @@ class ExtendedValidator(cerberus.Validator):
 
 
 class Entidade(object):
-    """
-    Classe base para todas as classes que representem as entidades da
+    """Classe base para todas as classes que representem as entidades da
     implementação do SAT-CF-e. Aqui, chamaremos de "entidade" as classes que
-    representem os grupos de dados que são usados para formar o XML da venda
-    e/ou do cancelamento.
+    representem os grupos de dados que são usados para formar o XML do CF-e de
+    venda ou de cancelamento.
 
     Basicamente, as subclasses precisam sobre-escrever a implementação do
     método ``_construir_elemento_xml``, definir o atributo ``_schema`` e,
-    quando necessário, implementar uma especialização do validador *Cerberus*
+    quando necessário, implementar uma especialização do validador `Cerberus`_
     no atributo ``_validator_class``.
+
+    .. _`Cerberus`: http://docs.python-cerberus.org/
+
     """
 
-    _schema = {}
-
-    _validator_class = ExtendedValidator
+    _erros = {}
 
 
-    def __init__(self, **kwargs):
+    def __init__(self, schema={}, validator_class=None, **kwargs):
         super(Entidade, self).__init__()
+        self._schema = schema
+        self._validator_class = validator_class or ExtendedValidator
         self._validator = self._validator_class(self._schema)
-        self._validator.allow_unknown = True
+
+        # define como atributos e valores desta instância os argumentos
+        # nomeados, desde que coincidam com as chaves no schema
         for key, value in kwargs.items():
+            if key not in self._schema.keys():
+                raise AttributeError('{!r} object has no attribute {!r}'.format(
+                        self.__class__.__name__, key))
             setattr(self, key, value)
 
 
     @property
     def erros(self):
-        return self._validator.errors
+        return dict(Entidade._erros)
 
 
     def validar(self):
-        if not self._validator.validate(self.__dict__):
+        if not self._validator.validate(self._schema_fields()):
+            nome_entidade = self.__class__.__name__
+            Entidade._erros[nome_entidade] = self._validator.errors
             raise cerberus.ValidationError('Entidade "{}" possui '
-                    'atributos invalidos.'.format(self.__class__.__name__))
+                    'atributos invalidos.'.format(nome_entidade))
 
 
     def documento(self, *args, **kwargs):
-        """
-        Resulta no documento XML como string, que pode ou não incluir a
+        """Resulta no documento XML como string, que pode ou não incluir a
         declaração XML no início do documento.
         """
         forcar_unicode = kwargs.pop('forcar_unicode', False)
@@ -327,11 +333,31 @@ class Entidade(object):
         raise NotImplementedError()
 
 
+    def _schema_fields(self):
+        return {k: v for k, v in self.__dict__.items() if k in self._schema}
+
+
 
 class Emitente(Entidade):
-    """
-    Grupo de identificação do emitente do CF-e.
-    Representa o grupo C01 ``emit``.
+    """Identificação do emitente do CF-e (``emit``, grupo ``C01``).
+
+    :param str CNPJ: Número do CNPJ do emitente do CF-e, contendo apenas os
+        digitos e incluindo os zeros não significativos.
+
+    :param str IE: Número de Inscrição Estadual do emitente do CF-e, contendo
+        apenas digitos.
+
+    :param str IM: *Opcional*. Deve ser informado o número da Inscrição
+        Municipal quando o CF-e possuir itens com prestação de serviços
+        sujeitos ao ISSQN, por exemplo.
+
+    :param str cRegTribISSQN: *Opcional*. Indica o regime especial de tributação
+        do ISSQN. Veja as constantes em
+        :attr:`~satcomum.constantes.C15_CREGTRIBISSQN_EMIT`.
+
+    :param str indRatISSQN: *Opcional*. Indicador de rateio do desconto sobre o
+        subtotal entre itens sujeitos à tributação pelo ISSQN. Veja as
+        constantes em :attr:`~satcomum.constantes.C16_INDRATISSQN_EMIT`.
 
     .. sourcecode:: python
 
@@ -350,28 +376,29 @@ class Emitente(Entidade):
 
     """
 
-    _schema = {
-            'CNPJ': {
-                    'type': 'cnpj',
-                    'required': True},
-            'IE': {
-                    'type': 'string',
-                    'required': True,
-                    'regex': r'^\d{2,12}$'},
-            'IM': {
-                    'type': 'string',
-                    'required': False,
-                    'regex': r'^\d{1,15}$'},
-            'cRegTribISSQN': {
-                    'type': 'string',
-                    'required': False,
-                    'allowed':
-                            [v for v,s in constantes.C15_CREGTRIBISSQN_EMIT]},
-            'indRatISSQN': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.C16_INDRATISSQN_EMIT]},
-        }
+    def __init__(self, **kwargs):
+        super(Emitente, self).__init__(schema={
+                'CNPJ': {
+                        'type': 'cnpj',
+                        'required': True},
+                'IE': {
+                        'type': 'string',
+                        'required': True,
+                        'regex': r'^\d{2,12}$'},
+                'IM': {
+                        'type': 'string',
+                        'required': False,
+                        'regex': r'^\d{1,15}$'},
+                'cRegTribISSQN': {
+                        'type': 'string',
+                        'required': False,
+                        'allowed':
+                                [v for v,s in constantes.C15_CREGTRIBISSQN_EMIT]},
+                'indRatISSQN': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.C16_INDRATISSQN_EMIT]},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -392,9 +419,19 @@ class Emitente(Entidade):
 
 
 class Destinatario(Entidade):
-    """
-    Identificação do Destinatário do CF-e, item "E" da ER, grupo ``E01``,
-    ``dest``.
+    """Identificação do destinatário do CF-e (``dest``, grupo ``E01``).
+
+    :param str CNPJ: Número do CNPJ do destinatário, contendo apenas os
+        digitos e incluindo os zeros não significativos. **Não deve ser
+        informado se o ``CPF`` for informado.**
+
+    :param str CPF: Número do CPF do destinatário, contendo apenas os digitos e
+        incluindo os zeros não significativos. **Não deve ser informado se o
+        ``CNPJ`` for informado.**
+
+    :param str xNome: *Opcional*. Nome ou razão social do destinatário.
+
+    Note que os parâmetros ``CNPJ`` e ``CPF`` são mutuamente exclusivos.
 
     .. sourcecode:: python
 
@@ -436,16 +473,16 @@ class Destinatario(Entidade):
             elif not br.is_cpf(value):
                 self._error(field, u'CPF (E03) não é válido: "%s"' % value)
 
-    _schema = {
-            'CNPJ': {'type': 'CNPJ_E02'}, # E02
-            'CPF': {'type': 'CPF_E03'}, # E03
-            'xNome': { # E04
-                    'type': 'string',
-                    'required': False,
-                    'minlength': 2, 'maxlength': 60}
-        }
 
-    _validator_class = _Validator
+    def __init__(self, **kwargs):
+        super(Destinatario, self).__init__(schema={
+                'CNPJ': {'type': 'CNPJ_E02'}, # E02
+                'CPF': {'type': 'CPF_E03'}, # E03
+                'xNome': { # E04
+                        'type': 'string',
+                        'required': False,
+                        'minlength': 2, 'maxlength': 60}
+            }, validator_class=Destinatario._Validator, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -467,9 +504,14 @@ class Destinatario(Entidade):
 
 
 class LocalEntrega(Entidade):
-    """
-    Identificação do Local de Entrega, item "G" da ER, grupo ``G01``,
-    ``entrega``.
+    """Identificação do Local de Entrega (``entrega``, grupo ``G01``).
+
+    :param str xLgr:
+    :param str nro:
+    :param str xCpl: *Opcional*
+    :param str xBairro:
+    :param str xMun:
+    :param str UF:
 
     .. sourcecode:: python
 
@@ -485,6 +527,7 @@ class LocalEntrega(Entidade):
         >>> entrega.UF = 'SP'
         >>> ET.tostring(entrega._xml(), encoding='utf-8')
         '<entrega><xLgr>Rua Armando Gulim</xLgr><nro>65</nro><xBairro>Parque Gloria III</xBairro><xMun>Catanduva</xMun><UF>SP</UF></entrega>'
+
     """
 
     class _Validator(ExtendedValidator):
@@ -493,33 +536,33 @@ class LocalEntrega(Entidade):
                 self._error(field, u'UF (G07) do Local de Entrega, '
                         u'não é válido: "%s"' % value)
 
-    _schema = {
-            'xLgr': { # G02
-                    'type': 'string',
-                    'required': True,
-                    'minlength': 2, 'maxlength': 60},
-            'nro': { # G03
-                    'type': 'string',
-                    'required': True,
-                    'minlength': 1, 'maxlength': 60},
-            'xCpl': { # G04
-                    'type': 'string',
-                    'required': False,
-                    'minlength': 1, 'maxlength': 60},
-            'xBairro': { # G05
-                    'type': 'string',
-                    'required': True,
-                    'minlength': 1, 'maxlength': 60},
-            'xMun': { # G06
-                    'type': 'string',
-                    'required': True,
-                    'minlength': 2, 'maxlength': 60},
-            'UF': { # G07
-                    'type': 'UF_G07',
-                    'required': True},
-        }
 
-    _validator_class = _Validator
+    def __init__(self, **kwargs):
+        super(LocalEntrega, self).__init__(schema={
+                'xLgr': { # G02
+                        'type': 'string',
+                        'required': True,
+                        'minlength': 2, 'maxlength': 60},
+                'nro': { # G03
+                        'type': 'string',
+                        'required': True,
+                        'minlength': 1, 'maxlength': 60},
+                'xCpl': { # G04
+                        'type': 'string',
+                        'required': False,
+                        'minlength': 1, 'maxlength': 60},
+                'xBairro': { # G05
+                        'type': 'string',
+                        'required': True,
+                        'minlength': 1, 'maxlength': 60},
+                'xMun': { # G06
+                        'type': 'string',
+                        'required': True,
+                        'minlength': 2, 'maxlength': 60},
+                'UF': { # G07
+                        'type': 'UF_G07',
+                        'required': True},
+            }, validator_class=LocalEntrega._Validator, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -539,13 +582,15 @@ class LocalEntrega(Entidade):
 
 
 class Detalhamento(Entidade):
-    """
-    Grupo de detalhamento do produto ou serviço do CF-e-SAT.
+    """Detalhamento do produto ou serviço do CF-e (``det``, grupo ``H01``).
 
-    Note que, neste detalhamento, o atributo XML ``nItem`` não é determinado
-    aqui mas em :class:`CFeVenda`, que mantém uma lista dos detalhamentos, de
-    modo que o número do item será atribuído automaticamente, conforme a sua
-    posição na lista.
+    :param ProdutoServico produto:
+    :param Imposto imposto:
+    :param str infAdProd: *Opcional*
+
+    Note que o atributo XML ``nItem`` (``H02``) não é determinado aqui, mas
+    atribuído automaticamente, conforme a sua posição na lista de
+    :attr:`~CFeVenda.detalhamentos.
 
     .. sourcecode:: python
 
@@ -564,28 +609,35 @@ class Detalhamento(Entidade):
         ...                 icms=ICMSSN102(Orig='2', CSOSN='500')),
         ...         infAdProd='Teste')
         >>> ET.tostring(det._xml(nItem=1))
-        '<det nItem="1"><prod><cProd>123456</cProd><xProd>BORRACHA STAEDTLER</xProd><CFOP>5102</CFOP><uCom>UN</uCom><qCom>1.0000</qCom><vUnCom>5.75</vUnCom><indRegra>A</indRegra></prod><imposto><ICMSSN102><Orig>2</Orig><CSOSN>500</CSOSN></ICMSSN102><PISSN><CST>49</CST></PISSN><COFINSSN><CST>49</CST></COFINSSN></imposto><infAdProd>Teste</infAdProd></det>'
+        '<det nItem="1"><prod><cProd>123456</cProd><xProd>BORRACHA STAEDTLER</xProd><CFOP>5102</CFOP><uCom>UN</uCom><qCom>1.0000</qCom><vUnCom>5.75</vUnCom><indRegra>A</indRegra></prod><imposto><ICMS><ICMSSN102><Orig>2</Orig><CSOSN>500</CSOSN></ICMSSN102></ICMS><PIS><PISSN><CST>49</CST></PISSN></PIS><COFINS><COFINSSN><CST>49</CST></COFINSSN></COFINS></imposto><infAdProd>Teste</infAdProd></det>'
 
     """
 
-    produto = None
-    """
-    Aponta para um produto ou serviço, uma instância de :class:`ProdutoServico`
-    ao qual este detalhamento se refere.
-    """
+    def __init__(self, produto=None, imposto=None, **kwargs):
+        self._produto = produto
+        self._imposto = imposto
+        super(Detalhamento, self).__init__(schema={
+               'infAdProd': {
+                        'type': 'string',
+                        'required': False,
+                        'minlength': 1, 'maxlength': 500},
+            }, **kwargs)
 
-    imposto = None
-    """
-    Aponta para o grupo de tributos incidentes no produto ou serviço ao qual
-    este detalhamento se refere, como uma instância de :class:`Imposto`.
-    """
 
-    _schema = {
-            'infAdProd': {
-                    'type': 'string',
-                    'required': False,
-                    'minlength': 1, 'maxlength': 500},
-        }
+    @property
+    def produto(self):
+        """O produto ou serviço como uma instância de :class:`ProdutoServico`
+        ao qual o detalhamento se refere.
+        """
+        return self._produto
+
+
+    @property
+    def imposto(self):
+        """O grupo de tributos incidentes no produto ou serviço ao qual o
+        detalhamento se refere, como uma instância de :class:`Imposto`.
+        """
+        return self._imposto
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -603,9 +655,20 @@ class Detalhamento(Entidade):
 
 
 class ProdutoServico(Entidade):
-    """
-    Grupo do produto ou serviço do CF-e-SAT.
-    Representa o grupo I01 ``prod``.
+    """Produto ou serviço do CF-e (``prod``, grupo ``I01``).
+
+    :param str cProd:
+    :param str cEAN: *Opcional*
+    :param str xProd:
+    :param str NCM: *Opcional*
+    :param str CFOP:
+    :param str uCom:
+    :param Decimal qCom:
+    :param Decimal vUnCom:
+    :param str indRegra:
+    :param Decimal vDesc: *Opcional*
+    :param Decimal vOutro: *Opcional*
+    :param list observacoes_fisco: *Opcional*
 
     .. sourcecode:: python
 
@@ -671,55 +734,59 @@ class ProdutoServico(Entidade):
 
     """
 
-    observacoes_fisco = []
-    """
-    Cada produto, pode opcionalmente, conter uma lista de campos de uso livre
-    do fico, cujos campos e valores são representados por instâncias da
-    classe :class:`ObsFiscoDet`.
-    """
+    def __init__(self, observacoes_fisco=[], **kwargs):
+        self._observacoes_fisco = observacoes_fisco
+        super(ProdutoServico, self).__init__(schema={
+                'cProd': { # I02
+                        'type': 'string',
+                        'required': True,
+                        'minlength': 1, 'maxlength': 60},
+                'cEAN': { # I03
+                        'type': 'string',
+                        'required': False,
+                        'regex': r'^(\d{8}|\d{12}|\d{13}|\d{14})$'},
+                'xProd': { # I04
+                        'type': 'string',
+                        'required': True,
+                        'minlength': 1, 'maxlength': 120},
+                'NCM': { # I05
+                        'type': 'string',
+                        'required': False,
+                        'regex': r'^(\d{2}|\d{8})$'},
+                'CFOP': { # I06
+                        'type': 'string',
+                        'required': True,
+                        'regex': r'^\d{4}$'},
+                'uCom': { # I07
+                        'type': 'string',
+                        'required': True,
+                        'minlength': 1, 'maxlength': 6},
+                'qCom': { # I08
+                        'type': 'decimal',
+                        'required': True},
+                'vUnCom': { # I09
+                        'type': 'decimal',
+                        'required': True},
+                'indRegra': { # I11
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.I11_INDREGRA]},
+                'vDesc': { # I12
+                        'type': 'decimal',
+                        'required': False},
+                'vOutro': { # I13
+                        'type': 'decimal',
+                        'required': False},
+            }, **kwargs)
 
-    _schema = {
-            'cProd': { # I02
-                    'type': 'string',
-                    'required': True,
-                    'minlength': 1, 'maxlength': 60},
-            'cEAN': { # I03
-                    'type': 'string',
-                    'required': False,
-                    'regex': r'^(\d{8}|\d{12}|\d{13}|\d{14})$'},
-            'xProd': { # I04
-                    'type': 'string',
-                    'required': True,
-                    'minlength': 1, 'maxlength': 120},
-            'NCM': { # I05
-                    'type': 'string',
-                    'required': False,
-                    'regex': r'^(\d{2}|\d{8})$'},
-            'CFOP': { # I06
-                    'type': 'string',
-                    'required': True,
-                    'regex': r'^\d{4}$'},
-            'uCom': { # I07
-                    'type': 'string',
-                    'required': True,
-                    'minlength': 1, 'maxlength': 6},
-            'qCom': { # I08
-                    'type': 'decimal',
-                    'required': True},
-            'vUnCom': { # I09
-                    'type': 'decimal',
-                    'required': True},
-            'indRegra': { # I11
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.I11_INDREGRA]},
-            'vDesc': { # I12
-                    'type': 'decimal',
-                    'required': False},
-            'vOutro': { # I13
-                    'type': 'decimal',
-                    'required': False},
-        }
+
+    @property
+    def observacoes_fisco(self):
+        """Cada produto, pode opcionalmente, conter uma lista de campos de uso
+        livre do fisco, cujos campos e valores são representados por instâncias
+        da classe :class:`ObsFiscoDet`.
+        """
+        return self._observacoes_fisco
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -760,9 +827,10 @@ class ProdutoServico(Entidade):
 
 
 class ObsFiscoDet(Entidade):
-    """
-    Grupo do campo de uso livre do Fisco.
-    Representa o elemento I17 ``obsFiscoDet``.
+    """Grupo do campo de uso livre do Fisco (``obsFiscoDet``, grupo ``I17``).
+
+    :param str xCampoDet:
+    :param str xTextoDet:
 
     .. sourcecode:: python
 
@@ -772,16 +840,17 @@ class ObsFiscoDet(Entidade):
 
     """
 
-    _schema = {
-            'xCampoDet': {
-                    'type': 'string',
-                    'required': True,
-                    'minlength': 1, 'maxlength': 20},
-            'xTextoDet': {
-                    'type': 'string',
-                    'required': True,
-                    'minlength': 1, 'maxlength': 60},
-        }
+    def __init__(self, **kwargs):
+        super(ObsFiscoDet, self).__init__(schema={
+                'xCampoDet': {
+                        'type': 'string',
+                        'required': True,
+                        'minlength': 1, 'maxlength': 20},
+                'xTextoDet': {
+                        'type': 'string',
+                        'required': True,
+                        'minlength': 1, 'maxlength': 60},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -792,27 +861,34 @@ class ObsFiscoDet(Entidade):
 
 
 class ICMS00(Entidade):
-    """
-    Grupo de tributação do ICMS 00, 20 e 90. Representa o grupo N02 ``ICMS00``.
+    """Grupo de tributação do ICMS 00, 20 e 90 (``ICMS00``, grupo ``N02``).
 
-    >>> icms = ICMS00(Orig='0', CST='00', pICMS=Decimal('18.00'))
-    >>> ET.tostring(icms._xml())
-    '<ICMS00><Orig>0</Orig><CST>00</CST><pICMS>18.00</pICMS></ICMS00>'
+    :param str Orig:
+    :param str CST:
+    :param Decimal pICMS:
+
+    .. sourcecode:: python
+
+        >>> icms = ICMS00(Orig='0', CST='00', pICMS=Decimal('18.00'))
+        >>> ET.tostring(icms._xml())
+        '<ICMS00><Orig>0</Orig><CST>00</CST><pICMS>18.00</pICMS></ICMS00>'
+
     """
 
-    _schema = {
-            'Orig': { # N06
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.N06_ORIG]},
-            'CST': { # N07
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.N07_CST_ICMS00]},
-            'pICMS': {
-                    'type': 'decimal',
-                    'required': True},
-        }
+    def __init__(self, **kwargs):
+        super(ICMS00, self).__init__(schema={
+                'Orig': { # N06
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.N06_ORIG]},
+                'CST': { # N07
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.N07_CST_ICMS00]},
+                'pICMS': {
+                        'type': 'decimal',
+                        'required': True},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -824,25 +900,30 @@ class ICMS00(Entidade):
 
 
 class ICMS40(Entidade):
-    """
-    Grupo de tributação do ICMS 40, 41, 50 e 60.
-    Representa o grupo N03 ``ICMS40``.
+    """Grupo de tributação do ICMS 40, 41, 50 e 60 (``ICMS40``, grupo ``N03``).
 
-    >>> icms = ICMS40(Orig='0', CST='60')
-    >>> ET.tostring(icms._xml())
-    '<ICMS40><Orig>0</Orig><CST>60</CST></ICMS40>'
+    :param str Orig:
+    :param str CST:
+
+    .. sourcecode:: python
+
+        >>> icms = ICMS40(Orig='0', CST='60')
+        >>> ET.tostring(icms._xml())
+        '<ICMS40><Orig>0</Orig><CST>60</CST></ICMS40>'
+
     """
 
-    _schema = {
-            'Orig': { # N06
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.N06_ORIG]},
-            'CST': { # N07
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.N07_CST_ICMS40]},
-        }
+    def __init__(self, **kwargs):
+        super(ICMS40, self).__init__(schema={
+                'Orig': { # N06
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.N06_ORIG]},
+                'CST': { # N07
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.N07_CST_ICMS40]},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -853,25 +934,31 @@ class ICMS40(Entidade):
 
 
 class ICMSSN102(Entidade):
-    """
-    Grupo de tributação do ICMS Simples Nacional, CSOSN 102, 300 e 500.
-    Representa o grupo N04 ``ICMSSN102``.
+    """Grupo de tributação do ICMS Simples Nacional, CSOSN 102, 300 e 500
+    (``ICMSSN102``, grupo ``N04``).
 
-    >>> icms = ICMSSN102(Orig='0', CSOSN='500')
-    >>> ET.tostring(icms._xml())
-    '<ICMSSN102><Orig>0</Orig><CSOSN>500</CSOSN></ICMSSN102>'
+    :param str Orig:
+    :param str CSOSN:
+
+    .. sourcecode:: python
+
+        >>> icms = ICMSSN102(Orig='0', CSOSN='500')
+        >>> ET.tostring(icms._xml())
+        '<ICMSSN102><Orig>0</Orig><CSOSN>500</CSOSN></ICMSSN102>'
+
     """
 
-    _schema = {
-            'Orig': { # N06
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.N06_ORIG]},
-            'CSOSN': { # N10
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.N10_CSOSN_ICMSSN102]},
-        }
+    def __init__(self, **kwargs):
+        super(ICMSSN102, self).__init__(schema={
+                'Orig': { # N06
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.N06_ORIG]},
+                'CSOSN': { # N10
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.N10_CSOSN_ICMSSN102]},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -882,28 +969,36 @@ class ICMSSN102(Entidade):
 
 
 class ICMSSN900(Entidade):
-    """
-    Grupo de tributação do ICMS Simples Nacional, CSOSN 900.
-    Representa o grupo N05 ``ICMSSN900``.
+    """Grupo de tributação do ICMS Simples Nacional, CSOSN 900 (``ICMSSN900``,
+    grupo ``N05``).
 
-    >>> icms = ICMSSN900(Orig='0', CSOSN='900', pICMS=Decimal('18.00'))
-    >>> ET.tostring(icms._xml())
-    '<ICMSSN900><Orig>0</Orig><CSOSN>900</CSOSN><pICMS>18.00</pICMS></ICMSSN900>'
+    :param str Orig:
+    :param str CSOSN:
+    :param Decimal pICMS:
+
+    .. sourcecode:: python
+
+        >>> icms = ICMSSN900(Orig='0', CSOSN='900', pICMS=Decimal('18.00'))
+        >>> ET.tostring(icms._xml())
+        '<ICMSSN900><Orig>0</Orig><CSOSN>900</CSOSN><pICMS>18.00</pICMS></ICMSSN900>'
+
     """
 
-    _schema = {
-            'Orig': { # N06
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.N06_ORIG]},
-            'CSOSN': { # N10
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.N10_CSOSN_ICMSSN900]},
-            'pICMS': {
-                    'type': 'decimal',
-                    'required': True},
-        }
+    def __init__(self, **kwargs):
+        super(ICMSSN900, self).__init__(schema={
+                'Orig': { # N06
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.N06_ORIG]},
+                'CSOSN': { # N10
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.N10_CSOSN_ICMSSN900]},
+                'pICMS': {
+                        'type': 'decimal',
+                        'required': True},
+            }, **kwargs)
+
 
     def _construir_elemento_xml(self, *args, **kwargs):
         icmssn900 = ET.Element('ICMSSN900')
@@ -914,27 +1009,34 @@ class ICMSSN900(Entidade):
 
 
 class PISAliq(Entidade):
-    """
-    Grupo de PIS tributado pela alíquota, CST 01, 02 ou 05.
-    Representa o grupo Q02 ``PISAliq``.
+    """Grupo de PIS tributado pela alíquota, CST 01, 02 ou 05 (``PISAliq``,
+    grupo ``Q02``).
 
-    >>> pis = PISAliq(CST='01', vBC=Decimal('1.00'), pPIS=Decimal('0.0065'))
-    >>> ET.tostring(pis._xml())
-    '<PISAliq><CST>01</CST><vBC>1.00</vBC><pPIS>0.0065</pPIS></PISAliq>'
+    :param str CST:
+    :param Decimal vBC:
+    :param Decimal pPIS:
+
+    .. sourcecode:: python
+
+        >>> pis = PISAliq(CST='01', vBC=Decimal('1.00'), pPIS=Decimal('0.0065'))
+        >>> ET.tostring(pis._xml())
+        '<PISAliq><CST>01</CST><vBC>1.00</vBC><pPIS>0.0065</pPIS></PISAliq>'
+
     """
 
-    _schema = {
-            'CST': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.Q07_CST_PISALIQ]},
-            'vBC': {
-                    'type': 'decimal',
-                    'required': True},
-            'pPIS': {
-                    'type': 'decimal',
-                    'required': True},
-        }
+    def __init__(self, **kwargs):
+        super(PISAliq, self).__init__(schema={
+                'CST': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.Q07_CST_PISALIQ]},
+                'vBC': {
+                        'type': 'decimal',
+                        'required': True},
+                'pPIS': {
+                        'type': 'decimal',
+                        'required': True},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -946,27 +1048,34 @@ class PISAliq(Entidade):
 
 
 class PISQtde(Entidade):
-    """
-    Grupo de PIS tributado por quantidade, CST 03.
-    Representa o grupo Q03 ``PISQtde``.
+    """Grupo de PIS tributado por quantidade, CST 03 (``PISQtde``,
+    grupo ``Q03``).
 
-    >>> pis = PISQtde(CST='03', qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-    >>> ET.tostring(pis._xml())
-    '<PISQtde><CST>03</CST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></PISQtde>'
+    :param str CST:
+    :param Decimal qBCProd:
+    :param Decimal vAliqProd:
+
+    .. sourcecode:: python
+
+        >>> pis = PISQtde(CST='03', qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
+        >>> ET.tostring(pis._xml())
+        '<PISQtde><CST>03</CST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></PISQtde>'
+
     """
 
-    _schema = {
-            'CST': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.Q07_CST_PISQTDE]},
-            'qBCProd': {
-                    'type': 'decimal',
-                    'required': True},
-            'vAliqProd': {
-                    'type': 'decimal',
-                    'required': True},
-        }
+    def __init__(self, **kwargs):
+        super(PISQtde, self).__init__(schema={
+                'CST': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.Q07_CST_PISQTDE]},
+                'qBCProd': {
+                        'type': 'decimal',
+                        'required': True},
+                'vAliqProd': {
+                        'type': 'decimal',
+                        'required': True},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -978,21 +1087,26 @@ class PISQtde(Entidade):
 
 
 class PISNT(Entidade):
-    """
-    Grupo de PIS não tributado, CST 04, 06, 07 08 ou 09.
-    Representa o grupo Q04 ``PISNT``.
+    """Grupo de PIS não tributado, CST 04, 06, 07 08 ou 09 (``PISNT``,
+    grupo ``Q04``).
 
-    >>> pis = PISNT(CST='04')
-    >>> ET.tostring(pis._xml())
-    '<PISNT><CST>04</CST></PISNT>'
+    :param str CST:
+
+    .. sourcecode:: python
+
+        >>> pis = PISNT(CST='04')
+        >>> ET.tostring(pis._xml())
+        '<PISNT><CST>04</CST></PISNT>'
+
     """
 
-    _schema = {
-            'CST': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.Q07_CST_PISNT]},
-        }
+    def __init__(self, **kwargs):
+        super(PISNT, self).__init__(schema={
+                'CST': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.Q07_CST_PISNT]},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1002,21 +1116,26 @@ class PISNT(Entidade):
 
 
 class PISSN(Entidade):
-    """
-    Grupo de PIS para contribuíntes do Simples Nacional, CST 49.
-    Representa o grupo Q05 ``PISSN``.
+    """Grupo de PIS para contribuíntes do Simples Nacional, CST 49 (``PISSN``,
+    grupo ``Q05``).
 
-    >>> pis = PISSN(CST='49')
-    >>> ET.tostring(pis._xml())
-    '<PISSN><CST>49</CST></PISSN>'
+    :param str CST:
+
+    .. sourcecode:: python
+
+        >>> pis = PISSN(CST='49')
+        >>> ET.tostring(pis._xml())
+        '<PISSN><CST>49</CST></PISSN>'
+
     """
 
-    _schema = {
-            'CST': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.Q07_CST_PISSN]},
-        }
+    def __init__(self, **kwargs):
+        super(PISSN, self).__init__(schema={
+                'CST': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.Q07_CST_PISSN]},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1026,9 +1145,24 @@ class PISSN(Entidade):
 
 
 class PISOutr(Entidade):
-    """
-    Grupo de PIS para outras operações, CST 99.
-    Representa o grupo Q06 ``PISOutr``.
+    """Grupo de PIS para outras operações, CST 99 (``PISOutr``, grupo ``Q06``).
+
+    :param str CST:
+
+    :param str vBC: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``pPIS``.
+
+    :param str pPIS: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``vBC``.
+
+    :param str qBCProd: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``vAliqProd``.
+
+    :param str vAliqProd: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``qBCProd``.
+
+    Os parâmetros ``vBC`` e ``qBCProd`` são mutuamente exclusivos, e um ou
+    outro **devem** ser informados.
 
     .. sourcecode:: python
 
@@ -1078,28 +1212,29 @@ class PISOutr(Entidade):
 
     """
 
-    _schema = {
-            'CST': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.Q07_CST_PISOUTR]},
-            'vBC': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['pPIS']},
-            'pPIS': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['vBC']},
-            'qBCProd': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['vAliqProd']},
-            'vAliqProd': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['qBCProd']},
-        }
+    def __init__(self, **kwargs):
+        super(PISOutr, self).__init__(schema={
+                'CST': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.Q07_CST_PISOUTR]},
+                'vBC': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['pPIS']},
+                'pPIS': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['vBC']},
+                'qBCProd': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['vAliqProd']},
+                'vAliqProd': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['qBCProd']},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1130,9 +1265,22 @@ class PISOutr(Entidade):
 
 
 class PISST(Entidade):
-    """
-    Grupo de PIS substituição tributária.
-    Representa o grupo R01 ``PISST``.
+    """Grupo de PIS substituição tributária (``PISST``, grupo ``R01``).
+
+    :param str vBC: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``pPIS``.
+
+    :param str pPIS: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``vBC``.
+
+    :param str qBCProd: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``vAliqProd``.
+
+    :param str vAliqProd: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``qBCProd``.
+
+    Os parâmetros ``vBC`` e ``qBCProd`` são mutuamente exclusivos, e um ou
+    outro **devem** ser informados.
 
     .. sourcecode:: python
 
@@ -1182,24 +1330,25 @@ class PISST(Entidade):
 
     """
 
-    _schema = {
-            'vBC': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['pPIS']},
-            'pPIS': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['vBC']},
-            'qBCProd': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['vAliqProd']},
-            'vAliqProd': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['qBCProd']},
-        }
+    def __init__(self, **kwargs):
+        super(PISST, self).__init__(schema={
+                'vBC': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['pPIS']},
+                'pPIS': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['vBC']},
+                'qBCProd': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['vAliqProd']},
+                'vAliqProd': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['qBCProd']},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1229,27 +1378,34 @@ class PISST(Entidade):
 
 
 class COFINSAliq(Entidade):
-    """
-    Grupo de COFINS tributado pela alíquota, CST 01, 02 ou 05.
-    Representa o grupo S02 ``COFINSAliq``.
+    """Grupo de COFINS tributado pela alíquota, CST 01, 02 ou 05
+    (``COFINSAliq``, grupo ``S02``).
 
-    >>> cofins = COFINSAliq(CST='01', vBC=Decimal('1.00'), pCOFINS=Decimal('0.0065'))
-    >>> ET.tostring(cofins._xml())
-    '<COFINSAliq><CST>01</CST><vBC>1.00</vBC><pCOFINS>0.0065</pCOFINS></COFINSAliq>'
+    :param str CST:
+    :param Decimal vBC:
+    :param Decimal pCOFINS:
+
+    .. sourcecode:: python
+
+        >>> cofins = COFINSAliq(CST='01', vBC=Decimal('1.00'), pCOFINS=Decimal('0.0065'))
+        >>> ET.tostring(cofins._xml())
+        '<COFINSAliq><CST>01</CST><vBC>1.00</vBC><pCOFINS>0.0065</pCOFINS></COFINSAliq>'
+
     """
 
-    _schema = {
-            'CST': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.S07_CST_COFINSALIQ]},
-            'vBC': {
-                    'type': 'decimal',
-                    'required': True},
-            'pCOFINS': {
-                    'type': 'decimal',
-                    'required': True},
-        }
+    def __init__(self, **kwargs):
+        super(COFINSAliq, self).__init__(schema={
+                'CST': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.S07_CST_COFINSALIQ]},
+                'vBC': {
+                        'type': 'decimal',
+                        'required': True},
+                'pCOFINS': {
+                        'type': 'decimal',
+                        'required': True},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1261,27 +1417,34 @@ class COFINSAliq(Entidade):
 
 
 class COFINSQtde(Entidade):
-    """
-    Grupo de COFINS tributado por quantidade, CST 03.
-    Representa o grupo S03 ``COFINSQtde``.
+    """Grupo de COFINS tributado por quantidade, CST 03 (``COFINSQtde``,
+    grupo ``S03``).
 
-    >>> cofins = COFINSQtde(CST='03', qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-    >>> ET.tostring(cofins._xml())
-    '<COFINSQtde><CST>03</CST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></COFINSQtde>'
+    :param str CST:
+    :param Decimal qBCProd:
+    :param Decimal vAliqProd:
+
+    .. sourcecode:: python
+
+        >>> cofins = COFINSQtde(CST='03', qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
+        >>> ET.tostring(cofins._xml())
+        '<COFINSQtde><CST>03</CST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></COFINSQtde>'
+
     """
 
-    _schema = {
-            'CST': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.S07_CST_COFINSQTDE]},
-            'qBCProd': {
-                    'type': 'decimal',
-                    'required': True},
-            'vAliqProd': {
-                    'type': 'decimal',
-                    'required': True},
-        }
+    def __init__(self, **kwargs):
+        super(COFINSQtde, self).__init__(schema={
+                'CST': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.S07_CST_COFINSQTDE]},
+                'qBCProd': {
+                        'type': 'decimal',
+                        'required': True},
+                'vAliqProd': {
+                        'type': 'decimal',
+                        'required': True},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1294,21 +1457,26 @@ class COFINSQtde(Entidade):
 
 
 class COFINSNT(Entidade):
-    """
-    Grupo de COFINS não tributado, CST 04, 06, 07 08 ou 09.
-    Representa o grupo S04 ``COFINSNT``.
+    """Grupo de COFINS não tributado, CST 04, 06, 07 08 ou 09 (``COFINSNT``,
+    grupo ``S04``).
 
-    >>> cofins = COFINSNT(CST='04')
-    >>> ET.tostring(cofins._xml())
-    '<COFINSNT><CST>04</CST></COFINSNT>'
+    :param str CST:
+
+    .. sourcecode:: python
+
+        >>> cofins = COFINSNT(CST='04')
+        >>> ET.tostring(cofins._xml())
+        '<COFINSNT><CST>04</CST></COFINSNT>'
+
     """
 
-    _schema = {
-            'CST': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.S07_CST_COFINSNT]},
-        }
+    def __init__(self, **kwargs):
+        super(COFINSNT, self).__init__(schema={
+                'CST': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.S07_CST_COFINSNT]},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1318,21 +1486,26 @@ class COFINSNT(Entidade):
 
 
 class COFINSSN(Entidade):
-    """
-    Grupo de COFINS para contribuíntes do Simples Nacional, CST 49.
-    Representa o grupo S05 ``COFINSSN``.
+    """Grupo de COFINS para contribuíntes do Simples Nacional, CST 49
+    (``COFINSSN``, grupo ``S05``).
 
-    >>> cofins = COFINSSN(CST='49')
-    >>> ET.tostring(cofins._xml())
-    '<COFINSSN><CST>49</CST></COFINSSN>'
+    :param str CST:
+
+    .. sourcecode:: python
+
+        >>> cofins = COFINSSN(CST='49')
+        >>> ET.tostring(cofins._xml())
+        '<COFINSSN><CST>49</CST></COFINSSN>'
+
     """
 
-    _schema = {
-            'CST': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.S07_CST_COFINSSN]},
-        }
+    def __init__(self, **kwargs):
+        super(COFINSSN, self).__init__(schema={
+                'CST': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.S07_CST_COFINSSN]},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1342,9 +1515,25 @@ class COFINSSN(Entidade):
 
 
 class COFINSOutr(Entidade):
-    """
-    Grupo de COFINS para outras operações, CST 99.
-    Representa o grupo S06 ``COFINSOutr``.
+    """Grupo de COFINS para outras operações, CST 99 (``COFINSOutr``,
+    grupo ``S06``).
+
+    :param str CST:
+
+    :param str vBC: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``pCOFINS``.
+
+    :param str pCOFINS: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``vBC``.
+
+    :param str qBCProd: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``vAliqProd``.
+
+    :param str vAliqProd: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``qBCProd``.
+
+    Os parâmetros ``vBC`` e ``qBCProd`` são mutuamente exclusivos, e um ou
+    outro **devem** ser informados.
 
     .. sourcecode:: python
 
@@ -1394,28 +1583,29 @@ class COFINSOutr(Entidade):
 
     """
 
-    _schema = {
-            'CST': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.S07_CST_COFINSOUTR]},
-            'vBC': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['pCOFINS']},
-            'pCOFINS': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['vBC']},
-            'qBCProd': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['vAliqProd']},
-            'vAliqProd': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['qBCProd']},
-        }
+    def __init__(self, **kwargs):
+        super(COFINSOutr, self).__init__(schema={
+                'CST': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.S07_CST_COFINSOUTR]},
+                'vBC': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['pCOFINS']},
+                'pCOFINS': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['vBC']},
+                'qBCProd': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['vAliqProd']},
+                'vAliqProd': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['qBCProd']},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1448,9 +1638,22 @@ class COFINSOutr(Entidade):
 
 
 class COFINSST(Entidade):
-    """
-    Grupo de COFINS substituição tributária.
-    Representa o grupo T01 ``COFINSST``.
+    """Grupo de COFINS substituição tributária (``COFINSST``, grupo ``T01``).
+
+    :param str vBC: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``pCOFINS``.
+
+    :param str pCOFINS: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``vBC``.
+
+    :param str qBCProd: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``vAliqProd``.
+
+    :param str vAliqProd: *Opcional* Se informado deverá ser também informado o
+        parâmetro ``qBCProd``.
+
+    Os parâmetros ``vBC`` e ``qBCProd`` são mutuamente exclusivos, e um ou
+    outro **devem** ser informados.
 
     .. sourcecode:: python
 
@@ -1500,24 +1703,25 @@ class COFINSST(Entidade):
 
     """
 
-    _schema = {
-            'vBC': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['pCOFINS']},
-            'pCOFINS': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['vBC']},
-            'qBCProd': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['vAliqProd']},
-            'vAliqProd': {
-                    'type': 'decimal',
-                    'required': False,
-                    'dependencies': ['qBCProd']},
-        }
+    def __init__(self, **kwargs):
+        super(COFINSST, self).__init__(schema={
+                'vBC': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['pCOFINS']},
+                'pCOFINS': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['vBC']},
+                'qBCProd': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['vAliqProd']},
+                'vAliqProd': {
+                        'type': 'decimal',
+                        'required': False,
+                        'dependencies': ['qBCProd']},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1547,8 +1751,15 @@ class COFINSST(Entidade):
 
 
 class ISSQN(Entidade):
-    """
-    Grupo do ISSQN. Representa o grupo U01 ``ISSQN``.
+    """Grupo do ISSQN (``ISSQN``, grupo ``U01``).
+
+    :param Decimal vDeducISSQN:
+    :param Decimal vAliq:
+    :param str cMunFG: *Opcional*
+    :param str cListServ: *Opcional*
+    :param str cServTribMun: *Opcional*
+    :param str cNatOp:
+    :param str indIncFisc:
 
     .. sourcecode:: python
 
@@ -1559,36 +1770,39 @@ class ISSQN(Entidade):
         >>> issqn = ISSQN(vDeducISSQN=Decimal('10.00'), vAliq=Decimal('7.00'), cNatOp='01', indIncFisc='2', cMunFG='3511102', cListServ='01.01', cServTribMun='01234567890123456789')
         >>> ET.tostring(issqn._xml())
         '<ISSQN><vDeducISSQN>10.00</vDeducISSQN><vAliq>7.00</vAliq><cMunFG>3511102</cMunFG><cListServ>01.01</cListServ><cServTribMun>01234567890123456789</cServTribMun><cNatOp>01</cNatOp><indIncFisc>2</indIncFisc></ISSQN>'
+
     """
 
-    _schema = {
-            'vDeducISSQN': {
-                    'type': 'decimal',
-                    'required': True},
-            'vAliq': {
-                    'type': 'decimal',
-                    'required': True},
-            'cMunFG': {
-                    'type': 'string',
-                    'required': False,
-                    'regex': r'^\d{7}$'},
-            'cListServ': {
-                    'type': 'string',
-                    'required': False,
-                    'regex': r'^\d{2}\.\d{2}$'},
-            'cServTribMun': {
-                    'type': 'string',
-                    'required': False,
-                    'minlength': 20, 'maxlength': 20},
-            'cNatOp': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.U09_CNATOP_ISSQN]},
-            'indIncFisc': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.U10_INDINCFISC_ISSQN]},
-        }
+    def __init__(self, **kwargs):
+        super(ISSQN, self).__init__(schema={
+                'vDeducISSQN': {
+                        'type': 'decimal',
+                        'required': True},
+                'vAliq': {
+                        'type': 'decimal',
+                        'required': True},
+                'cMunFG': {
+                        'type': 'string',
+                        'required': False,
+                        'regex': r'^\d{7}$'},
+                'cListServ': {
+                        'type': 'string',
+                        'required': False,
+                        'regex': r'^\d{2}\.\d{2}$'},
+                'cServTribMun': {
+                        'type': 'string',
+                        'required': False,
+                        'minlength': 20, 'maxlength': 20},
+                'cNatOp': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.U09_CNATOP_ISSQN]},
+                'indIncFisc': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.U10_INDINCFISC_ISSQN]},
+            }, **kwargs)
+
 
     def _construir_elemento_xml(self, *args, **kwargs):
 
@@ -1615,9 +1829,31 @@ class ISSQN(Entidade):
 
 
 class Imposto(Entidade):
-    """
-    Grupo de tributos incidentes no produto ou serviço.
-    Representa o grupo M01 ``imposto``.
+    """Grupo de tributos incidentes no produto ou serviço (``imposto``,
+    grupo ``M01``).
+
+    :param icms: *Opcional* Deve ser uma instância de uma das classes dos
+        grupos de ICMS (:class:`ICMS00`, :class:`ICMS40`, :class:`ICMSSN102`
+        ou :class:`ICMSSN900`) se o item for um produto tributado pelo ICMS
+        ou ``None`` em caso contrário.
+
+    :param pis: Deve ser uma instância de uma das classes dos grupos de
+        PIS (:class:`PISAliq`, :class:`PISQtde`, :class:`PISNT`, :class:`PISSN`
+        ou :class:`PISOutr`).
+
+    :param pisst: *Opcional* Instância de :class:`PISST` ou ``None``.
+
+    :param str cofins: Deve ser uma instância de uma dlas classes dos grupos
+        de COFINS (:class:`COFINSAliq`, :class:`COFINSQtde`, :class:`COFINSNT`,
+        :class:`COFINSSN` ou :class:`COFINSOutr`).
+
+    :param str cofinsst: *Opcional* Instância de :class:`COFINSST` ou ``None``.
+
+    :param str issqn: *Opcional* Uma instância de :class:`ISSQN` se o item for
+        um serviço tributado pelo ISSQN ou ``None`` em caso contrário.
+
+    :param Decimal vItem12741: *Opcional* Valor aproximado dos tributos do
+        produto ou serviço, conforme a Lei 12.741/12.
 
     .. sourcecode:: python
 
@@ -1627,7 +1863,7 @@ class Imposto(Entidade):
         ...         pis=PISSN(CST='49'),
         ...         cofins=COFINSSN(CST='49'))
         >>> ET.tostring(imposto._xml())
-        '<imposto><vItem12741>0.10</vItem12741><ICMS00><Orig>0</Orig><CST>00</CST><pICMS>18.00</pICMS></ICMS00><PISSN><CST>49</CST></PISSN><COFINSSN><CST>49</CST></COFINSSN></imposto>'
+        '<imposto><vItem12741>0.10</vItem12741><ICMS><ICMS00><Orig>0</Orig><CST>00</CST><pICMS>18.00</pICMS></ICMS00></ICMS><PIS><PISSN><CST>49</CST></PISSN></PIS><COFINS><COFINSSN><CST>49</CST></COFINSSN></COFINS></imposto>'
 
         # sem pis
         >>> imposto = Imposto(cofins=COFINSSN(CST='49'))
@@ -1645,49 +1881,68 @@ class Imposto(Entidade):
 
     """
 
-    icms = None
-    """
-    Opcionalmente, aponta para um dos grupos de ICMS (:class:`ICMS00`,
-    :class:`ICMS40`, :class:`ICMSSN102` ou :class:`ICMSSN900`) se o item
-    for um produto tributado pelo ICMS ou ``None`` em caso contrário.
-    """
+    def __init__(self, icms=None, pis=None, pisst=None,
+            cofins=None, cofinsst=None, issqn=None, **kwargs):
+        self._icms = icms
+        self._pis = pis
+        self._pisst = pisst
+        self._cofins = cofins
+        self._cofinsst = cofinsst
+        self._issqn = issqn
+        super(Imposto, self).__init__(schema={
+                'vItem12741': { # M02
+                        'type': 'decimal',
+                        'required': False}
+            }, **kwargs)
 
-    pis = None
-    """
-    Obrigatoriamente aponta para um dos grupos de PIS (:class:`PISAliq`,
-    :class:`PISQtde`, :class:`PISNT`, :class:`PISSN` ou :class:`PISOutr`).
-    """
 
-    pisst = None
-    """
-    Aponta para o grupo do PIS Substituição Tributária :class:`PISST` se
-    for o caso, ou ``None``.
-    """
+    @property
+    def icms(self):
+        """Um dos grupos de ICMS (:class:`ICMS00`, :class:`ICMS40`,
+        :class:`ICMSSN102` ou :class:`ICMSSN900`) se o item for um produto
+        tributado pelo ICMS ou ``None`` em caso contrário.
+        """
+        return self._icms
 
-    cofins = None
-    """
-    Obrigatoriamente aponta para um dos grupos de COFINS (:class:`COFINSAliq`,
-    :class:`COFINSQtde`, :class:`COFINSNT`, :class:`COFINSSN` ou
-    :class:`COFINSOutr`).
-    """
 
-    cofinsst = None
-    """
-    Aponta para o grupo do COFINS Substituição Tributária :class:`COFINSST`
-    se for o caso, ou ``None``.
-    """
+    @property
+    def pis(self):
+        """Um dos grupos de PIS (:class:`PISAliq`, :class:`PISQtde`,
+        :class:`PISNT`, :class:`PISSN` ou :class:`PISOutr`).
+        """
+        return self._pis
 
-    issqn = None
-    """
-    Opcionalmente, aponta para o grupo de ISSQN (:class:`ISSQN`) se o item
-    for um serviço tributado pelo ISSQN ou ``None`` em caso contrário.
-    """
 
-    _schema = {
-            'vItem12741': { # M02
-                    'type': 'decimal',
-                    'required': False}
-        }
+    @property
+    def pisst(self):
+        """O grupo do PIS Substituição Tributária (:class:`PISST`) se for o
+        caso, ou ``None``.
+        """
+        return self._pisst
+
+
+    @property
+    def cofins(self):
+        """Um dos grupos de COFINS (:class:`COFINSAliq`, :class:`COFINSQtde`,
+        :class:`COFINSNT`, :class:`COFINSSN` ou :class:`COFINSOutr`).
+        """
+        return self._cofins
+
+
+    @property
+    def cofinsst(self):
+        """O grupo do COFINS Substituição Tributária (:class:`COFINSST`) se
+        for o caso, ou ``None``.
+        """
+        return self._cofinsst
+
+
+    @property
+    def issqn(self):
+        """O grupo de ISSQN (:class:`ISSQN`) se o item for um serviço
+        tributado pelo ISSQN ou ``None`` em caso contrário.
+        """
+        return self._issqn
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1709,14 +1964,17 @@ class Imposto(Entidade):
                     '{:n}'.format(self.vItem12741)
 
         if self.icms is not None:
-            imposto.append(self.icms._xml())
+            icms = ET.SubElement(imposto, 'ICMS')
+            icms.append(self.icms._xml())
 
-        imposto.append(self.pis._xml())
+        pis = ET.SubElement(imposto, 'PIS')
+        pis.append(self.pis._xml())
 
         if self.pisst is not None:
             imposto.append(self.pisst._xml())
 
-        imposto.append(self.cofins._xml())
+        cofins = ET.SubElement(imposto, 'COFINS')
+        cofins.append(self.cofins._xml())
 
         if self.cofinsst is not None:
             imposto.append(self.cofinsst._xml())
@@ -1728,9 +1986,12 @@ class Imposto(Entidade):
 
 
 class DescAcrEntr(Entidade):
-    """
-    Grupo de valores de entrada de desconto/acréscimo sobre subtotal.
-    Representa o grupo W19 ``DescAcrEntr``.
+    """Grupo de valores de entrada de desconto/acréscimo sobre subtotal
+    (``DescAcrEntr``, grupo ``W19``).
+
+    :param Decimal vDescSubtot:
+    :param Decimal vAcresSubtot:
+    :param Decimal vCFeLei12741:
 
     .. sourcecode:: python
 
@@ -1747,17 +2008,18 @@ class DescAcrEntr(Entidade):
 
     """
 
-    _schema = {
-            'vDescSubtot': {
-                    'type': 'decimal',
-                    'required': False},
-            'vAcresSubtot': {
-                    'type': 'decimal',
-                    'required': False},
-            'vCFeLei12741': {
-                    'type': 'decimal',
-                    'required': False},
-        }
+    def __init__(self, **kwargs):
+        super(DescAcrEntr, self).__init__(schema={
+                'vDescSubtot': {
+                        'type': 'decimal',
+                        'required': False},
+                'vAcresSubtot': {
+                        'type': 'decimal',
+                        'required': False},
+                'vCFeLei12741': {
+                        'type': 'decimal',
+                        'required': False},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1779,9 +2041,11 @@ class DescAcrEntr(Entidade):
 
 
 class MeioPagamento(Entidade):
-    """
-    Grupo de informação do meio de pagamento.
-    Representa o grupo WA02 ``MP``.
+    """Meio de pagamento (``MP``, grupo ``WA02``).
+
+    :param str cMP:
+    :param Decimal vMP:
+    :param str cAdmC: *Opcional*
 
     .. sourcecode:: python
 
@@ -1795,20 +2059,21 @@ class MeioPagamento(Entidade):
 
     """
 
-    _schema = {
-            'cMP': {
-                    'type': 'string',
-                    'required': True,
-                    'allowed': [v for v,s in constantes.WA03_CMP_MP]},
-            'vMP': {
-                    'type': 'decimal',
-                    'required': True},
-            'cAdmC': {
-                    'type': 'string',
-                    'required': False,
-                    'allowed':
-                            [a for a,b,c in constantes.CREDENCIADORAS_CARTAO]},
-        }
+    def __init__(self, **kwargs):
+        super(MeioPagamento, self).__init__(schema={
+                'cMP': {
+                        'type': 'string',
+                        'required': True,
+                        'allowed': [v for v,s in constantes.WA03_CMP_MP]},
+                'vMP': {
+                        'type': 'decimal',
+                        'required': True},
+                'cAdmC': {
+                        'type': 'string',
+                        'required': False,
+                        'allowed':
+                                [a for a,b,c in constantes.CREDENCIADORAS_CARTAO]},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1821,8 +2086,9 @@ class MeioPagamento(Entidade):
 
 
 class InformacoesAdicionais(Entidade):
-    """
-    Grupo de informações adicionais. Representa o grupo Z01 ``infAdic``.
+    """Grupo de informações adicionais (``infAdic``, grupo ``Z01``).
+
+    :param str infCpl: *Opcional*
 
     .. sourcecode:: python
 
@@ -1836,12 +2102,13 @@ class InformacoesAdicionais(Entidade):
 
     """
 
-    _schema = {
-            'infCpl': {
-                    'type': 'string',
-                    'required': False,
-                    'minlength': 1, 'maxlength': 5000},
-        }
+    def __init__(self, **kwargs):
+        super(InformacoesAdicionais, self).__init__(schema={
+                'infCpl': {
+                        'type': 'string',
+                        'required': False,
+                        'minlength': 1, 'maxlength': 5000},
+            }, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1852,76 +2119,125 @@ class InformacoesAdicionais(Entidade):
 
 
 class CFeVenda(Entidade):
-    """
-    Representa o CF-e-SAT de venda.
+    """Representa um CF-e de venda.
 
-    Note que não há uma classe específica para representar o grupo ``ide`` B01,
-    já que todos os seus atributos são esperados nesta classe.
+    :param Emitente emitente:
+    :param Destinatario destinatario: *Opcional*
+    :param LocalEntrega entrega: *Opcional*
+    :param list detalhamentos:
+    :param DescAcrEntr descontos_acrescimos_subtotal: *Opcional*
+    :param list pagamentos:
+    :param InformacoesAdicionais informacoes_adicionais: *Opcional*
+    :param str versaoDadosEnt: *Opcional*
+    :param str CNPJ:
+    :param str signAC:
+    :param int numeroCaixa:
+
+    Note que não há uma classe específica para representar o elemento ``ide``
+    do grupo ``B01``, já que todos os seus atributos são esperados nesta classe.
 
     .. sourcecode:: python
 
         >>> cfe = CFeVenda(
         ...         CNPJ='08427847000169',
         ...         signAC=constantes.ASSINATURA_AC_TESTE,
-        ...         numeroCaixa=1)
+        ...         numeroCaixa=1,
+        ...         emitente=Emitente(
+        ...                 CNPJ='61099008000141',
+        ...                 IE='111111111111',
+        ...                 IM='12345',
+        ...                 cRegTribISSQN=constantes.C15_SOCIEDADE_PROFISSIONAIS,
+        ...                 indRatISSQN=constantes.C16_NAO_RATEADO))
         >>> ET.tostring(cfe._xml())
-        '<CFe><infCFe versaoDadosEnt="0.06"><ide><CNPJ>08427847000169</CNPJ><signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC><numeroCaixa>001</numeroCaixa></ide><dest /><total /><pagto /><infAdic /></infCFe></CFe>'
+        '<CFe><infCFe versaoDadosEnt="0.06"><ide><CNPJ>08427847000169</CNPJ><signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC><numeroCaixa>001</numeroCaixa></ide><emit><CNPJ>61099008000141</CNPJ><IE>111111111111</IE><IM>12345</IM><cRegTribISSQN>3</cRegTribISSQN><indRatISSQN>N</indRatISSQN></emit><dest /><total /><pgto /></infCFe></CFe>'
 
     """
 
-    destinatario = None
-    """
-    Instância de :class:`Destinatario` ou ``None``
-    """
+    def __init__(self, emitente=None, destinatario=None, entrega=None,
+            detalhamentos=[], descontos_acrescimos_subtotal=None,
+            pagamentos=[], informacoes_adicionais=None, **kwargs):
 
-    entrega = None
-    """
-    Instância de :class:`LocalEntrega` ou ``None``
-    """
+        self._emitente = emitente
+        self._destinatario = destinatario
+        self._entrega = entrega
+        self._detalhamentos = detalhamentos
+        self._descontos_acrescimos_subtotal = descontos_acrescimos_subtotal
+        self._pagamentos = pagamentos
+        self._informacoes_adicionais = informacoes_adicionais
 
-    detalhamentos = []
-    """
-    Lista de objetos :class:`Detalhamento`, descrevendo os produtos/serviços.
-    """
-
-    descontos_acrescimos_subtotal = None
-    """
-    Instância de :class:`DescAcrEntr` ou ``None``.
-    """
-
-    pagamentos = []
-    """
-    Lista de objetos :class`MeioPagamento`, descrevendo os meios de pagamento
-    empregados na quitação do CF-e.
-    """
-
-    informacoes_adicionais = None
-    """
-    Instância de :class:`InformacoesAdicionais` ou ``None``.
-    """
-
-    _schema = {
-            'versaoDadosEnt': {
-                    'type': 'string',
-                    'required': True,
-                    'regex': r'^\d{1}\.\d{2}$'},
-            'CNPJ': {
-                    'type': 'cnpj',
-                    'required': True},
-            'signAC': {
-                    'type': 'assinatura_ac',
-                    'required': True},
-            'numeroCaixa': {
-                    'type': 'integer',
-                    'required': True,
-                    'min': 0, 'max': 999},
-        }
-
-
-    def __init__(self, **kwargs):
         super(CFeVenda, self).__init__(
                 versaoDadosEnt=constantes.VERSAO_LAYOUT_ARQUIVO_DADOS_AC,
-                **kwargs)
+                schema={
+                        'versaoDadosEnt': {
+                                'type': 'string',
+                                'required': True,
+                                'regex': r'^\d{1}\.\d{2}$'},
+                        'CNPJ': {
+                                'type': 'cnpj',
+                                'required': True},
+                        'signAC': {
+                                'type': 'assinatura_ac',
+                                'required': True},
+                        'numeroCaixa': {
+                                'type': 'integer',
+                                'required': True,
+                                'min': 0, 'max': 999},
+                    }, **kwargs)
+
+
+    @property
+    def emitente(self):
+        """O :class:`Emitente` do CF-e."""
+        return self._emitente
+
+
+    @property
+    def destinatario(self):
+        """O :class:`Destinatario` do CF-e ou ``None``."""
+        return self._destinatario
+
+
+    @property
+    def entrega(self):
+        """O Local de entrega (:class:`LocalEntrega`) ou ``None``."""
+        return self._entrega
+
+
+    @property
+    def detalhamentos(self):
+        """Lista de objetos :class:`Detalhamento`, descrevendo os produtos e
+        serviços do CF-e.
+        """
+        return self._detalhamentos
+
+
+    @property
+    def descontos_acrescimos_subtotal(self):
+        """Os descontos e acréscimos no subtotal do CF-e (:class:`DescAcrEntr`)
+        ou ``None``.
+        """
+        return self._descontos_acrescimos_subtotal
+
+
+    @property
+    def pagamentos(self):
+        """Lista de objetos :class`MeioPagamento`, descrevendo os meios de
+        pagamento empregados na quitação do CF-e.
+        """
+        return self._pagamentos
+
+
+    @property
+    def informacoes_adicionais(self):
+        """Informações adicionais do CF-e (:class:`InformacoesAdicionais`)
+        ou ``None``.
+        """
+        return self._informacoes_adicionais
+
+
+    def _xml(self, *args, **kwargs):
+        Entidade._erros.clear()
+        return super(CFeVenda, self)._xml(*args, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1935,6 +2251,8 @@ class CFeVenda(Entidade):
         ET.SubElement(ide, 'signAC').text = self.signAC
         ET.SubElement(ide, 'numeroCaixa').text = \
                 '{:03d}'.format(self.numeroCaixa)
+
+        infCFe.append(self.emitente._xml())
 
         dest = self.destinatario or Destinatario()
         infCFe.append(dest._xml())
@@ -1950,19 +2268,24 @@ class CFeVenda(Entidade):
         if self.descontos_acrescimos_subtotal is not None:
             total.append(self.descontos_acrescimos_subtotal._xml())
 
-        pagto = ET.SubElement(infCFe, 'pagto')
+        pgto = ET.SubElement(infCFe, 'pgto')
         for pg in self.pagamentos:
-            pagto.append(pg._xml())
+            pgto.append(pg._xml())
 
-        infAdic = self.informacoes_adicionais or InformacoesAdicionais()
-        infCFe.append(infAdic._xml())
+        if self.informacoes_adicionais is not None:
+            infCFe.append(infAdic._xml())
 
         return cfe
 
 
 class CFeCancelamento(Entidade):
-    """
-    Representa o CF-e-SAT de cancelamento.
+    """Representa um CF-e de cancelamento.
+
+    :param Destinatario destinatario:
+    :param str chCanc:
+    :param str CNPJ:
+    :param str signAC:
+    :param int numeroCaixa:
 
     .. sourcecode:: python
 
@@ -1976,27 +2299,35 @@ class CFeCancelamento(Entidade):
 
     """
 
-    destinatario = None
-    """
-    Instância de :class:`Destinatario` ou ``None``
-    """
+    def __init__(self, destinatario=None, **kwargs):
+        self._destinatario = destinatario
+        super(CFeCancelamento, self).__init__(schema={
+                'chCanc': {
+                        'type': 'string',
+                        'required': True,
+                        'regex': r'^CFe\d{44}$'},
+                'CNPJ': {
+                        'type': 'cnpj',
+                        'required': True},
+                'signAC': {
+                        'type': 'assinatura_ac',
+                        'required': True},
+                'numeroCaixa': {
+                        'type': 'integer',
+                        'required': True,
+                        'min': 0, 'max': 999},
+            }, **kwargs)
 
-    _schema = {
-            'chCanc': {
-                    'type': 'string',
-                    'required': True,
-                    'regex': r'^CFe\d{44}$'},
-            'CNPJ': {
-                    'type': 'cnpj',
-                    'required': True},
-            'signAC': {
-                    'type': 'assinatura_ac',
-                    'required': True},
-            'numeroCaixa': {
-                    'type': 'integer',
-                    'required': True,
-                    'min': 0, 'max': 999},
-        }
+
+    @property
+    def destinatario(self):
+        """O destinatário (:class:`Destinatario`) ou ``None``."""
+        return self._destinatario
+
+
+    def _xml(self, *args, **kwargs):
+        Entidade._erros.clear()
+        return super(CFeCancelamento, self)._xml(*args, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):

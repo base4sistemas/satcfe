@@ -60,15 +60,62 @@ class DLLSAT(object):
     referência carregada para a ela, conforme a convenção de chamada.
     """
 
-    def __init__(self, convencao=constantes.STANDARD_C, caminho=None):
-        super(DLLSAT, self).__init__()
-        self.convencao = convencao
-        self.caminho = caminho
-        self.loadlib()
-
-
-    def loadlib(self):
+    def __init__(self, caminho=None, convencao=constantes.STANDARD_C):
         self._libsat = None
+        self.caminho = caminho
+        self.convencao = convencao
+        self.carregar()
+
+
+    @property
+    def ref(self):
+        """Uma referência para a biblioteca SAT carregada."""
+        return self._libsat
+
+
+    @property
+    def caminho(self):
+        """Caminho completo, incluindo o nome do arquivo, para a biblioteca
+        SAT (DLL ou *shared object*).
+
+        :raises ValueError: Se a biblioteca não existir no caminho indicado.
+        """
+        return self._caminho
+
+
+    @caminho.setter
+    def caminho(self, valor):
+        if not os.path.exists(valor):
+            raise ValueError('Biblioteca SAT inexistente em: {}'.format(valor))
+        self._caminho = valor
+
+
+    @property
+    def convencao(self):
+        """Convenção de chamada para a biblioteca SAT. Deverá ser um dos valores
+        disponíveis na contante :attr:`~satcomum.constantes.CONVENCOES_CHAMADA`.
+
+        :raises ValueError: Se a convenção de chamada não for reconhecida.
+        """
+        return self._convencao
+
+
+    @convencao.setter
+    def convencao(self, valor):
+        if valor not in [v for v,s in constantes.CONVENCOES_CHAMADA]:
+            raise ValueError('Convencao de chamada invalida: {}'.format(valor))
+        self._convencao = valor
+
+
+    def carregar(self):
+        """Carrega (ou recarrega) a biblioteca SAT.
+
+        :raises ValueError: Se a convenção de chamada não for reconhecida.
+        """
+        if self._libsat is not None:
+            del self._libsat
+            self._libsat = None
+
         if constantes.STANDARD_C == self.convencao:
             loader = ctypes.CDLL
         elif constantes.WINDOWS_STDCALL == self.convencao:
@@ -76,44 +123,14 @@ class DLLSAT(object):
         else:
             raise ValueError('Convencao de chamada desconhecida: %s' %
                     self.convencao)
+
         self._libsat = loader(self.caminho)
 
 
-    @property
-    def ref(self):
-        return self._libsat
-
-
-    @property
-    def caminho(self):
-        return self._caminho
-
-
-    @caminho.setter
-    def caminho(self, valor):
-        if not os.path.exists(valor):
-            raise ValueError('Biblioteca (DLL) SAT inexistente no '
-                    'caminho: %s' % valor)
-        self._caminho = valor
-
-
-    @property
-    def convencao(self):
-        return self._convencao
-
-
-    @convencao.setter
-    def convencao(self, valor):
-        if valor not in [v for v,s in constantes.CONVENCOES_CHAMADA]:
-            raise ValueError('Convencao de chamada desconhecida: %s' % valor)
-        self._convencao = valor
-
-
 class NumeroSessaoMemoria(object):
-    """
-    Implementa um numerador de sessão simples, baseado em memória, não
+    """Implementa um numerador de sessão simples, baseado em memória, não
     persistente, que irá gerar um número de sessão (seis dígitos) diferente
-    entre os 100 últimos números de sessão gerados, conforme recomendação.
+    entre os 100 últimos números de sessão gerados, conforme ER SAT.
     """
 
     def __init__(self, tamanho=100):
@@ -133,16 +150,22 @@ class NumeroSessaoMemoria(object):
         return numero
 
 
-class _FuncoesSAT(object):
+class FuncoesSAT(object):
+    """Estabelece a interface básica para acesso às funções da biblioteca SAT.
 
+    A intenção é que esta classe seja a base para classes mais especializadas
+    capazes de trabalhar as respostas, resultando em objetos mais úteis, já que
+    os métodos desta classe invocam as funções da biblioteca SAT e retornam o
+    resultado *verbatim*.
+    """
 
     def __init__(self, dll=None, numerador_sessao=None):
-        super(_FuncoesSAT, self).__init__()
         self._dll = dll
         self._numerador_sessao = numerador_sessao or NumeroSessaoMemoria()
 
 
     def gerar_numero_sessao(self):
+        """Gera o número de sessão para a próxima invocação de função SAT."""
         return self._numerador_sessao()
 
 
@@ -154,115 +177,137 @@ class _FuncoesSAT(object):
             fptr.argtypes = proto.argtypes
             fptr.restype = proto.restype
             return fptr
-        raise AttributeError('\'%s\' object has no attribute \'%s\'' % (
-                self.__class__.__name__, name,))
+        raise AttributeError('{!r} object has no attribute {!r}'.format(
+                self.__class__.__name__, name))
 
 
     def comunicar_certificado_icpbrasil(self, certificado):
-        """
-        ER SAT, item 6.1.2. Envio do certificado criado pela ICP-Brasil.
+        """Função ``ComunicarCertificadoICPBRASIL`` conforme ER SAT, item 6.1.2.
+        Envio do certificado criado pela ICP-Brasil.
+
+        :param str certificado: Conteúdo do certificado digital criado pela
+            autoridade certificadora ICP-Brasil.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
         """
         return self.invocar__ComunicarCertificadoICPBRASIL(
                 self.gerar_numero_sessao(), conf.codigo_ativacao, certificado)
 
 
     def enviar_dados_venda(self, dados_venda):
-        """
-        ER SAT, item 6.1.3. Envia o CF-e de venda para o equipamento SAT, que o
-        completará e o enviará para autorização pela SEFAZ.
+        """Função ``EnviarDadosVenda`` conforme ER SAT, item 6.1.3. Envia o
+        CF-e de venda para o equipamento SAT, que o enviará para autorização
+        pela SEFAZ.
 
-        :param dados_venda: String contendo o XML da venda ou uma instância de
-            :class:`~satcfe.entidades.CFeVenda`.
+        :param dados_venda: Uma instância de :class:`~satcfe.entidades.CFeVenda`
+            ou uma string contendo o XML do CF-e de venda.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
         """
-        _cfe_venda = dados_venda \
+        cfe_venda = dados_venda \
                 if isinstance(dados_venda, basestring) \
                 else dados_venda.documento()
 
         return self.invocar__EnviarDadosVenda(
-                self.gerar_numero_sessao(), conf.codigo_ativacao, _cfe_venda)
+                self.gerar_numero_sessao(), conf.codigo_ativacao, cfe_venda)
 
 
     def cancelar_ultima_venda(self, chave_cfe, dados_cancelamento):
-        """
-        ER SAT, item 6.1.4. Envia o CF-e de cancelamento para o equipamento SAT,
-        que o completará e o enviará para cancelamento do CF-e pela SEFAZ.
+        """Função ``CancelarUltimaVenda`` conforme ER SAT, item 6.1.4. Envia o
+        CF-e de cancelamento para o equipamento SAT, que o enviará para
+        autorização e cancelamento do CF-e pela SEFAZ.
 
         :param chave_cfe: String contendo a chave do CF-e a ser cancelado,
             prefixada com o literal ``CFe``.
 
-        :param dados_cancelamento: String contendo o XML de cancelamento ou uma
-            instância de :class:`~satcfe.entidades.CFeCancelamento`.
+        :param dados_cancelamento: Uma instância
+            de :class:`~satcfe.entidades.CFeCancelamento` ou uma string
+            contendo o XML do CF-e de cancelamento.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
         """
-        _cfe_canc = dados_cancelamento \
+        cfe_canc = dados_cancelamento \
                 if isinstance(dados_cancelamento, basestring) \
                 else dados_cancelamento.documento()
 
         return self.invocar__CancelarUltimaVenda(
-                self.gerar_numero_sessao(),
-                conf.codigo_ativacao,
-                chave_cfe,
-                _cfe_canc)
+                self.gerar_numero_sessao(), conf.codigo_ativacao,
+                chave_cfe, cfe_canc)
 
 
     def consultar_sat(self):
-        """
-        ER SAT, item 6.1.5. Usada para testes de comunicação entre a AC e o
-        equipamento SAT.
+        """Função ``ConsultarSAT`` conforme ER SAT, item 6.1.5. Usada para
+        testes de comunicação entre a AC e o equipamento SAT.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
         """
         return self.invocar__ConsultarSAT(self.gerar_numero_sessao())
 
 
     def teste_fim_a_fim(self, dados_venda):
-        """
-        ER SAT, item 6.1.6. Teste de comunicação entre o aplicativo comercial, o
-        equipamento SAT e a SEFAZ.
+        """Função ``TesteFimAFim`` conforme ER SAT, item 6.1.6. Teste de
+        comunicação entre a AC, o equipamento SAT e a SEFAZ.
 
-        :param dados_venda: String contendo o XML da venda de teste fim-a-fim
-            ou uma instância de :class:`~satcfe.entidades.CFeVenda`.
+        :param dados_venda: Uma instância de :class:`~satcfe.entidades.CFeVenda`
+            ou uma string contendo o XML do CF-e de venda de teste.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
         """
-        _cfe_venda = dados_venda \
+        cfe_venda = dados_venda \
                 if isinstance(dados_venda, basestring) \
                 else dados_venda.documento()
 
         return self.invocar__TesteFimAFim(
-                self.gerar_numero_sessao(), conf.codigo_ativacao, _cfe_venda)
+                self.gerar_numero_sessao(), conf.codigo_ativacao, cfe_venda)
 
 
     def consultar_status_operacional(self):
-        """
-        ER SAT, item 6.1.7. Consulta do status operacional do equipamento SAT.
+        """Função ``ConsultarStatusOperacional`` conforme ER SAT, item 6.1.7.
+        Consulta do status operacional do equipamento SAT.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
         """
         return self.invocar__ConsultarStatusOperacional(
                 self.gerar_numero_sessao(), conf.codigo_ativacao)
 
 
     def configurar_interface_de_rede(self, configuracao):
-        """
-        ER SAT, item 6.1.9. Configurção da interface de comunicação do
-        equipamento SAT. Este método considera que o equipamento SAT estará
-        ativado.
+        """Função ``ConfigurarInterfaceDeRede`` conforme ER SAT, item 6.1.9.
+        Configurção da interface de comunicação do equipamento SAT.
 
-        :param configuracao: String contendo o XML com as configurações ou uma
-            instância de :class:`~satcfe.rede.ConfiguracaoRede`.
+        :param configuracao: Instância de :class:`~satcfe.rede.ConfiguracaoRede`
+            ou uma string contendo o XML com as configurações de rede.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
         """
-        _conf_xml = configuracao \
+        conf_xml = configuracao \
                 if isinstance(configuracao, basestring) \
                 else configuracao.documento()
 
         return self.invocar__ConfigurarInterfaceDeRede(
-                self.gerar_numero_sessao(), conf.codigo_ativacao, _conf_xml)
+                self.gerar_numero_sessao(), conf.codigo_ativacao, conf_xml)
 
 
     def associar_assinatura(self, sequencia_cnpj, assinatura_ac):
-        """
-        ER SAT, item 6.1.10. Associação da assinatura do aplicativo comercial.
+        """Função ``AssociarAssinatura`` conforme ER SAT, item 6.1.10.
+        Associação da assinatura do aplicativo comercial.
 
-        :param sequencia_cnpj: String de 28 dígitos composta do CNPJ do
-            desenvolvedor do aplicativo comercial e do CNPJ do estabelecimento
-            comercial contribuinte, descrito no item 2.3.1 da ER SAT.
+        :param sequencia_cnpj: Sequência string de 28 dígitos composta do CNPJ
+            do desenvolvedor da AC e do CNPJ do estabelecimento comercial
+            contribuinte, conforme ER SAT, item 2.3.1.
 
-        :param assinatura_ac: String contendo a assinatura digital do parâmetro
-            ``sequencia_cnpj`` codificada em base64.
+        :param assinatura_ac: Sequência string contendo a assinatura digital do
+            parâmetro ``sequencia_cnpj`` codificada em base64.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
         """
         return self.invocar__AssociarAssinatura(
                 self.gerar_numero_sessao(), conf.codigo_ativacao,
@@ -270,32 +315,44 @@ class _FuncoesSAT(object):
 
 
     def atualizar_software_sat(self):
-        """
-        ER SAT, item 6.1.11. Atualização do software do equipamento SAT.
+        """Função ``AtualizarSoftwareSAT`` conforme ER SAT, item 6.1.11.
+        Atualização do software do equipamento SAT.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
         """
         return self.invocar__AtualizarSoftwareSAT(
                 self.gerar_numero_sessao(), conf.codigo_ativacao)
 
 
     def extrair_logs(self):
-        """
-        ER SAT, item 6.1.12. Extração dos registro de log do equipamento SAT.
+        """Função ``ExtrairLogs`` conforme ER SAT, item 6.1.12. Extração dos
+        registros de log do equipamento SAT.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
         """
         return self.invocar__ExtrairLogs(
                 self.gerar_numero_sessao(), conf.codigo_ativacao)
 
 
     def bloquear_sat(self):
-        """
-        ER SAT, item 6.1.13. Bloqueio operacional do equipamento SAT.
+        """Função ``BloquearSAT`` conforme ER SAT, item 6.1.13. Bloqueio
+        operacional do equipamento SAT.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
         """
         return self.invocar__BloquearSAT(
                 self.gerar_numero_sessao(), conf.codigo_ativacao)
 
 
     def desbloquear_sat(self):
-        """
-        ER SAT, item 6.1.14. Desbloqueio operacional do equipamento SAT.
+        """Função ``DesbloquearSAT`` conforme ER SAT, item 6.1.14. Desbloqueio
+        operacional do equipamento SAT.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
         """
         return self.invocar__DesbloquearSAT(
                 self.gerar_numero_sessao(), conf.codigo_ativacao)

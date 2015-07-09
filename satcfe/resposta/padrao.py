@@ -25,6 +25,10 @@ from ..util import as_ascii
 
 
 class RespostaSAT(object):
+    """Base para representação de respostas das funções da biblioteca SAT."""
+
+    class _Atributos(object):
+        pass
 
 
     CAMPOS = (
@@ -34,18 +38,12 @@ class RespostaSAT(object):
             ('cod', unicode),
             ('mensagemSEFAZ', unicode),
         )
+    """Campos padrão esperados em uma resposta e a sua função de conversão para
+    o tipo Python, a partir da resposta original (unicode).
     """
-    Campos padrão esperados em uma resposta e a sua função de conversão para o
-    tipo Python, a partir da resposta original (unicode).
-    """
-
-
-    class _Atributos(object):
-        pass
 
 
     def __init__(self, **kwargs):
-        super(RespostaSAT, self).__init__()
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -118,14 +116,10 @@ class RespostaSAT(object):
 
 
 def analisar_retorno(retorno,
-        classe_resposta=RespostaSAT,
-        campos=RespostaSAT.CAMPOS,
-        campos_alternativos=[],
-        funcao=None,
-        manter_verbatim=True):
-    """
-    Analisa o retorno (supostamente um retorno de uma função do SAT) conforme o
-    padrão e campos esperados. O retorno deverá possuir dados separados entre
+        classe_resposta=RespostaSAT, campos=RespostaSAT.CAMPOS,
+        campos_alternativos=[], funcao=None, manter_verbatim=True):
+    """Analisa o retorno (supostamente um retorno de uma função do SAT) conforme
+    o padrão e campos esperados. O retorno deverá possuir dados separados entre
     si através de pipes e o número de campos deverá coincidir com os campos
     especificados.
 
