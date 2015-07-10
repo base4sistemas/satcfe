@@ -19,7 +19,7 @@
 
 import os
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 if 'SATCFE_SETUP_SCRIPT' not in os.environ:
     from satcomum.constantes import VERSAO_ER
