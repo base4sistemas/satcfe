@@ -18,17 +18,22 @@
 #
 
 import io
+import os
 import sys
 
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
+
+# Isso evita que o pacote 'satcfe' importe outros modulos prematuramente,
+# quebrando a resolução de dependências durante a instalação via PIP
+os.environ['SATCFE_SETUP_SCRIPT'] = '1'
 
 import satcfe
 
 
 def read(*filenames, **kwargs):
     encoding = kwargs.get('encoding', 'utf-8')
-    sep = kwargs.get('sep', '\n')
+    sep = kwargs.get('sep', os.linesep)
     buf = []
     for filename in filenames:
         with io.open(filename, encoding=encoding) as f:
@@ -36,7 +41,12 @@ def read(*filenames, **kwargs):
     return sep.join(buf)
 
 
-long_description = read('README.rst', 'CHANGES.rst')
+def read_install_requires():
+    content = read('requirements.txt')
+    return content.strip().split(os.linesep)
+
+
+long_description = read('README.rst')
 
 
 class PyTest(TestCommand):
@@ -60,18 +70,13 @@ class PyTest(TestCommand):
 setup(
         name='satcfe',
         version=satcfe.__version__,
-        description=u'Abstração do acesso ao equipamento SAT-CF-e (SAT Fiscal)',
+        description=u'Abstração do acesso ao equipamento SAT (SAT-CF-e)',
         long_description=long_description,
         packages=[
                 'satcfe',
                 'satcfe.resposta',
             ],
-        install_requires=[
-                'cerberus >= 0.8.1',
-                'satcomum >= 0.0.2',
-                'requests >= 2.7.0',
-                'unidecode >= 0.4.17',
-            ],
+        install_requires=read_install_requires(),
         extras_require={
                 'testing': [
                         'pytest',
