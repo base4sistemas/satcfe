@@ -46,6 +46,10 @@ maiores informações, consulte a `documentação do projeto
 Se estiver procurando meios para emitir um extrato do CF-e-SAT, o
 `Projeto SATExtrato`_ pode ajudar.
 
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/base4sistemas/satcfe
+   :target: https://gitter.im/base4sistemas/satcfe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
 
 Utilização
 ----------
@@ -109,8 +113,3 @@ executar contra quaisquer outros equipamentos SAT disponíveis.
 .. _`SAT-CF-e`: http://www.fazenda.sp.gov.br/sat/
 .. _`Projeto SATExtrato`: https://github.com/base4sistemas/satextrato
 .. _`Dimep`: http://www.dimep.com.br/
-
-
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/base4sistemas/satcfe
-   :target: https://gitter.im/base4sistemas/satcfe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
