@@ -43,8 +43,8 @@ biblioteca SAT, que é fornecida pelos fabricantes de equipamentos SAT. Para
 maiores informações, consulte a `documentação do projeto
 <http://satcfe.readthedocs.org/>`_.
 
-Se estiver procurando meios para emitir um extrato do CF-e-SAT, consulte o
-projeto `satextrato`_.
+Se estiver procurando meios para emitir um extrato do CF-e-SAT, o
+`Projeto SATExtrato`_ pode ajudar.
 
 
 Utilização
@@ -63,7 +63,7 @@ Este é um exemplo básico de uso, para consultar o equipamento SAT:
 
     >>> cliente = ClienteSATLocal(DLLSAT(
     ...        caminho='/caminho/para/sat.dll',
-    ...        convecao=constantes.WINDOWS_STDCALL))
+    ...        convencao=constantes.WINDOWS_STDCALL))
 
     >>> resposta = cliente.consultar_sat()
     >>> resposta.mensagem
@@ -107,5 +107,5 @@ executar contra quaisquer outros equipamentos SAT disponíveis.
 
 
 .. _`SAT-CF-e`: http://www.fazenda.sp.gov.br/sat/
-.. _`satextrato`: https://github.com/base4sistemas/satextrato
+.. _`Projeto SATExtrato`: https://github.com/base4sistemas/satextrato
 .. _`Dimep`: http://www.dimep.com.br/

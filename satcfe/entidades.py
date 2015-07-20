@@ -2273,7 +2273,7 @@ class CFeVenda(Entidade):
             pgto.append(pg._xml())
 
         if self.informacoes_adicionais is not None:
-            infCFe.append(infAdic._xml())
+            infCFe.append(self.informacoes_adicionais._xml())
 
         return cfe
 
@@ -2321,7 +2321,7 @@ class CFeCancelamento(Entidade):
 
     @property
     def destinatario(self):
-        """O destinatário (:class:`Destinatario`) ou ``None``."""
+        """O :class:`Destinatario` ou ``None``."""
         return self._destinatario
 
 
@@ -2343,12 +2343,11 @@ class CFeCancelamento(Entidade):
         ET.SubElement(ide, 'numeroCaixa').text = \
                 '{:03d}'.format(self.numeroCaixa)
 
+        ET.SubElement(infCFe, 'emit')
+
         dest = self.destinatario or Destinatario()
         infCFe.append(dest._xml(cancelamento=True))
 
         ET.SubElement(infCFe, 'total')
-
-        infAdic = InformacoesAdicionais()
-        infCFe.append(infAdic._xml())
 
         return cfecanc

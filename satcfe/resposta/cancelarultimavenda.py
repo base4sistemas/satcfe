@@ -46,7 +46,7 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
     def analisar(retorno):
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='EnviarDadosVenda',
-                classe_resposta=RespostaEnviarDadosVenda,
+                classe_resposta=RespostaCancelarUltimaVenda,
                 campos=(
                         ('numeroSessao', int),
                         ('EEEEE', unicode),
