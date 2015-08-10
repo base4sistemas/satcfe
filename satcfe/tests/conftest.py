@@ -23,7 +23,7 @@ import pytest
 
 from satcomum import constantes
 
-from satcfe import DLLSAT
+from satcfe.base import DLLSAT
 from satcfe.clientelocal import ClienteSATLocal
 from satcfe.entidades import CFeCancelamento
 from satcfe.entidades import CFeVenda

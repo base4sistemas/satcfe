@@ -2295,7 +2295,7 @@ class CFeCancelamento(Entidade):
         ...         signAC=constantes.ASSINATURA_AC_TESTE,
         ...         numeroCaixa=1)
         >>> ET.tostring(cfecanc._xml())
-        '<CFeCanc><infCFe chCanc="CFe01234567890123456789012345678901234567890123"><ide><CNPJ>08427847000169</CNPJ><signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC><numeroCaixa>001</numeroCaixa></ide><dest /><total /><infAdic /></infCFe></CFeCanc>'
+        '<CFeCanc><infCFe chCanc="CFe01234567890123456789012345678901234567890123"><ide><CNPJ>08427847000169</CNPJ><signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC><numeroCaixa>001</numeroCaixa></ide><emit /><dest /><total /></infCFe></CFeCanc>'
 
     """
 

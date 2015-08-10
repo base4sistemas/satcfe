@@ -21,7 +21,7 @@ import base64
 
 from decimal import Decimal
 
-from satcomum.util import dados_qrcode
+from satcomum.ersat import dados_qrcode
 from satcomum.util import forcar_unicode
 
 from ..excecoes import ExcecaoRespostaSAT
