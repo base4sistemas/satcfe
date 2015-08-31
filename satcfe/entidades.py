@@ -809,15 +809,15 @@ class ProdutoServico(Entidade):
 
         ET.SubElement(prod, 'CFOP').text = self.CFOP
         ET.SubElement(prod, 'uCom').text = self.uCom
-        ET.SubElement(prod, 'qCom').text = '{:n}'.format(self.qCom)
-        ET.SubElement(prod, 'vUnCom').text = '{:n}'.format(self.vUnCom)
+        ET.SubElement(prod, 'qCom').text = str(self.qCom)
+        ET.SubElement(prod, 'vUnCom').text = str(self.vUnCom)
         ET.SubElement(prod, 'indRegra').text = self.indRegra
 
         if hasattr(self, 'vDesc'):
-            ET.SubElement(prod, 'vDesc').text = '{:n}'.format(self.vDesc)
+            ET.SubElement(prod, 'vDesc').text = str(self.vDesc)
 
         if hasattr(self, 'vOutro'):
-            ET.SubElement(prod, 'vOutro').text = '{:n}'.format(self.vOutro)
+            ET.SubElement(prod, 'vOutro').text = str(self.vOutro)
 
         if self.observacoes_fisco:
             for obs in self.observacoes_fisco:
@@ -895,7 +895,7 @@ class ICMS00(Entidade):
         icms00 = ET.Element(self.__class__.__name__)
         ET.SubElement(icms00, 'Orig').text = self.Orig
         ET.SubElement(icms00, 'CST').text = self.CST
-        ET.SubElement(icms00, 'pICMS').text = '{:n}'.format(self.pICMS)
+        ET.SubElement(icms00, 'pICMS').text = str(self.pICMS)
         return icms00
 
 
@@ -1004,7 +1004,7 @@ class ICMSSN900(Entidade):
         icmssn900 = ET.Element('ICMSSN900')
         ET.SubElement(icmssn900, 'Orig').text = self.Orig
         ET.SubElement(icmssn900, 'CSOSN').text = self.CSOSN
-        ET.SubElement(icmssn900, 'pICMS').text = '{:n}'.format(self.pICMS)
+        ET.SubElement(icmssn900, 'pICMS').text = str(self.pICMS)
         return icmssn900
 
 
@@ -1042,8 +1042,8 @@ class PISAliq(Entidade):
     def _construir_elemento_xml(self, *args, **kwargs):
         pisaliq = ET.Element('PISAliq')
         ET.SubElement(pisaliq, 'CST').text = self.CST
-        ET.SubElement(pisaliq, 'vBC').text = '{:n}'.format(self.vBC)
-        ET.SubElement(pisaliq, 'pPIS').text = '{:n}'.format(self.pPIS)
+        ET.SubElement(pisaliq, 'vBC').text = str(self.vBC)
+        ET.SubElement(pisaliq, 'pPIS').text = str(self.pPIS)
         return pisaliq
 
 
@@ -1081,8 +1081,8 @@ class PISQtde(Entidade):
     def _construir_elemento_xml(self, *args, **kwargs):
         pisqtde = ET.Element('PISQtde')
         ET.SubElement(pisqtde, 'CST').text = self.CST
-        ET.SubElement(pisqtde, 'qBCProd').text = '{:n}'.format(self.qBCProd)
-        ET.SubElement(pisqtde, 'vAliqProd').text = '{:n}'.format(self.vAliqProd)
+        ET.SubElement(pisqtde, 'qBCProd').text = str(self.qBCProd)
+        ET.SubElement(pisqtde, 'vAliqProd').text = str(self.vAliqProd)
         return pisqtde
 
 
@@ -1253,13 +1253,13 @@ class PISOutr(Entidade):
         ET.SubElement(pisoutr, 'CST').text = self.CST
 
         if hasattr(self, 'vBC'):
-            ET.SubElement(pisoutr, 'vBC').text = '{:n}'.format(self.vBC)
-            ET.SubElement(pisoutr, 'pPIS').text = '{:n}'.format(self.pPIS)
+            ET.SubElement(pisoutr, 'vBC').text = str(self.vBC)
+            ET.SubElement(pisoutr, 'pPIS').text = str(self.pPIS)
 
         elif hasattr(self, 'qBCProd'):
-            ET.SubElement(pisoutr, 'qBCProd').text = '{:n}'.format(self.qBCProd)
+            ET.SubElement(pisoutr, 'qBCProd').text = str(self.qBCProd)
             ET.SubElement(pisoutr, 'vAliqProd').text = \
-                    '{:n}'.format(self.vAliqProd)
+                    str(self.vAliqProd)
 
         return pisoutr
 
@@ -1366,13 +1366,13 @@ class PISST(Entidade):
         pisst = ET.Element(self.__class__.__name__)
 
         if hasattr(self, 'vBC'):
-            ET.SubElement(pisst, 'vBC').text = '{:n}'.format(self.vBC)
-            ET.SubElement(pisst, 'pPIS').text = '{:n}'.format(self.pPIS)
+            ET.SubElement(pisst, 'vBC').text = str(self.vBC)
+            ET.SubElement(pisst, 'pPIS').text = str(self.pPIS)
 
         elif hasattr(self, 'qBCProd'):
-            ET.SubElement(pisst, 'qBCProd').text = '{:n}'.format(self.qBCProd)
+            ET.SubElement(pisst, 'qBCProd').text = str(self.qBCProd)
             ET.SubElement(pisst, 'vAliqProd').text = \
-                    '{:n}'.format(self.vAliqProd)
+                    str(self.vAliqProd)
 
         return pisst
 
@@ -1411,8 +1411,8 @@ class COFINSAliq(Entidade):
     def _construir_elemento_xml(self, *args, **kwargs):
         cofinsaliq = ET.Element(self.__class__.__name__)
         ET.SubElement(cofinsaliq, 'CST').text = self.CST
-        ET.SubElement(cofinsaliq, 'vBC').text = '{:n}'.format(self.vBC)
-        ET.SubElement(cofinsaliq, 'pCOFINS').text = '{:n}'.format(self.pCOFINS)
+        ET.SubElement(cofinsaliq, 'vBC').text = str(self.vBC)
+        ET.SubElement(cofinsaliq, 'pCOFINS').text = str(self.pCOFINS)
         return cofinsaliq
 
 
@@ -1450,9 +1450,9 @@ class COFINSQtde(Entidade):
     def _construir_elemento_xml(self, *args, **kwargs):
         cofinsqtde = ET.Element(self.__class__.__name__)
         ET.SubElement(cofinsqtde, 'CST').text = self.CST
-        ET.SubElement(cofinsqtde, 'qBCProd').text = '{:n}'.format(self.qBCProd)
+        ET.SubElement(cofinsqtde, 'qBCProd').text = str(self.qBCProd)
         ET.SubElement(cofinsqtde, 'vAliqProd').text = \
-                '{:n}'.format(self.vAliqProd)
+                str(self.vAliqProd)
         return cofinsqtde
 
 
@@ -1624,15 +1624,15 @@ class COFINSOutr(Entidade):
         ET.SubElement(cofinsoutr, 'CST').text = self.CST
 
         if hasattr(self, 'vBC'):
-            ET.SubElement(cofinsoutr, 'vBC').text = '{:n}'.format(self.vBC)
+            ET.SubElement(cofinsoutr, 'vBC').text = str(self.vBC)
             ET.SubElement(cofinsoutr, 'pCOFINS').text = \
-                    '{:n}'.format(self.pCOFINS)
+                    str(self.pCOFINS)
 
         elif hasattr(self, 'qBCProd'):
             ET.SubElement(cofinsoutr, 'qBCProd').text = \
-                    '{:n}'.format(self.qBCProd)
+                    str(self.qBCProd)
             ET.SubElement(cofinsoutr, 'vAliqProd').text = \
-                    '{:n}'.format(self.vAliqProd)
+                    str(self.vAliqProd)
 
         return cofinsoutr
 
@@ -1739,13 +1739,13 @@ class COFINSST(Entidade):
         pisst = ET.Element(self.__class__.__name__)
 
         if hasattr(self, 'vBC'):
-            ET.SubElement(pisst, 'vBC').text = '{:n}'.format(self.vBC)
-            ET.SubElement(pisst, 'pCOFINS').text = '{:n}'.format(self.pCOFINS)
+            ET.SubElement(pisst, 'vBC').text = str(self.vBC)
+            ET.SubElement(pisst, 'pCOFINS').text = str(self.pCOFINS)
 
         elif hasattr(self, 'qBCProd'):
-            ET.SubElement(pisst, 'qBCProd').text = '{:n}'.format(self.qBCProd)
+            ET.SubElement(pisst, 'qBCProd').text = str(self.qBCProd)
             ET.SubElement(pisst, 'vAliqProd').text = \
-                    '{:n}'.format(self.vAliqProd)
+                    str(self.vAliqProd)
 
         return pisst
 
@@ -1809,9 +1809,9 @@ class ISSQN(Entidade):
         issqn = ET.Element(self.__class__.__name__)
 
         ET.SubElement(issqn, 'vDeducISSQN').text = \
-                '{:n}'.format(self.vDeducISSQN)
+                str(self.vDeducISSQN)
 
-        ET.SubElement(issqn, 'vAliq').text = '{:n}'.format(self.vAliq)
+        ET.SubElement(issqn, 'vAliq').text = str(self.vAliq)
 
         if hasattr(self, 'cMunFG'):
             ET.SubElement(issqn, 'cMunFG').text = self.cMunFG
@@ -1961,7 +1961,7 @@ class Imposto(Entidade):
 
         if hasattr(self, 'vItem12741'):
             ET.SubElement(imposto, 'vItem12741').text = \
-                    '{:n}'.format(self.vItem12741)
+                    str(self.vItem12741)
 
         if self.icms is not None:
             icms = ET.SubElement(imposto, 'ICMS')
@@ -2027,15 +2027,15 @@ class DescAcrEntr(Entidade):
 
         if hasattr(self, 'vDescSubtot'):
             ET.SubElement(grupo, 'vDescSubtot').text = \
-                    '{:n}'.format(self.vDescSubtot)
+                    str(self.vDescSubtot)
 
         if hasattr(self, 'vAcresSubtot'):
             ET.SubElement(grupo, 'vAcresSubtot').text = \
-                    '{:n}'.format(self.vAcresSubtot)
+                    str(self.vAcresSubtot)
 
         if hasattr(self, 'vCFeLei12741'):
             ET.SubElement(grupo, 'vCFeLei12741').text = \
-                    '{:n}'.format(self.vCFeLei12741)
+                    str(self.vCFeLei12741)
 
         return grupo
 
@@ -2079,7 +2079,7 @@ class MeioPagamento(Entidade):
     def _construir_elemento_xml(self, *args, **kwargs):
         mp = ET.Element('MP')
         ET.SubElement(mp, 'cMP').text = self.cMP
-        ET.SubElement(mp, 'vMP').text = '{:n}'.format(self.vMP)
+        ET.SubElement(mp, 'vMP').text = str(self.vMP)
         if hasattr(self, 'cAdmC'):
             ET.SubElement(mp, 'cAdmC').text = self.cAdmC
         return mp
