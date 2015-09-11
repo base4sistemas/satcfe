@@ -21,12 +21,16 @@ import json
 
 import requests
 
+from satcomum import constantes
+
 import satcfe
 
 from .base import FuncoesSAT
 from .config import conf
 
+from .resposta import RespostaAtivarSAT
 from .resposta import RespostaCancelarUltimaVenda
+from .resposta import RespostaConsultarNumeroSessao
 from .resposta import RespostaConsultarStatusOperacional
 from .resposta import RespostaEnviarDadosVenda
 from .resposta import RespostaExtrairLogs
@@ -70,6 +74,20 @@ class ClienteSATHub(FuncoesSAT):
         resp = requests.post(self._url(metodo), data=payload, headers=headers)
         resp.raise_for_status()
         return resp
+
+
+    def ativar_sat(self, tipo_certificado, cnpj, codigo_uf):
+        """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.ativar_sat`.
+
+        :return: Uma resposta SAT especializada em ``AtivarSAT``.
+        :rtype: satcfe.resposta.ativarsat.RespostaAtivarSAT
+        """
+        resp = self._http_post('ativarsat',
+                tipo_certificado=tipo_certificado,
+                cnpj=cnpj,
+                codigo_uf=codigo_uf)
+        conteudo = resp.json()
+        return RespostaAtivarSAT.analisar(conteudo.get('retorno'))
 
 
     def comunicar_certificado_icpbrasil(self, certificado):
@@ -145,6 +163,18 @@ class ClienteSATHub(FuncoesSAT):
                 conteudo.get('retorno'))
 
 
+    def consultar_numero_sessao(self, numero_sessao):
+        """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.consultar_numero_sessao`.
+
+        :return: Uma resposta SAT que irá depender da sessão consultada.
+        :rtype: satcfe.resposta.padrao.RespostaSAT
+        """
+        resp = self._http_post('consultarnumerosessao',
+                numero_sessao=numero_sessao)
+        conteudo = resp.json()
+        return RespostaConsultarNumeroSessao.analisar(conteudo.get('retorno'))
+
+
     def configurar_interface_de_rede(self, configuracao):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.configurar_interface_de_rede`.
 
@@ -213,3 +243,18 @@ class ClienteSATHub(FuncoesSAT):
         conteudo = resp.json()
         return RespostaSAT.desbloquear_sat(conteudo.get('retorno'))
 
+
+    def trocar_codigo_de_ativacao(self, novo_codigo_ativacao,
+            opcao=constantes.CODIGO_ATIVACAO_REGULAR,
+            codigo_emergencia=None):
+        """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.trocar_codigo_de_ativacao`.
+
+        :return: Uma resposta SAT padrão.
+        :rtype: satcfe.resposta.padrao.RespostaSAT
+        """
+        resp = self._http_post('trocarcodigodeativacao',
+                novo_codigo_ativacao=novo_codigo_ativacao,
+                opcao=opcao,
+                codigo_emergencia=codigo_emergencia)
+        conteudo = resp.json()
+        return RespostaSAT.trocar_codigo_de_ativacao(conteudo.get('retorno'))

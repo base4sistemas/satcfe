@@ -115,6 +115,15 @@ class RespostaSAT(object):
         return resposta
 
 
+    @staticmethod
+    def trocar_codigo_de_ativacao(retorno):
+        resposta = analisar_retorno(forcar_unicode(retorno),
+                funcao='TrocarCodigoDeAtivacao')
+        if resposta.EEEEE not in ('18000',):
+            raise ExcecaoRespostaSAT(resposta)
+        return resposta
+
+
 def analisar_retorno(retorno,
         classe_resposta=RespostaSAT, campos=RespostaSAT.CAMPOS,
         campos_alternativos=[], funcao=None, manter_verbatim=True):

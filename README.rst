@@ -77,39 +77,98 @@ Este é um exemplo básico de uso, para consultar o equipamento SAT:
 Executando os Testes
 --------------------
 
-Para executar os testes faça:
+É possível executar os testes contra qualquer equipamento SAT, em qualquer
+plataforma ou arquitetura, desde que você possua um kit de desenvolvimento,
+contendo o equipamento SAT e as bibliotecas do fabricante.
+
+.. warning::
+
+    Embora seja bastante óbvio, não custa avisar: **não execute estes testes
+    contra um equipamento SAT em produção!**
+
+Para executar os testes em um ambiente Linux é preciso definir duas variáveis
+de ambiente para configurar o acesso à biblioteca SAT fornecida pelo fabricante
+do equipamento.
 
 .. sourcecode:: shell
 
-    $ python setup.py test
+    $ export SATCFE_TEST_DLL=/home/user/fabricante/linux/libsat.so
+    $ export SATCFE_TEST_DLLCONV=1
 
-Em ambientes Microsoft |reg| Windows |trade|, é possível executar uma série de
-testes contra o equipamento SAT. Atualmente estão implementados testes apenas o
-equipamento SAT D-Sat |trade| da `Dimep`_ |reg|. Como a implementação em si
-independe do fabricante do equipamento SAT é fácil alterar os testes para
-executar contra quaisquer outros equipamentos SAT disponíveis.
+Antes de executar os testes propriamente, **é conveniente revisar** a
+parametrização no script ``runtests.sh``. Dependendo do seu equipamento SAT, os
+valores para configuração dos dados do emitente e outros dados podem variar.
 
 .. sourcecode:: shell
 
-    > python setup.py test -a "--cnpj-ac=01234567000199 --codigo-ativacao=123"
+    $ ./runtests.sh
+
+Parametrização
+~~~~~~~~~~~~~~
+
+As opções de parametrização dos testes são:
+
+``--codigo-ativacao``
+    | Código de ativação configurado no equipamento SAT.
+
+``--numero-caixa``
+    | Número do caixa de origem.
+
+``--assinatura-ac``
+    | Conteúdo da assinatura da AC.
+
+``--cnpj-ac``
+    | CNPJ da empresa desenvolvedora da AC (apenas dígitos).
+
+``--emitente-cnpj``
+    | CNPJ do estabelecimento emitente (apenas dígitos).
+
+``--emitente-ie``
+    | Inscrição estadual do emitente (apenas dígitos).
+
+``--emitente-im``
+    | Inscrição municipal do emitente (apenas dígitos).
+
+``--emitente-uf``
+    | Sigla da unidade federativa do estabelecimento emitente.
+
+``--emitente-issqn-regime``
+    | Regime especial de tributação do ISSQN do emitente, em casos de
+    | testes de emissão de venda e/ou cancelamento.
+
+``--emitente-issqn-rateio``
+    | Indicador de rateio do desconto sobre o subtotal para produtos
+    | tributados no ISSQN do emitente, em casos de testes de emissão de
+    | venda e/ou cancelamento.
+
+``--dll-caminho``
+    | Caminho para a DLL/SO (shared library) SAT.
+
+``--dll-convencao``
+    | Convenção de chamada para a DLL/SO (shared library) SAT.
+
+``--skip-funcoes-sat``
+    | Ignora testes de todas as funções SAT evitando qualquer acesso ao
+    | equipamento. Mesmo assim, **nunca execute os testes** contra um
+    | equipamento em produção.
+
+``--skip-[funcao]``
+    | Permite evitar a execução de testes para uma função em particular,
+    | substituindo ``[funcao]`` pelo nome da função SAT em letras minúsculas,
+    | por exemplo, para evitar a execução da função ``ConsultarSAT`` use
+    | ``--skip-consultarsat``.
 
 
-..
-    Sphinx Documentation: Substitutions at
-    http://sphinx-doc.org/rest.html#substitutions
-    Codes copied from reStructuredText Standard Definition Files at
-    http://docutils.sourceforge.net/docutils/parsers/rst/include/isonum.txt
+Executando Testes Manualmente
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. |copy| unicode:: U+00A9 .. COPYRIGHT SIGN
-    :ltrim:
+Se não quiser usar o script ``runtests.sh`` ou se estiver usando um ambiente
+Windows, poderá invocar a execução dos testes manualmente, por exemplo:
 
-.. |reg|  unicode:: U+00AE .. REGISTERED SIGN
-    :ltrim:
+.. sourcecode:: text
 
-.. |trade|  unicode:: U+2122 .. TRADE MARK SIGN
-    :ltrim:
+    C> python setup.py test -a "--cnpj-ac=01234567000199 ..."
 
 
 .. _`SAT-CF-e`: http://www.fazenda.sp.gov.br/sat/
 .. _`Projeto SATExtrato`: https://github.com/base4sistemas/satextrato
-.. _`Dimep`: http://www.dimep.com.br/

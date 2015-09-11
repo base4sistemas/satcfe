@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/test/test_satcfe.py
+# satcfe/tests/test_satcfe.py
 #
 # Copyright 2015 Base4 Sistemas Ltda ME
 #

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/resposta/__init__.py
+# satcfe/tests/test_consultarsat.py
 #
 # Copyright 2015 Base4 Sistemas Ltda ME
 #
@@ -17,11 +17,17 @@
 # limitations under the License.
 #
 
-from .ativarsat import RespostaAtivarSAT
-from .cancelarultimavenda import RespostaCancelarUltimaVenda
-from .consultarnumerosessao import RespostaConsultarNumeroSessao
-from .consultarstatusoperacional import RespostaConsultarStatusOperacional
-from .enviardadosvenda import RespostaEnviarDadosVenda
-from .extrairlogs import RespostaExtrairLogs
-from .padrao import RespostaSAT
-from .testefimafim import RespostaTesteFimAFim
+import os
+import pytest
+
+from unidecode import unidecode
+
+
+@pytest.mark.skipif(
+        pytest.config.getoption('--skip-consultarsat') or
+        pytest.config.getoption('--skip-funcoes-sat'),
+        reason='Funcao `ConsultarSAT` explicitamente ignorada')
+def test_consultarsat(clientesatlocal):
+    resposta = clientesatlocal.consultar_sat()
+    assert resposta.EEEEE in ('08000',)
+    assert unidecode(resposta.mensagem) == 'SAT em operacao'

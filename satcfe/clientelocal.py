@@ -17,10 +17,14 @@
 # limitations under the License.
 #
 
+from satcomum import constantes
+
 from .base import FuncoesSAT
 from .config import conf
 
+from .resposta import RespostaAtivarSAT
 from .resposta import RespostaCancelarUltimaVenda
+from .resposta import RespostaConsultarNumeroSessao
 from .resposta import RespostaConsultarStatusOperacional
 from .resposta import RespostaEnviarDadosVenda
 from .resposta import RespostaExtrairLogs
@@ -38,6 +42,17 @@ class ClienteSATLocal(FuncoesSAT):
 
     def __init__(self, *args, **kwargs):
         super(ClienteSATLocal, self).__init__(*args, **kwargs)
+
+
+    def ativar_sat(self, tipo_certificado, cnpj, codigo_uf):
+        """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.ativar_sat`.
+
+        :return: Uma resposta SAT especilizada em ``AtivarSAT``.
+        :rtype: satcfe.resposta.ativarsat.RespostaAtivarSAT
+        """
+        retorno = super(ClienteSATLocal, self).ativar_sat(
+                tipo_certificado, cnpj, codigo_uf)
+        return RespostaAtivarSAT.analisar(retorno)
 
 
     def comunicar_certificado_icpbrasil(self, certificado):
@@ -102,6 +117,17 @@ class ClienteSATLocal(FuncoesSAT):
         return RespostaConsultarStatusOperacional.analisar(retorno)
 
 
+    def consultar_numero_sessao(self, numero_sessao):
+        """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.consultar_numero_sessao`.
+
+        :return: Uma resposta SAT que irá depender da sessão consultada.
+        :rtype: satcfe.resposta.padrao.RespostaSAT
+        """
+        retorno = super(ClienteSATLocal, self).\
+                consultar_numero_sessao(numero_sessao)
+        return RespostaConsultarNumeroSessao.analisar(retorno)
+
+
     def configurar_interface_de_rede(self, configuracao):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.configurar_interface_de_rede`.
 
@@ -163,3 +189,17 @@ class ClienteSATLocal(FuncoesSAT):
         """
         retorno = super(ClienteSATLocal, self).desbloquear_sat()
         return RespostaSAT.desbloquear_sat(retorno)
+
+
+    def trocar_codigo_de_ativacao(self, novo_codigo_ativacao,
+            opcao=constantes.CODIGO_ATIVACAO_REGULAR,
+            codigo_emergencia=None):
+        """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.trocar_codigo_de_ativacao`.
+
+        :return: Uma resposta SAT padrão.
+        :rtype: satcfe.resposta.padrao.RespostaSAT
+        """
+        retorno = super(ClienteSATLocal, self).trocar_codigo_de_ativacao(
+                novo_codigo_ativacao, opcao=opcao,
+                codigo_emergencia=codigo_emergencia)
+        return RespostaSAT.trocar_codigo_de_ativacao(retorno)
