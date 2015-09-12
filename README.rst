@@ -34,6 +34,14 @@ Projeto SATCFe
     Refer to the `oficial web site <http://www.fazenda.sp.gov.br/sat/>`_ for
     more information (in brazilian portuguese only).
 
+-------
+
+.. image:: https://drone.io/github.com/base4sistemas/satcfe/status.png
+    :target: https://drone.io/github.com/base4sistemas/satcfe/latest
+    :alt: Build status
+
+-------
+
 Este projeto refere-se à tecnologia `SAT-CF-e`_ desenvolvida pela Secretaria da
 Fazenda do Estado de São Paulo e faz parte de um grupo de cinco projetos que
 resolvem problemas específicos, mas relacionados.
@@ -80,11 +88,6 @@ Executando os Testes
 É possível executar os testes contra qualquer equipamento SAT, em qualquer
 plataforma ou arquitetura, desde que você possua um kit de desenvolvimento,
 contendo o equipamento SAT e as bibliotecas do fabricante.
-
-.. warning::
-
-    Embora seja bastante óbvio, não custa avisar: **não execute estes testes
-    contra um equipamento SAT em produção!**
 
 Para executar os testes em um ambiente Linux é preciso definir duas variáveis
 de ambiente para configurar o acesso à biblioteca SAT fornecida pelo fabricante
@@ -149,8 +152,7 @@ As opções de parametrização dos testes são:
 
 ``--skip-funcoes-sat``
     | Ignora testes de todas as funções SAT evitando qualquer acesso ao
-    | equipamento. Mesmo assim, **nunca execute os testes** contra um
-    | equipamento em produção.
+    | equipamento.
 
 ``--skip-[funcao]``
     | Permite evitar a execução de testes para uma função em particular,
