@@ -89,7 +89,11 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
                         ('CERT_EMISSAO', as_date),
                         ('CERT_VENCIMENTO', as_date),
                         ('ESTADO_OPERACAO', int),
-                    )
+                    ),
+                campos_alternativos=[
+                        # se falhar resultarão apenas os 5 campos padrão
+                        RespostaSAT.CAMPOS,
+                    ]
             )
         if resposta.EEEEE not in ('10000',):
             raise ExcecaoRespostaSAT(resposta)

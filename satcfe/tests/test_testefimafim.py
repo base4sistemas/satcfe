@@ -198,7 +198,7 @@ def test_resposta_testefimafim():
 @pytest.mark.skipif(
         pytest.config.getoption('--skip-testefimafim') or
         pytest.config.getoption('--skip-funcoes-sat'),
-        reason='Funcao `EnviarDadosVenda` explicitamente ignorada')
+        reason='Funcao `TesteFimAFim` explicitamente ignorada')
 def test_funcao_testefimafim(clientesatlocal, cfevenda):
     resposta = clientesatlocal.teste_fim_a_fim(cfevenda)
     assert resposta.EEEEE == '09000'
