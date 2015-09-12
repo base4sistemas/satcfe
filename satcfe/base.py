@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 
+import collections
 import ctypes
 import os
 import random
@@ -130,13 +131,37 @@ class DLLSAT(object):
 class NumeroSessaoMemoria(object):
     """Implementa um numerador de sessão simples, baseado em memória, não
     persistente, que irá gerar um número de sessão (seis dígitos) diferente
-    entre os 100 últimos números de sessão gerados, conforme ER SAT.
+    entre os ``n`` últimos números de sessão gerados. Conforme a ER SAT, um
+    número de sessão não poderá ser igual aos últimos ``100`` números.
+
+    .. sourcecode:: python
+
+        >>> numerador = NumeroSessaoMemoria(tamanho=5)
+        >>> n1 = numerador()
+        >>> 100000 <= n1 <= 999999
+        True
+        >>> n1 in numerador
+        True
+        >>> n2 = numerador()
+        >>> n3 = numerador()
+        >>> n4 = numerador()
+        >>> n5 = numerador()
+        >>> len(set([n1, n2, n3, n4, n5]))
+        5
+        >>> n6 = numerador()
+        >>> n1 in numerador
+        False
+
     """
 
     def __init__(self, tamanho=100):
         super(NumeroSessaoMemoria, self).__init__()
-        self._memoria = []
         self._tamanho = tamanho
+        self._memoria = collections.deque(maxlen=tamanho)
+
+
+    def __contains__(self, item):
+        return item in self._memoria
 
 
     def __call__(self, *args, **kwargs):
@@ -144,8 +169,6 @@ class NumeroSessaoMemoria(object):
             numero = random.randint(100000, 999999)
             if numero not in self._memoria:
                 self._memoria.append(numero)
-                if len(self._memoria) > self._tamanho:
-                    self._memoria.pop(0) # remove o mais antigo
                 break
         return numero
 
