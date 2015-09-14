@@ -31,6 +31,25 @@ from .padrao import analisar_retorno
 
 
 class RespostaTesteFimAFim(RespostaSAT):
+    """Lida com as respostas da função ``TesteFimAFim`` (veja o método
+    :meth:`~satcfe.base.FuncoesSAT.teste_fim_a_fim`). Os atributos
+    esperados em caso de sucesso, são:
+
+    .. sourcecode:: text
+
+        numeroSessao (int)
+        EEEEE (unicode)
+        mensagem (unicode)
+        cod (unicode)
+        mensagemSEFAZ (unicode)
+        arquivoCFeBase64 (unicode)
+        timeStamp (datetime.datetime)
+        numDocFiscal (int)
+        chaveConsulta (unicode)
+
+    Em caso de falha, são esperados apenas os atributos padrão, conforme
+    descrito na constante :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
+    """
 
     def xml(self):
         """Retorna o XML do CF-e-SAT decodificado."""
@@ -44,6 +63,14 @@ class RespostaTesteFimAFim(RespostaSAT):
 
     @staticmethod
     def analisar(retorno):
+        """Constrói uma :class:`RespostaTesteFimAFim` a partir do retorno
+        informado.
+
+        :param unicode retorno: Retorno da função ``TesteFimAFim``.
+
+        :raises ExcecaoRespostaSAT: Se o atributo ``EEEEE`` não indicar o
+            código de sucesso ``09000`` para ``TesteFimAFim``.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='TesteFimAFim',
                 classe_resposta=RespostaTesteFimAFim,

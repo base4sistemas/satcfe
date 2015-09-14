@@ -55,9 +55,19 @@ _RespostaParcial = namedtuple('_RespostaParcial', 'numeroSessao EEEEE')
 
 
 class RespostaConsultarNumeroSessao(RespostaSAT):
+    """Lida com as respostas da função ``ConsultarNumeroSessao`` (veja o método
+    :meth:`~satcfe.base.FuncoesSAT.consultar_numero_sessao`). Como as respostas
+    dependem do número da sessão consultado, o método de construção
+    :meth:`analisar` deverá resultar na resposta apropriada para cada retorno.
+    """
 
     @staticmethod
     def analisar(retorno):
+        """Constrói uma :class:`RespostaSAT` ou especialização dependendo da
+        função SAT encontrada na sessão consultada.
+
+        :param unicode retorno: Retorno da função ``ConsultarNumeroSessao``.
+        """
         if '|' not in retorno:
             raise ErroRespostaSATInvalida('Resposta nao possui pipes '
                     'separando os campos: {!r}'.format(retorno))

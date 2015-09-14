@@ -25,7 +25,31 @@ from ..util import as_ascii
 
 
 class RespostaSAT(object):
-    """Base para representação de respostas das funções da biblioteca SAT."""
+    """Base para representação de respostas das funções da biblioteca SAT.
+    A maior parte das funções SAT resultam em respostas que contém um conjunto
+    padrão de atributos (veja o atributo :attr:`CAMPOS`), descritos na ER SAT:
+
+    .. sourcecode:: text
+
+        numeroSessao (int)
+        EEEEE (unicode)
+        mensagem (unicode)
+        cod (unicode)
+        mensagemSEFAZ (unicode)
+
+    Além dos atributos padrão, a resposta deverá conter uma referência para o
+    nome da função SAT a que a resposta se refere e ao conteúdo original da
+    resposta, através dos atributos:
+
+    .. sourcecode:: python
+
+        resposta.atributos.funcao
+        resposta.atributos.verbatim
+
+    Esta classe fornece uma série de métodos construtores (*factory methods*)
+    para respostas que são comuns. Para as respostas que não são comuns, existem
+    especializações desta classe.
+    """
 
     class _Atributos(object):
         pass
@@ -54,6 +78,9 @@ class RespostaSAT(object):
 
     @staticmethod
     def comunicar_certificado_icpbrasil(retorno):
+        """Constrói uma :class:`RespostaSAT` para o retorno (unicode) da função
+        :meth:`~satcfe.base.FuncoesSAT.comunicar_certificado_icpbrasil`.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='ComunicarCertificadoICPBRASIL')
         if resposta.EEEEE not in ('05000',):
@@ -63,6 +90,9 @@ class RespostaSAT(object):
 
     @staticmethod
     def consultar_sat(retorno):
+        """Constrói uma :class:`RespostaSAT` para o retorno (unicode) da função
+        :meth:`~satcfe.base.FuncoesSAT.consultar_sat`.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='ConsultarSAT')
         if resposta.EEEEE not in ('08000',):
@@ -72,6 +102,9 @@ class RespostaSAT(object):
 
     @staticmethod
     def configurar_interface_de_rede(retorno):
+        """Constrói uma :class:`RespostaSAT` para o retorno (unicode) da função
+        :meth:`~satcfe.base.FuncoesSAT.configurar_interface_de_rede`.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='ConfigurarInterfaceDeRede')
         if resposta.EEEEE not in ('12000',):
@@ -81,6 +114,9 @@ class RespostaSAT(object):
 
     @staticmethod
     def associar_assinatura(retorno):
+        """Constrói uma :class:`RespostaSAT` para o retorno (unicode) da função
+        :meth:`~satcfe.base.FuncoesSAT.associar_assinatura`.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='AssociarAssinatura')
         if resposta.EEEEE not in ('13000',):
@@ -90,6 +126,9 @@ class RespostaSAT(object):
 
     @staticmethod
     def atualizar_software_sat(retorno):
+        """Constrói uma :class:`RespostaSAT` para o retorno (unicode) da função
+        :meth:`~satcfe.base.FuncoesSAT.atualizar_software_sat`.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='AtualizarSoftwareSAT')
         if resposta.EEEEE not in ('14000',):
@@ -99,6 +138,9 @@ class RespostaSAT(object):
 
     @staticmethod
     def bloquear_sat(retorno):
+        """Constrói uma :class:`RespostaSAT` para o retorno (unicode) da função
+        :meth:`~satcfe.base.FuncoesSAT.bloquear_sat`.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='BloquearSAT')
         if resposta.EEEEE not in ('16000',):
@@ -108,6 +150,9 @@ class RespostaSAT(object):
 
     @staticmethod
     def desbloquear_sat(retorno):
+        """Constrói uma :class:`RespostaSAT` para o retorno (unicode) da função
+        :meth:`~satcfe.base.FuncoesSAT.desbloquear_sat`.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='DesbloquearSAT')
         if resposta.EEEEE not in ('17000',):
@@ -117,6 +162,9 @@ class RespostaSAT(object):
 
     @staticmethod
     def trocar_codigo_de_ativacao(retorno):
+        """Constrói uma :class:`RespostaSAT` para o retorno (unicode) da função
+        :meth:`~satcfe.base.FuncoesSAT.trocar_codigo_de_ativacao`.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='TrocarCodigoDeAtivacao')
         if resposta.EEEEE not in ('18000',):
@@ -158,6 +206,9 @@ def analisar_retorno(retorno,
     :param unicode retorno: O conteúdo **unicode** da resposta retornada pela
         função da DLL SAT.
 
+    :param type classe_resposta: O tipo :class:`RespostaSAT` ou especialização
+        que irá representar o retorno, após sua decomposição em campos.
+
     :param tuple campos: Especificação dos campos (nomes) e seus conversores a
         a partir do tipo ``unicode``.
 
@@ -176,7 +227,8 @@ def analisar_retorno(retorno,
     :raises ErroRespostaSATInvalida: Se o retorno não estiver em conformidade
         com o padrão esperado ou se não possuir os campos especificados.
 
-    :return: Um objeto :class:`RespostaSAT`.
+    :return: Uma instância de :class:`RespostaSAT` ou especialização.
+    :rtype: satcfe.resposta.padrao.RespostaSAT
 
     """
 

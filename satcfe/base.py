@@ -498,7 +498,7 @@ class FuncoesSAT(object):
             avaliar como falso quando a opção for pelo código de ativação de
             emergência.
 
-        .. warn::
+        .. warning::
 
             Os argumentos da função ``TrocarCodigoDeAtivacao`` requerem que o
             novo código de ativação seja especificado duas vezes (dois

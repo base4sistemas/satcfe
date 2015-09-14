@@ -17,7 +17,7 @@ Projeto SATCFe
 
 .. note::
 
-    **This is a work in progress**
+    **This documentation is a work in progress**
 
 
 .. note::
@@ -29,9 +29,9 @@ A Secretaria da Fazenda do Estado de São Paulo, `SEFAZ/SP`_ desenvolveu o
 projeto conhecido como **SAT-CF-e**, Sistema de Autorização e Transmissão de
 Cupons Fiscais eletrônicos, conforme descrito na `Portaria CAT 147`_ de 05
 de novembro de 2012. Na prática esse sistema torna obsoletos os Emissores de
-Cupons Fiscais (ECF) no Estado de São Paulo.
-Visite o `site oficial <http://www.fazenda.sp.gov.br/sat>`_ do projeto
-para conhecer os detalhes ou obter documentação e a legislação vigente.
+Cupons Fiscais (ECF) no Estado de São Paulo. Visite a página da
+`Secretaria da Fazenda de São Paulo <http://www.fazenda.sp.gov.br/sat>`_ para
+outras informações.
 
 Esta documentação diz respeito ao projeto `SATCFe`_ desenvolvido pela Base4
 Sistemas Ltda com o objetivo de abstrair o acesso ao Equipamento SAT através da
@@ -65,11 +65,17 @@ Este projeto é apenas uma parte de um total de cinco projetos que compõem uma
 solução compreensível para a tecnologia SAT-CF-e em linguagem Python,
 disponíveis para integração nas aplicações de ponto-de-venda. São eles:
 
-* Projeto `SATComum <https://github.com/base4sistemas/satcomum>`_
+* Projeto `SATComum`_
     Mantém o código que é compartilhado pelos outros projetos relacionados,
     tais como validação, formatação e valores constantes.
 
-* Projeto `SATExtrato <https://github.com/base4sistemas/satextrato>`_
+* Projeto `SATHub`_
+    Torna possível o compartilhamento de equipamentos SAT com múltiplos pontos-
+    de-venda, além de tornar possível que aplicações heterogêneas, escritas em
+    outras linguagens de programação ou de outras plataformas, acessem o
+    equipamento SAT.
+
+* Projeto `SATExtrato`_
     Impressão dos extratos do CF-e-SAT. Este projeto é capaz de imprimir
     extratos de documentos de venda ou de cancelamento diretamente a partir dos
     documentos XML que os representam. A impressão tem um alto grau de
@@ -77,13 +83,7 @@ disponíveis para integração nas aplicações de ponto-de-venda. São eles:
     não-fiscais) já que é baseada na tecnologia Epson |copy| ESC/POS |reg|
     através do projeto **PyESCPOS**.
 
-* Projeto `SATHub <https://github.com/base4sistemas/sathub>`_
-    Torna possível o compartilhamento de equipamentos SAT com múltiplos pontos-
-    de-venda, além de tornar possível que aplicações heterogêneas, escritas em
-    outras linguagens de programação ou de outras plataformas, acessem o
-    equipamento SAT.
-
-* Projeto `PyESCPOS <https://github.com/base4sistemas/pyescpos>`_
+* Projeto `PyESCPOS`_
     Implementa o suporte à tecnologia Epson |copy| ESC/POS |reg| compatível com
     a imensa maioria das mini-impressoras disponíveis no mercado.
 
@@ -113,26 +113,11 @@ Conteúdo
    :maxdepth: 2
 
    basico
-   entidades
+   cliente
    funcoes
+   venda_cancelamento
    exemplos
-
-
-.. _documentacao-da-api:
-
-Documentação da API
-===================
-
-.. toctree::
-   :maxdepth: 2
-
-   api/satcfe/base
-   api/satcfe/clientelocal
-   api/satcfe/clientesathub
-   api/satcfe/entidades
-   api/satcfe/excecoes
-   api/satcfe/rede
-   api/satcfe/respostas
+   api
 
 
 Tabelas e Índices
@@ -151,9 +136,8 @@ Glossário
     SAT-CF-e
         Diz respeito à tecnologia SAT-Fiscal e toda a infraestrutura, física e
         lógica, usada na transmissão de documentos fiscais (CF-e) de venda e/ou
-        cancelamento.
-        Visite o `site oficial <http://www.fazenda.sp.gov.br/sat>`_ do projeto
-        para os detalhes.
+        cancelamento. Visite a página da `Secretaria da Fazenda de São Paulo <http://www.fazenda.sp.gov.br/sat>`_
+        para outras informações.
 
     CF-e
     CF-e de Venda
@@ -185,9 +169,8 @@ Glossário
         mantido pela SEFAZ, que detalha a tecnologia SAT-CF-e do ponto de vista
         dos fabricantes dos equipamentos SAT e das empresas de software que
         desenvolvem os aplicativos comerciais. Note que a ER SAT **não é a
-        legislação** que introduz o SAT-CF-e. A legislação é a `CAT 147
-        <http://www.fazenda.sp.gov.br/sat/legislacao/vigentes.asp>`_ de 05 de
-        novembro de 2012.
+        legislação** que introduz o SAT-CF-e. A legislação é a `CAT 147`_ de
+        05 de novembro de 2012.
 
     AC-SAT
         Refere-se à **Autoridade Certificadora** que gerencia (emite e revoga)
@@ -206,17 +189,4 @@ Glossário
         cliente típico deste projeto.
 
 
-.. |copy| unicode:: U+00A9 .. COPYRIGHT SIGN
-    :ltrim:
-
-.. |reg|  unicode:: U+00AE .. REGISTERED SIGN
-    :ltrim:
-
-.. |trade|  unicode:: U+2122 .. TRADE MARK SIGN
-    :ltrim:
-
-
-.. _`Python`: https://www.python.org/
-.. _`SATCFe`: https://github.com/base4sistemas/satcfe
-.. _`SEFAZ/SP`: http://www.fazenda.sp.gov.br/
-.. _`Portaria CAT 147`: http://www.fazenda.sp.gov.br/sat/legislacao/vigentes.asp
+.. include:: references.rst

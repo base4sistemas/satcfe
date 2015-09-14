@@ -31,14 +31,35 @@ CSR_ICPBRASIL_CRIADO_SUCESSO = '04006'
 
 
 class RespostaAtivarSAT(RespostaSAT):
+    """Lida com as respostas da função ``AtivarSAT`` (veja o método
+    :meth:`~satcfe.base.FuncoesSAT.ativar_sat`). Os atributos esperados em
+    caso de sucesso, são:
+
+    .. sourcecode:: text
+
+        numeroSessao (int)
+        EEEEE (unicode)
+        mensagem (unicode)
+        cod (unicode)
+        mensagemSEFAZ (unicode)
+        CSR (unicode)
+
+    Em caso de falha, são esperados apenas os atributos padrão, conforme
+    descrito na constante :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
+    """
 
     def csr(self):
-        """Retorna o CSR (**Certificate Signing Request*) decodificado."""
+        """Retorna o CSR (**Certificate Signing Request**) decodificado."""
         return base64.b64decode(self.CSR)
 
 
     @staticmethod
     def analisar(retorno):
+        """Constrói uma :class:`RespostaAtivarSAT` a partir do retorno
+        informado.
+
+        :param unicode retorno: Retorno da função ``AtivarSAT``.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='AtivarSAT',
                 classe_resposta=RespostaAtivarSAT,

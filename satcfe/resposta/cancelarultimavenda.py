@@ -31,6 +31,40 @@ from .padrao import analisar_retorno
 
 
 class RespostaCancelarUltimaVenda(RespostaSAT):
+    """Lida com as respostas da função ``CancelarUltimaVenda`` (veja o método
+    :meth:`~satcfe.base.FuncoesSAT.cancelar_ultima_venda`). Os atributos
+    esperados em caso de sucesso, são:
+
+    .. sourcecode:: text
+
+        numeroSessao (int)
+        EEEEE (unicode)
+        CCCC (unicode)
+        mensagem (unicode)
+        cod (unicode)
+        mensagemSEFAZ (unicode)
+        arquivoCFeBase64 (unicode)
+        timeStamp (datetime.datetime)
+        chaveConsulta (unicode)
+        valorTotalCFe (decimal.Decimal)
+        CPFCNPJValue (unicode)
+        assinaturaQRCODE (unicode)
+
+    Em caso de falha, são esperados apenas os atributos:
+
+    .. sourcecode:: text
+
+        numeroSessao (int)
+        EEEEE (unicode)
+        CCCC (unicode)
+        mensagem (unicode)
+        cod (unicode)
+        mensagemSEFAZ (unicode)
+
+    Finalmente, como último recurso, a resposta poderá incluir apenas os
+    atributos padrão, conforme descrito na constante
+    :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
+    """
 
     def xml(self):
         """Retorna o XML do CF-e-SAT de cancelamento decodificado."""
@@ -44,6 +78,11 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
 
     @staticmethod
     def analisar(retorno):
+        """Constrói uma :class:`RespostaCancelarUltimaVenda` a partir do
+        retorno informado.
+
+        :param unicode retorno: Retorno da função ``CancelarUltimaVenda``.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='EnviarDadosVenda',
                 classe_resposta=RespostaCancelarUltimaVenda,

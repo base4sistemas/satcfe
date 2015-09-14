@@ -1,6 +1,15 @@
 
+.. _venda-e-cancelamento:
+
+Venda e Cancelamento
+====================
+
+
+
+.. _anatomia-do-cfe:
+
 Anatomia do CF-e
-================
+----------------
 
 O *Cupom Fiscal eletrônico*, CF-e, é um documento fiscal com validade jurídica
 que não existe fisicamente, mas apenas de forma eletrônica, em formato `XML`_,
@@ -60,7 +69,7 @@ indicados com ``SAT`` são os elementos que o equipamento SAT deverá incluir.
 
 
 Entidades
-=========
+---------
 
 No contexto deste projeto as **Entidades** são as classes que são utilizadas
 para descrever uma venda ou um cancelamento. A documentação da API contém uma
@@ -98,16 +107,23 @@ Para obter o fragmento XML de uma entidade, faça:
     '<entrega><xLgr>Rua Armando Gulim</xLgr><nro>65</nro><xBairro>Parque Gloria III</xBairro><xMun>Catanduva</xMun><UF>SP</UF></entrega>'
 
 
-.. _entidades-criando-um-cfe-de-venda:
+.. _criando-um-cfe-de-venda:
 
 Criando um CF-e de Venda
 ------------------------
 
-Criar um CF-e de venda é simples no que diz respeito á composição dos elementos.
-Obviamente no contexto da aplicação comercial inúmeras outras complexidades se
+Criar um CF-e de venda é simples no que diz respeito à composição dos elementos.
+Obviamente, no contexto da aplicação comercial, inúmeras outras complexidades se
 apresentam. Mas este exemplo simples é capaz de produzir um XML que poderá ser
-enviado para o equipamento SAT, desde que você adapte certos valores para o seu
-equipamento SAT e seus dados.
+enviado para o equipamento SAT.
+
+.. note::
+
+    Equipamentos SAT em desenvolvimento podem requerer que os dados do emitente
+    sejam certos dados específicos, bem como o CNPJ que identifica a software
+    house que desenvolve a AC. Consulte a documentação técnica do fabricante do
+    seu equipamento SAT.
+
 
 .. sourcecode:: python
 
@@ -165,19 +181,28 @@ ser enviado ao equipamento SAT pra que seja completado, assinado e transmitido
 para a SEFAZ. Você poderá ver um exemplo do documento XML gerado por esse
 código em :ref:`exemplos-xml-do-cfe-de-venda`.
 
-Para submeter o documento ao equipamento SAT, faça:
+Ao submeter o CF-e ao equipamento SAT, a resposta será uma instância de
+:class:`~satcfe.resposta.enviardadosvenda.RespostaEnviarDadosVenda` e a partir
+dela você poderá obter o XML do CF-e-SAT assinado e autorizado, obter os dados
+para geração do QRCode e outras informações:
 
 .. sourcecode:: python
 
-    resposta = cliente.enviar_dados_venda(cfe)
+    >>> resposta = cliente.enviar_dados_venda(cfe)
+    >>> resposta.xml()
+    u'<?xml version="1.0"?><CFe><infCFe Id="CFe35150761...</Signature></CFe>'
 
-A resposta será uma instância de :class:`~satcfe.resposta.enviardadosvenda.RespostaEnviarDadosVenda`
+    >>> resposta.qrcode()
+    u'35150761099008000141599000026310000100500297|20150709172317|...JI2BCucA=='
+
+    >>> resposta.valorTotalCFe
+    Decimal('5.75')
 
 
 Criando um CF-e de Cancelamento
 -------------------------------
 
-.. todo: Escrever este tópico
+.. todo:: Escrever este tópico.
 
 
-.. _`XML`: http://www.w3.org/XML/
+.. include:: references.rst

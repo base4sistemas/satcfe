@@ -30,6 +30,22 @@ from .padrao import analisar_retorno
 
 
 class RespostaExtrairLogs(RespostaSAT):
+    """Lida com as respostas da função ``ExtrairLogs`` (veja o método
+    :meth:`~satcfe.base.FuncoesSAT.extrair_logs`). Os atributos esperados em
+    caso de sucesso, são:
+
+    .. sourcecode:: text
+
+        numeroSessao (int)
+        EEEEE (unicode)
+        mensagem (unicode)
+        cod (unicode)
+        mensagemSEFAZ (unicode)
+        arquivoLog (unicode)
+
+    Em caso de falha, são esperados apenas os atributos padrão, conforme
+    descrito na constante :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
+    """
 
     def conteudo(self):
         """Retorna o conteúdo do log decodificado."""
@@ -37,9 +53,22 @@ class RespostaExtrairLogs(RespostaSAT):
 
 
     def salvar(self, destino=None, prefix='tmp', suffix='-sat.log'):
-        """Salva o arquivo de log decodificado e retorna o caminho absoluto do
-        arquivo. Se o destino não for informado, então será criado um arquivo
-        temporário via :func:`tempfile.mkstemp`.
+        """Salva o arquivo de log decodificado.
+
+        :param str destino: (Opcional) Caminho completo para o arquivo onde os
+            dados dos logs deverão ser salvos. Se não informado, será criado
+            um arquivo temporário via :func:`tempfile.mkstemp`.
+
+        :param str prefix: (Opcional) Prefixo para o nome do arquivo. Se não
+            informado será usado ``"tmp"``.
+
+        :param str suffix: (Opcional) Sufixo para o nome do arquivo. Se não
+            informado será usado ``"-sat.log"``.
+
+        :return: Retorna o caminho completo para o arquivo salvo.
+        :rtype: str
+
+        :raises IOError: Se o destino for informado e o arquivo já existir.
         """
         if destino:
             if os.path.exists(destino):
@@ -58,12 +87,22 @@ class RespostaExtrairLogs(RespostaSAT):
 
     @staticmethod
     def analisar(retorno):
+        """Constrói uma :class:`RespostaExtrairLogs` a partir do retorno
+        informado.
+
+        :param unicode retorno: Retorno da função ``ExtrairLogs``.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='ExtrairLogs',
                 classe_resposta=RespostaExtrairLogs,
                 campos=RespostaSAT.CAMPOS + (
                         ('arquivoLog', unicode),
-                    )
+                    ),
+                campos_alternativos=[
+                        # se a extração dos logs falhar espera-se o padrão de
+                        # campos no retorno...
+                        RespostaSAT.CAMPOS,
+                    ]
             )
         if resposta.EEEEE not in ('15000',):
             raise ExcecaoRespostaSAT(resposta)

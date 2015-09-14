@@ -15,7 +15,7 @@ XML do CF-e de Venda
 
 O seguinte documento XML representa um CF-e de venda pronto para ser enviado ao
 equipamento SAT. Um documento como este pode ser criado como visto em
-:ref:`entidades-criando-um-cfe-de-venda` e submetido às funções SAT
+:ref:`criando-um-cfe-de-venda` e submetido às funções SAT
 :ref:`funcao-enviardadosvenda` ou :ref:`funcao-testefimafim`.
 
 .. sourcecode:: xml

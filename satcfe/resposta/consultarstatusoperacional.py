@@ -45,9 +45,48 @@ ESTADOS_OPERACAO = (
         (BLOQUEADO_AUTO, u'Bloqueado autonomamente'),
         (BLOQUEADO_PARA_DESATIVACAO, u'Bloqueado para desativação'),
     )
+"""Códigos do estados de operação e suas descrições amigáveis."""
 
 
 class RespostaConsultarStatusOperacional(RespostaSAT):
+    """Lida com as respostas da função ``ConsultarStatusOperacional`` (veja o
+    método :meth:`~satcfe.base.FuncoesSAT.consultar_status_operacional`).
+    Os atributos esperados em caso de sucesso, são:
+
+    .. sourcecode:: text
+
+        numeroSessao (int)
+        EEEEE (unicode)
+        mensagem (unicode)
+        cod (unicode)
+        mensagemSEFAZ (unicode)
+        NSERIE (unicode)
+        TIPO_LAN (unicode)
+        LAN_IP (str)
+        LAN_MAC (unicode)
+        LAN_MASK (str)
+        LAN_GW (str)
+        LAN_DNS_1 (str)
+        LAN_DNS_2 (str)
+        STATUS_LAN (unicode)
+        NIVEL_BATERIA (unicode)
+        MT_TOTAL (unicode)
+        MT_USADA (unicode)
+        DH_ATUAL (datetime.datetime)
+        VER_SB (unicode)
+        VER_LAYOUT (unicode)
+        ULTIMO_CF_E_SAT (unicode)
+        LISTA_INICIAL (unicode)
+        LISTA_FINAL (unicode)
+        DH_CFE (datetime.datetime)
+        DH_ULTIMA (datetime.datetime)
+        CERT_EMISSAO (datetime.date)
+        CERT_VENCIMENTO (datetime.date)
+        ESTADO_OPERACAO (int)
+
+    Em caso de falha, são esperados apenas os atributos padrão, conforme
+    descrito na constante :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
+    """
 
     @property
     def status(self):
@@ -62,6 +101,11 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
 
     @staticmethod
     def analisar(retorno):
+        """Constrói uma :class:`RespostaConsultarStatusOperacional` a partir do
+        retorno informado.
+
+        :param unicode retorno: Retorno da função ``ConsultarStatusOperacional``.
+        """
         resposta = analisar_retorno(forcar_unicode(retorno),
                 funcao='ConsultarStatusOperacional',
                 classe_resposta=RespostaConsultarStatusOperacional,
