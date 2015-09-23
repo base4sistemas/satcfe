@@ -25,8 +25,10 @@ import tempfile
 from satcomum.util import forcar_unicode
 
 from ..excecoes import ExcecaoRespostaSAT
+from ..util import as_clean_unicode
 from ..util import as_date
 from ..util import as_datetime
+from ..util import as_datetime_or_none
 from ..util import normalizar_ip
 from .padrao import RespostaSAT
 from .padrao import analisar_retorno
@@ -53,36 +55,65 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
     método :meth:`~satcfe.base.FuncoesSAT.consultar_status_operacional`).
     Os atributos esperados em caso de sucesso, são:
 
-    .. sourcecode:: text
-
-        numeroSessao (int)
-        EEEEE (unicode)
-        mensagem (unicode)
-        cod (unicode)
-        mensagemSEFAZ (unicode)
-        NSERIE (unicode)
-        TIPO_LAN (unicode)
-        LAN_IP (str)
-        LAN_MAC (unicode)
-        LAN_MASK (str)
-        LAN_GW (str)
-        LAN_DNS_1 (str)
-        LAN_DNS_2 (str)
-        STATUS_LAN (unicode)
-        NIVEL_BATERIA (unicode)
-        MT_TOTAL (unicode)
-        MT_USADA (unicode)
-        DH_ATUAL (datetime.datetime)
-        VER_SB (unicode)
-        VER_LAYOUT (unicode)
-        ULTIMO_CF_E_SAT (unicode)
-        LISTA_INICIAL (unicode)
-        LISTA_FINAL (unicode)
-        DH_CFE (datetime.datetime)
-        DH_ULTIMA (datetime.datetime)
-        CERT_EMISSAO (datetime.date)
-        CERT_VENCIMENTO (datetime.date)
-        ESTADO_OPERACAO (int)
+    +---------------------+----------------------------------+
+    | Atributo            | Tipo Python                      |
+    +=====================+==================================+
+    | ``numeroSessao``    | ``int``                          |
+    +---------------------+----------------------------------+
+    | ``EEEEE``           | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``mensagem``        | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``cod``             | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``mensagemSEFAZ``   | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``NSERIE``          | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``TIPO_LAN``        | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``LAN_IP``          | ``str``                          |
+    +---------------------+----------------------------------+
+    | ``LAN_MAC``         | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``LAN_MASK``        | ``str``                          |
+    +---------------------+----------------------------------+
+    | ``LAN_GW``          | ``str``                          |
+    +---------------------+----------------------------------+
+    | ``LAN_DNS_1``       | ``str``                          |
+    +---------------------+----------------------------------+
+    | ``LAN_DNS_2``       | ``str``                          |
+    +---------------------+----------------------------------+
+    | ``STATUS_LAN``      | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``NIVEL_BATERIA``   | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``MT_TOTAL``        | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``MT_USADA``        | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``DH_ATUAL``        | ``datetime.datetime``            |
+    +---------------------+----------------------------------+
+    | ``VER_SB``          | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``VER_LAYOUT``      | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``ULTIMO_CF_E_SAT`` | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``LISTA_INICIAL``   | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``LISTA_FINAL``     | ``unicode``                      |
+    +---------------------+----------------------------------+
+    | ``DH_CFE``          | ``datetime.datetime``|``None``   |
+    +---------------------+----------------------------------+
+    | ``DH_ULTIMA``       | ``datetime.datetime``            |
+    +---------------------+----------------------------------+
+    | ``CERT_EMISSAO``    | ``datetime.date``                |
+    +---------------------+----------------------------------+
+    | ``CERT_VENCIMENTO`` | ``datetime.date``                |
+    +---------------------+----------------------------------+
+    | ``ESTADO_OPERACAO`` | ``int``                          |
+    +---------------------+----------------------------------+
 
     Em caso de falha, são esperados apenas os atributos padrão, conforme
     descrito na constante :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
@@ -110,25 +141,25 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
                 funcao='ConsultarStatusOperacional',
                 classe_resposta=RespostaConsultarStatusOperacional,
                 campos=RespostaSAT.CAMPOS + (
-                        ('NSERIE', unicode),
-                        ('TIPO_LAN', unicode),
+                        ('NSERIE', as_clean_unicode),
+                        ('TIPO_LAN', as_clean_unicode),
                         ('LAN_IP', normalizar_ip),
                         ('LAN_MAC', unicode),
                         ('LAN_MASK', normalizar_ip),
                         ('LAN_GW', normalizar_ip),
                         ('LAN_DNS_1', normalizar_ip),
                         ('LAN_DNS_2', normalizar_ip),
-                        ('STATUS_LAN', unicode),
-                        ('NIVEL_BATERIA', unicode),
-                        ('MT_TOTAL', unicode), # int ?
-                        ('MT_USADA', unicode), # int ?
+                        ('STATUS_LAN', as_clean_unicode),
+                        ('NIVEL_BATERIA', as_clean_unicode),
+                        ('MT_TOTAL', as_clean_unicode),
+                        ('MT_USADA', as_clean_unicode),
                         ('DH_ATUAL', as_datetime),
-                        ('VER_SB', unicode),
-                        ('VER_LAYOUT', unicode),
-                        ('ULTIMO_CF_E_SAT', unicode),
-                        ('LISTA_INICIAL', unicode),
-                        ('LISTA_FINAL', unicode),
-                        ('DH_CFE', as_datetime),
+                        ('VER_SB', as_clean_unicode),
+                        ('VER_LAYOUT', as_clean_unicode),
+                        ('ULTIMO_CF_E_SAT', as_clean_unicode),
+                        ('LISTA_INICIAL', as_clean_unicode),
+                        ('LISTA_FINAL', as_clean_unicode),
+                        ('DH_CFE', as_datetime_or_none),
                         ('DH_ULTIMA', as_datetime),
                         ('CERT_EMISSAO', as_date),
                         ('CERT_VENCIMENTO', as_date),

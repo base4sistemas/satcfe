@@ -37,6 +37,16 @@ RESP_SUCESSO = [
                 '00000000000000000000000000000000000000000000|'\
                 '00000000000000000000000000000000000000000000|'\
                 '20150912104828|20150912113039|20150708|20200708|0',
+
+        # Resposta de um equipamento SAT que ainda não transmitiu nenhum CF-e,
+        # conforme ocorrência https://github.com/base4sistemas/sathub/issues/1
+        # Note que os campos 16 (ULTIMO_CF_E_SAT), 17 (LISTA_INICIAL),
+        # 18 (LISTA_FINAL) e 19 (DH_CFE) estão vazios.
+        u'195195|10000|Resposta com Sucesso|||900003522|static\n|'\
+                '192.168.000.100|00:07:25:15:14:cd|255.255.255.000|'\
+                '192.168.000.001|192.168.000.001|000.000.000.000|'\
+                'CONECTADO|ALTO|1870127104|1174929408|20150922165839|'
+                '01.00.00|0.06|||||20150919233139|20150905|20200905|0'
     ]
 
 
@@ -83,6 +93,10 @@ def test_resposta_consultarstatusoperacional():
     assert resposta.CERT_EMISSAO == as_date('20150708')
     assert resposta.CERT_VENCIMENTO == as_date('20200708')
     assert resposta.ESTADO_OPERACAO == 0
+
+    for retorno in RESP_SUCESSO[1:]:
+        resposta = RespostaConsultarStatusOperacional.analisar(retorno)
+        assert resposta.EEEEE == '10000'
 
     for retorno in RESP_FALHA:
         with pytest.raises(ExcecaoRespostaSAT):
