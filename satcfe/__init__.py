@@ -17,13 +17,13 @@
 # limitations under the License.
 #
 
-import os
+import logging
 
 __version__ = '0.0.7'
 
-if 'SATCFE_SETUP_SCRIPT' not in os.environ:
-    from satcomum.constantes import VERSAO_ER
-    from .config import conf
-    from .base import DLLSAT
-    from .clientelocal import ClienteSATLocal
-    from .clientesathub import ClienteSATHub
+logging.getLogger('satcfe').addHandler(logging.NullHandler())
+
+from satcomum.constantes import VERSAO_ER
+from .base import BibliotecaSAT
+from .clientelocal import ClienteSATLocal
+from .clientesathub import ClienteSATHub

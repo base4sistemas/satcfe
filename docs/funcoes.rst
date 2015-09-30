@@ -19,8 +19,9 @@ foi demonstrada.
 .. note::
 
     Instalar um servidor `SATHub`_ está fora do escopo desta documentação.
-    Porém, trata-se de uma aplicação baseada em `Flask`_ que é bastante
-    conhecido e relativamente fácil de instalar.
+    Consulte a `documentação do projeto SATHub <http://sathub.readthedocs.org/>`_
+    para saber como instalar e configurar um servidor SATHub em desenvolvimento
+    ou em produção.
 
 Uma vez configurado o cliente SAT, basta invocar os métodos correspodentes às
 funções SAT, que serão demonstradas mais adiante nesta documentação.
@@ -185,9 +186,11 @@ em :ref:`lidando-com-as-respostas`:
 ConsultarSAT
 ~~~~~~~~~~~~
 
-A função ``ConsultarSAT`` (ER item 6.1.5) é usada para testar a comunicação com
-o equipamento SAT. Seu uso é simples e direto e, se nenhuma exceção for lançada,
-é seguro acessar os atributos da resposta conforme esperado.
+A função ``ConsultarSAT`` (ER item 6.1.5, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.consultar_sat`) é usada para testar
+a comunicação com o equipamento SAT. Seu uso é simples e direto e, se nenhuma
+exceção for lançada, é seguro acessar os atributos da resposta conforme
+esperado.
 
 .. sourcecode:: python
 
@@ -199,11 +202,12 @@ o equipamento SAT. Seu uso é simples e direto e, se nenhuma exceção for lanç
 ConsultarStatusOperacional
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A função ``ConsultarStatusOperacional`` (ER item 6.1.7) retorna atributos que
-mostram diversas informações a respeito do equipamento SAT. A resposta para
-esta função é direta e simples, mas se você verificar a documentação da ER SAT
-pode ficar confuso quanto aos atributos da resposta. A ER SAT diz que o retorno
-da função é:
+A função ``ConsultarStatusOperacional`` (ER item 6.1.7, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.consultar_status_operacional`)
+retorna atributos que mostram diversas informações a respeito do equipamento
+SAT. A resposta para esta função é direta e simples, mas se você verificar a
+documentação da ER SAT pode ficar confuso quanto aos atributos da resposta. A ER
+SAT diz que o retorno da função é:
 
 .. sourcecode:: text
 
@@ -238,10 +242,11 @@ Por exemplo:
 ConsultarNumeroSessao
 ~~~~~~~~~~~~~~~~~~~~~
 
-A função ``ConsultarNumeroSessao`` (ER item 6.1.8) permite consultar a resposta
-para sessão executada anteriormente. Essa função é especial no sentido de que
-sua resposta será a resposta para a função executada na sessão que está sendo
-consultada.
+A função ``ConsultarNumeroSessao`` (ER item 6.1.8, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.consultar_numero_sessao`) permite
+consultar a resposta para sessão executada anteriormente. Essa função é especial
+no sentido de que sua resposta será a resposta para a função executada na sessão
+que está sendo consultada.
 
 Por exemplo, suponha que a última sessão executada seja um cancelamento, com
 número de sessão ``555810``. Se este número de sessão for consultado, a resposta
@@ -271,12 +276,14 @@ será a resposta de um cancelamento, resultando em uma instância de
 ExtrairLogs
 ~~~~~~~~~~~
 
-A função ``ExtrairLogs`` (ER item 6.1.12) retorna os registros de log do
-equipamento SAT. A resposta para esta função possui duas particularidades:
-primeiro que os registros de log podem ser automaticamente decodificados através
-do método :meth:`~satcfe.resposta.extrairlogs.RespostaExtrairLogs.conteudo`;
-segundo que o nome dado para este campo pela ER SAT fica muito longo e,
-portanto, foi chamado apenas de ``arquivoLog``.
+A função ``ExtrairLogs`` (ER item 6.1.12, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.extrair_logs`) retorna os registros
+de log do equipamento SAT. A resposta para esta função possui duas
+particularidades: primeiro que os registros de log podem ser automaticamente
+decodificados através do método
+:meth:`~satcfe.resposta.extrairlogs.RespostaExtrairLogs.conteudo`; segundo que o
+nome dado para este campo pela ER SAT fica muito longo e, portanto, foi chamado
+apenas de ``arquivoLog``.
 
 .. sourcecode:: python
 
@@ -325,9 +332,10 @@ no equipamento.
 AtivarSAT
 ~~~~~~~~~
 
-A função ``AtivarSAT`` (ER item 6.1.1) é usada para realizar a ativação do
-equipamento SAT tornando-o apto para realizar vendas e cancelamentos. Para
-maiores detalhes consulte o item 2.1.1 da ER SAT.
+A função ``AtivarSAT`` (ER item 6.1.1, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.ativar_sat`) é usada para realizar a
+ativação do equipamento SAT tornando-o apto para realizar vendas e
+cancelamentos. Para maiores detalhes consulte o item 2.1.1 da ER SAT.
 
 .. sourcecode:: python
 
@@ -348,9 +356,10 @@ maiores detalhes consulte o item 2.1.1 da ER SAT.
 ComunicarCertificadoICPBRASIL
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A função ``ComunicarCertificadoICPBRASIL`` (ER item 6.1.2) é complementar à
-função ``AtivarSAT`` e é usada para enviar à SEFAZ o conteúdo do certificado
-emitido pela `ICP Brasil`_.
+A função ``ComunicarCertificadoICPBRASIL`` (ER item 6.1.2, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.comunicar_certificado_icpbrasil`) é
+complementar à função ``AtivarSAT`` e é usada para enviar à SEFAZ o conteúdo do
+certificado emitido pela `ICP Brasil`_.
 
 .. sourcecode:: python
 
@@ -365,10 +374,11 @@ emitido pela `ICP Brasil`_.
 ConfigurarInterfaceDeRede
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A função ``ConfigurarInterfaceDeRede`` (ER item 6.1.9) é utilizada para
-configurar o acesso à rede para que o equipamento SAT possa ter acesso à
-internet. Os parâmetros de configuração são informados através de uma instância
-da classe :class:`~satcfe.rede.ConfiguracaoRede`.
+A função ``ConfigurarInterfaceDeRede`` (ER item 6.1.9, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.configurar_interface_de_rede`) é
+utilizada para configurar o acesso à rede para que o equipamento SAT possa ter
+acesso à internet. Os parâmetros de configuração são informados através de uma
+instância da classe :class:`~satcfe.rede.ConfiguracaoRede`.
 
 .. note::
 
@@ -391,31 +401,46 @@ da classe :class:`~satcfe.rede.ConfiguracaoRede`.
 AssociarAssinatura
 ~~~~~~~~~~~~~~~~~~
 
-.. todo:: Escrever este tópico.
+.. todo::
+
+    Escrever este tópico. Método
+    :meth:`~satcfe.clientelocal.ClienteSATLocal.associar_assinatura`.
 
 
 AtualizarSoftwareSAT
 ~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: Escrever este tópico.
+.. todo::
+
+    Escrever este tópico. Método
+    :meth:`~satcfe.clientelocal.ClienteSATLocal.atualizar_software_sat`.
 
 
 BloquearSAT
 ~~~~~~~~~~~
 
-.. todo:: Escrever este tópico.
+.. todo::
+
+    Escrever este tópico. Método
+    :meth:`~satcfe.clientelocal.ClienteSATLocal.bloquear_sat`.
 
 
 DesbloquearSAT
 ~~~~~~~~~~~~~~
 
-.. todo:: Escrever este tópico.
+.. todo::
+
+    Escrever este tópico. Método
+    :meth:`~satcfe.clientelocal.ClienteSATLocal.desbloquear_sat`.
 
 
 TrocarCodigoDeAtivacao
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: Escrever este tópico.
+.. todo::
+
+    Escrever este tópico. Método
+    :meth:`~satcfe.clientelocal.ClienteSATLocal.trocar_codigo_de_ativacao`.
 
 
 .. include:: references.rst

@@ -66,17 +66,11 @@ Este é um exemplo básico de uso, para consultar o equipamento SAT:
 
 .. sourcecode:: Python
 
-    >>> from satcomum import constantes
-    >>> from satcfe import DLLSAT
+    >>> from satcfe import BibliotecaSAT
     >>> from satcfe import ClienteSATLocal
-    >>> from satcfe import conf
-
-    >>> conf.codigo_ativacao = '123456789'
-
-    >>> cliente = ClienteSATLocal(DLLSAT(
-    ...        caminho='/caminho/para/sat.dll',
-    ...        convencao=constantes.WINDOWS_STDCALL))
-
+    >>> cliente = ClienteSATLocal(BibliotecaSAT('/caminho/para/sat.dll'),
+    ...         codigo_ativacao='12345678')
+    ...
     >>> resposta = cliente.consultar_sat()
     >>> resposta.mensagem
     u'SAT em Opera\xe7\xe3o'
@@ -89,22 +83,26 @@ Executando os Testes
 plataforma ou arquitetura, desde que você possua um kit de desenvolvimento,
 contendo o equipamento SAT e as bibliotecas do fabricante.
 
-Para executar os testes em um ambiente Linux é preciso definir duas variáveis
+Para executar os testes em um ambiente Linux é preciso definir algumas variáveis
 de ambiente para configurar o acesso à biblioteca SAT fornecida pelo fabricante
-do equipamento.
+do equipamento, o código de ativação e o Estado do domicílio fiscal em que o
+equipamento SAT está registrado.
 
 .. sourcecode:: shell
 
-    $ export SATCFE_TEST_DLL=/home/user/fabricante/linux/libsat.so
-    $ export SATCFE_TEST_DLLCONV=1
+    $ export SATCFE_TEST_LIB=/opt/fabricante/libsat.so
+    $ export SATCFE_TEST_LIB_CONVENCAO=1
+    $ export SATCFE_TEST_CODIGO_ATIVACAO=12345678
+    $ export SATCFE_TEST_UF=SP
 
-Antes de executar os testes propriamente, **é conveniente revisar** a
-parametrização no script ``runtests.sh``. Dependendo do seu equipamento SAT, os
-valores para configuração dos dados do emitente e outros dados podem variar.
+Antes de executar os testes propriamente, é conveniente revisar a parametrização
+no script ``runtests.sh`` que, dependendo do seu equipamento SAT, os valores
+para configuração dos dados do emitente e outros dados podem variar.
 
 .. sourcecode:: shell
 
-    $ ./runtests.sh
+    $ ./runtests.sh tanca
+
 
 Parametrização
 ~~~~~~~~~~~~~~
@@ -144,11 +142,11 @@ As opções de parametrização dos testes são:
     | tributados no ISSQN do emitente, em casos de testes de emissão de
     | venda e/ou cancelamento.
 
-``--dll-caminho``
-    | Caminho para a DLL/SO (shared library) SAT.
+``--lib-caminho``
+    | Caminho para a biblioteca SAT.
 
-``--dll-convencao``
-    | Convenção de chamada para a DLL/SO (shared library) SAT.
+``--lib-convencao``
+    | Convenção de chamada para a biblioteca SAT.
 
 ``--skip-funcoes-sat``
     | Ignora testes de todas as funções SAT evitando qualquer acesso ao

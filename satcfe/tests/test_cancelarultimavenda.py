@@ -24,6 +24,7 @@ from decimal import Decimal
 import pytest
 
 from satcfe.entidades import CFeCancelamento
+from satcfe.entidades import Destinatario
 from satcfe.excecoes import ErroRespostaSATInvalida
 from satcfe.excecoes import ExcecaoRespostaSAT
 from satcfe.resposta import RespostaCancelarUltimaVenda
@@ -220,7 +221,10 @@ def test_funcao_enviardadosvenda(clientesatlocal, cfevenda):
             chCanc=rvenda.chaveConsulta,
             CNPJ=pytest.config.getoption('--cnpj-ac'),
             signAC=pytest.config.getoption('--assinatura-ac'),
-            numeroCaixa=pytest.config.getoption('--numero-caixa'))
+            numeroCaixa=pytest.config.getoption('--numero-caixa'),
+            destinatario=Destinatario(
+                    CPF='11122233396',
+                    xNome=u'João de Teste'))
 
     rcanc = clientesatlocal.cancelar_ultima_venda(cfecanc.chCanc, cfecanc)
     assert rcanc.EEEEE == '07000'

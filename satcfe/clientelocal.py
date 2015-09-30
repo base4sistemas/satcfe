@@ -20,7 +20,6 @@
 from satcomum import constantes
 
 from .base import FuncoesSAT
-from .config import conf
 
 from .resposta import RespostaAtivarSAT
 from .resposta import RespostaCancelarUltimaVenda

@@ -27,8 +27,6 @@ from ctypes import c_char_p
 
 from satcomum import constantes
 
-from .config import conf
-
 
 class _Prototype(object):
     def __init__(self, argtypes, restype=c_char_p):
@@ -55,17 +53,56 @@ FUNCTION_PROTOTYPES = dict(
     )
 
 
-class DLLSAT(object):
-    """
-    Configura a localização da DLL do equipamento SAT e mantém uma
-    referência carregada para a ela, conforme a convenção de chamada.
+class BibliotecaSAT(object):
+    """Configura a localização da biblioteca que efetivamente acessará o
+    equipamento SAT. A biblioteca deverá ser uma DLL (*dynamic linked library*,
+    em sistemas Microsoft Windows) ou uma *shared library* em sistemas baseados
+    no UNIX ou GNU/Linux.
+
+    :param string caminho: Caminho completo para a biblioteca SAT.
+
+    :param integer convencao: Opcional. Indica a convenção de chamada da
+        biblioteca, devendo ser uma das constantes definidas em
+        :attr:`~satcomum.constantes.CONVENCOES_CHAMADA`. Se não for informado,
+        a convenção de chamada será decidida conforme a extensão do nome do
+        arquivo, assumindo :attr:`~satcomum.constantes.WINDOWS_STDCALL` para as
+        extensões ``.DLL`` ou ``.dll``. Quaisquer outras extensões, assume a
+        convenção de chamada :attr:`~satcomum.constantes.STANDARD_C`.
+
     """
 
-    def __init__(self, caminho=None, convencao=constantes.STANDARD_C):
+    def __init__(self, caminho, convencao=None):
         self._libsat = None
-        self.caminho = caminho
-        self.convencao = convencao
-        self.carregar()
+        self._caminho = caminho
+        self._convencao = convencao
+        self._carregar()
+
+
+    def _carregar(self):
+        """Carrega (ou recarrega) a biblioteca SAT. Se a convenção de chamada
+        ainda não tiver sido definida, será determinada pela extensão do
+        arquivo da biblioteca.
+
+        :raises ValueError: Se a convenção de chamada não puder ser determinada
+            ou se não for um valor válido.
+        """
+        if self._convencao is None:
+            if self._caminho.endswith(('.DLL', '.dll')):
+                self._convencao = constantes.WINDOWS_STDCALL
+            else:
+                self._convencao = constantes.STANDARD_C
+
+        if self._convencao == constantes.STANDARD_C:
+            loader = ctypes.CDLL
+
+        elif self._convencao == constantes.WINDOWS_STDCALL:
+            loader = ctypes.WinDLL
+
+        else:
+            raise ValueError('Convencao de chamada desconhecida: {!r}'.format(
+                    self._convencao))
+
+        self._libsat = loader(self._caminho)
 
 
     @property
@@ -76,56 +113,16 @@ class DLLSAT(object):
 
     @property
     def caminho(self):
-        """Caminho completo, incluindo o nome do arquivo, para a biblioteca
-        SAT (DLL ou *shared object*).
-
-        :raises ValueError: Se a biblioteca não existir no caminho indicado.
-        """
+        """Caminho completo para a biblioteca SAT."""
         return self._caminho
-
-
-    @caminho.setter
-    def caminho(self, valor):
-        if not os.path.exists(valor):
-            raise ValueError('Biblioteca SAT inexistente em: {}'.format(valor))
-        self._caminho = valor
 
 
     @property
     def convencao(self):
         """Convenção de chamada para a biblioteca SAT. Deverá ser um dos valores
         disponíveis na contante :attr:`~satcomum.constantes.CONVENCOES_CHAMADA`.
-
-        :raises ValueError: Se a convenção de chamada não for reconhecida.
         """
         return self._convencao
-
-
-    @convencao.setter
-    def convencao(self, valor):
-        if valor not in [v for v,s in constantes.CONVENCOES_CHAMADA]:
-            raise ValueError('Convencao de chamada invalida: {}'.format(valor))
-        self._convencao = valor
-
-
-    def carregar(self):
-        """Carrega (ou recarrega) a biblioteca SAT.
-
-        :raises ValueError: Se a convenção de chamada não for reconhecida.
-        """
-        if self._libsat is not None:
-            del self._libsat
-            self._libsat = None
-
-        if constantes.STANDARD_C == self.convencao:
-            loader = ctypes.CDLL
-        elif constantes.WINDOWS_STDCALL == self.convencao:
-            loader = ctypes.WinDLL
-        else:
-            raise ValueError('Convencao de chamada desconhecida: %s' %
-                    self.convencao)
-
-        self._libsat = loader(self.caminho)
 
 
 class NumeroSessaoMemoria(object):
@@ -216,11 +213,33 @@ class FuncoesSAT(object):
     +---------+-----------------------------------+-----------------------------------------+
     | 6.1.15  | ``TrocarCodigoDeAtivacao``        | :meth:`trocar_codigo_de_ativacao`       |
     +---------+-----------------------------------+-----------------------------------------+
+
+    :param biblioteca: Uma instância de :class:`BibliotecaSAT`.
+
+    :param string codigo_ativacao: Código de ativação. Senha definida pelo
+        contribuinte no software de ativação, conforme item 2.1.1 da ER SAT.
+
+    :param numerador_sessao: Opcional. Um ``callable`` capaz de gerar um
+        número de sessão conforme descrito no item 6, alínea "a", "Funções do
+        Equipamento SAT", da ER SAT. Se não for especificado, será utilizado
+        um :class:`NumeroSessaoMemoria`.
+
     """
 
-    def __init__(self, dll=None, numerador_sessao=None):
-        self._dll = dll
+    def __init__(self, biblioteca, codigo_ativacao=None, numerador_sessao=None):
+        self._biblioteca = biblioteca
+        self._codigo_ativacao = codigo_ativacao
         self._numerador_sessao = numerador_sessao or NumeroSessaoMemoria()
+
+
+    @property
+    def biblioteca(self):
+        return self._biblioteca
+
+
+    @property
+    def codigo_ativacao(self):
+        return self._codigo_ativacao
 
 
     def gerar_numero_sessao(self):
@@ -232,7 +251,7 @@ class FuncoesSAT(object):
         if name.startswith('invocar__'):
             metodo_sat = name.replace('invocar__', '')
             proto = FUNCTION_PROTOTYPES[metodo_sat]
-            fptr = getattr(self._dll.ref, metodo_sat)
+            fptr = getattr(self._biblioteca.ref, metodo_sat)
             fptr.argtypes = proto.argtypes
             fptr.restype = proto.restype
             return fptr
@@ -268,7 +287,7 @@ class FuncoesSAT(object):
         """
         return self.invocar__AtivarSAT(
                 self.gerar_numero_sessao(), tipo_certificado,
-                conf.codigo_ativacao, cnpj, codigo_uf)
+                self._codigo_ativacao, cnpj, codigo_uf)
 
 
     def comunicar_certificado_icpbrasil(self, certificado):
@@ -282,7 +301,7 @@ class FuncoesSAT(object):
         :rtype: string
         """
         return self.invocar__ComunicarCertificadoICPBRASIL(
-                self.gerar_numero_sessao(), conf.codigo_ativacao, certificado)
+                self.gerar_numero_sessao(), self._codigo_ativacao, certificado)
 
 
     def enviar_dados_venda(self, dados_venda):
@@ -301,7 +320,7 @@ class FuncoesSAT(object):
                 else dados_venda.documento()
 
         return self.invocar__EnviarDadosVenda(
-                self.gerar_numero_sessao(), conf.codigo_ativacao, cfe_venda)
+                self.gerar_numero_sessao(), self._codigo_ativacao, cfe_venda)
 
 
     def cancelar_ultima_venda(self, chave_cfe, dados_cancelamento):
@@ -324,7 +343,7 @@ class FuncoesSAT(object):
                 else dados_cancelamento.documento()
 
         return self.invocar__CancelarUltimaVenda(
-                self.gerar_numero_sessao(), conf.codigo_ativacao,
+                self.gerar_numero_sessao(), self._codigo_ativacao,
                 chave_cfe, cfe_canc)
 
 
@@ -353,7 +372,7 @@ class FuncoesSAT(object):
                 else dados_venda.documento()
 
         return self.invocar__TesteFimAFim(
-                self.gerar_numero_sessao(), conf.codigo_ativacao, cfe_venda)
+                self.gerar_numero_sessao(), self._codigo_ativacao, cfe_venda)
 
 
     def consultar_status_operacional(self):
@@ -364,7 +383,7 @@ class FuncoesSAT(object):
         :rtype: string
         """
         return self.invocar__ConsultarStatusOperacional(
-                self.gerar_numero_sessao(), conf.codigo_ativacao)
+                self.gerar_numero_sessao(), self._codigo_ativacao)
 
 
     def consultar_numero_sessao(self, numero_sessao):
@@ -376,8 +395,8 @@ class FuncoesSAT(object):
         :return: Retorna *verbatim* a resposta da função SAT.
         :rtype: string
         """
-        return self.invocar__ConsultarNumeroSessao(
-                self.gerar_numero_sessao(), conf.codigo_ativacao, numero_sessao)
+        return self.invocar__ConsultarNumeroSessao(self.gerar_numero_sessao(),
+                self._codigo_ativacao, numero_sessao)
 
 
     def configurar_interface_de_rede(self, configuracao):
@@ -395,7 +414,7 @@ class FuncoesSAT(object):
                 else configuracao.documento()
 
         return self.invocar__ConfigurarInterfaceDeRede(
-                self.gerar_numero_sessao(), conf.codigo_ativacao, conf_xml)
+                self.gerar_numero_sessao(), self._codigo_ativacao, conf_xml)
 
 
     def associar_assinatura(self, sequencia_cnpj, assinatura_ac):
@@ -413,7 +432,7 @@ class FuncoesSAT(object):
         :rtype: string
         """
         return self.invocar__AssociarAssinatura(
-                self.gerar_numero_sessao(), conf.codigo_ativacao,
+                self.gerar_numero_sessao(), self._codigo_ativacao,
                 sequencia_cnpj, assinatura_ac)
 
 
@@ -425,7 +444,7 @@ class FuncoesSAT(object):
         :rtype: string
         """
         return self.invocar__AtualizarSoftwareSAT(
-                self.gerar_numero_sessao(), conf.codigo_ativacao)
+                self.gerar_numero_sessao(), self._codigo_ativacao)
 
 
     def extrair_logs(self):
@@ -436,7 +455,7 @@ class FuncoesSAT(object):
         :rtype: string
         """
         return self.invocar__ExtrairLogs(
-                self.gerar_numero_sessao(), conf.codigo_ativacao)
+                self.gerar_numero_sessao(), self._codigo_ativacao)
 
 
     def bloquear_sat(self):
@@ -447,7 +466,7 @@ class FuncoesSAT(object):
         :rtype: string
         """
         return self.invocar__BloquearSAT(
-                self.gerar_numero_sessao(), conf.codigo_ativacao)
+                self.gerar_numero_sessao(), self._codigo_ativacao)
 
 
     def desbloquear_sat(self):
@@ -458,7 +477,7 @@ class FuncoesSAT(object):
         :rtype: string
         """
         return self.invocar__DesbloquearSAT(
-                self.gerar_numero_sessao(), conf.codigo_ativacao)
+                self.gerar_numero_sessao(), self._codigo_ativacao)
 
 
     def trocar_codigo_de_ativacao(self, novo_codigo_ativacao,
@@ -512,15 +531,15 @@ class FuncoesSAT(object):
             raise ValueError('Novo codigo de ativacao invalido: {!r}'.format(
                     novo_codigo_ativacao))
 
-        _codigo_ativacao = conf.codigo_ativacao
+        codigo_ativacao = self._codigo_ativacao
 
         if opcao == constantes.CODIGO_ATIVACAO_EMERGENCIA:
             if codigo_emergencia:
-                _codigo_ativacao = codigo_emergencia
+                codigo_ativacao = codigo_emergencia
             else:
                 raise ValueError('Codigo de ativacao de emergencia invalido: '
                         '{!r} (opcao={!r})'.format(codigo_emergencia, opcao))
 
         return self.invocar__TrocarCodigoDeAtivacao(
-                self.gerar_numero_sessao(), _codigo_ativacao, opcao,
+                self.gerar_numero_sessao(), codigo_ativacao, opcao,
                 novo_codigo_ativacao, novo_codigo_ativacao)

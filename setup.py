@@ -19,16 +19,11 @@
 
 import io
 import os
+import re
 import sys
 
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
-
-# Isso evita que o pacote 'satcfe' importe outros modulos prematuramente,
-# quebrando a resolução de dependências durante a instalação via PIP
-os.environ['SATCFE_SETUP_SCRIPT'] = '1'
-
-import satcfe
 
 
 def read(*filenames, **kwargs):
@@ -44,6 +39,12 @@ def read(*filenames, **kwargs):
 def read_install_requires():
     content = read('requirements.txt')
     return content.strip().split(os.linesep)
+
+
+def read_version():
+    content = read(os.path.join(
+            os.path.dirname(__file__), 'satcfe', '__init__.py'))
+    return re.search(r"__version__ = '([^']+)'", content).group(1)
 
 
 long_description = read('README.rst')
@@ -69,7 +70,7 @@ class PyTest(TestCommand):
 
 setup(
         name='satcfe',
-        version=satcfe.__version__,
+        version=read_version(),
         description=u'Abstração do acesso ao equipamento SAT (SAT-CF-e)',
         long_description=long_description,
         packages=[

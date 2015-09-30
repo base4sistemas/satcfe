@@ -25,8 +25,7 @@ from unidecode import unidecode
 
 from satcomum import constantes
 
-from satcfe.config import conf
-from satcfe.base import DLLSAT
+from satcfe.base import BibliotecaSAT
 from satcfe.clientelocal import ClienteSATLocal
 from satcfe.entidades import CFeCancelamento
 from satcfe.entidades import CFeVenda
@@ -102,17 +101,17 @@ def pytest_addoption(parser):
             type=int,
             help='Numero do caixa de origem')
 
-    parser.addoption('--dll-caminho',
+    parser.addoption('--lib-caminho',
             action='store',
             default='sat.dll',
-            help='Caminho para a DLL/SO (shared library) SAT')
+            help='Caminho para a biblioteca SAT')
 
-    parser.addoption('--dll-convencao',
+    parser.addoption('--lib-convencao',
             action='store',
             choices=[constantes.STANDARD_C, constantes.WINDOWS_STDCALL],
             default=constantes.STANDARD_C,
             type=int,
-            help='Convencao de chamada para a DLL/SO (shared library) SAT '
+            help='Convencao de chamada para a biblioteca SAT '
                     '({})'.format(_valores_possiveis(
                             constantes.CONVENCOES_CHAMADA)))
 
@@ -192,11 +191,11 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope='module')
 def clientesatlocal(request):
-    conf.codigo_ativacao = request.config.getoption('--codigo-ativacao')
-    conf.numero_caixa = request.config.getoption('--numero-caixa')
-    funcoes = ClienteSATLocal(DLLSAT(
-            caminho=request.config.getoption('--dll-caminho'),
-            convencao=request.config.getoption('--dll-convencao')))
+    funcoes = ClienteSATLocal(
+            BibliotecaSAT(
+                    request.config.getoption('--lib-caminho'),
+                    convencao=request.config.getoption('--lib-convencao')),
+            codigo_ativacao=request.config.getoption('--codigo-ativacao'))
     return funcoes
 
 

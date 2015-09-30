@@ -13,19 +13,16 @@ Cliente Local
 
 Em um cliente local o acesso ao equipamento SAT é feito através da biblioteca
 SAT que é fornecida pelo fabricante do equipamento, distribuída normalmente como
-uma DLL (*dinamic-link library*, ``.dll``) ou SO (*shared object*, ``.so``), de
-modo que é necessário indicar o caminho completo para a biblioteca e a convenção
-de chamada:
+uma DLL (*dinamic-link library*, ``.dll``) ou *shared library* (``.so``), de
+modo que é necessário indicar o caminho completo para a biblioteca.
 
 .. sourcecode:: python
 
-    from satcomum import constantes
-    from satcfe import DLLSAT
+    from satcfe import BibliotecaSAT
     from satcfe import ClienteSATLocal
 
-    cliente = ClienteSATLocal(DLLSAT(
-            caminho='caminho/para/sat.dll',
-            convencao=constantes.WINDOWS_STDCALL))
+    cliente = ClienteSATLocal(BibliotecaSAT('/opt/fabricante/libsat.so'),
+            codigo_ativacao='12345678')
 
     resposta = cliente.consultar_sat()
 
@@ -34,21 +31,15 @@ Cliente SATHub
 --------------
 
 Em um cliente SATHub o acesso ao equipamento SAT é compartilhado e feito através
-de uma requisição HTTP para endereço onde o servidor SATHub responde. Em ambos
-os casos a chamada à função é exatamente a mesma, com exceção da instanciação
-do cliente:
+de uma requisição HTTP para endereço onde o servidor `SATHub`_ responde. Em
+ambos os casos a chamada à função é exatamente a mesma, com exceção da
+instanciação do cliente:
 
 .. sourcecode:: python
 
     from satcfe import ClienteSATHub
-    from satcfe import conf
 
-    conf.sathub.numero_caixa = 7
-    conf.sathub.host = '192.168.0.101'
-    conf.sathub.port = 8088
-
-    cliente = ClienteSATHub()
-
+    cliente = ClienteSATHub('192.168.0.101', 8088, numero_caixa=7)
     resposta = cliente.consultar_sat()
 
 Via de regra o código que acessa as funções da biblioteca SAT não deveria se
@@ -84,8 +75,8 @@ próximo número de sessão a ser usado em uma função SAT. Por exemplo:
         return numero
 
     cliente = ClienteSATLocal(
-            DLLSAT(caminho='caminho/para/sat.dll',
-                   convencao=constantes.WINDOWS_STDCALL),
+            BibliotecaSAT('/opt/fabricante/libsat.so'),
+            codigo_ativacao='12345678'
             numerador_sessao=meu_numerador)
 
 Para os clientes SATHub há um esquema de numeração de sessão mais robusto, já
@@ -94,3 +85,4 @@ requisito é resolvido de maneira a evitar colisões de numeração ou repetiç�
 numeração mesmo atendendo requisições concorrentes. Consulte a documentação do
 `projeto SATHub <https://github.com/base4sistemas/sathub>`_ para os detalhes.
 
+.. include:: references.rst

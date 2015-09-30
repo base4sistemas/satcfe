@@ -26,7 +26,6 @@ from satcomum import constantes
 import satcfe
 
 from .base import FuncoesSAT
-from .config import conf
 
 from .resposta import RespostaAtivarSAT
 from .resposta import RespostaCancelarUltimaVenda
@@ -48,9 +47,34 @@ class ClienteSATHub(FuncoesSAT):
     regulares cujos atributos representam as peças de informação conforme
     descrito, função por função, na ER SAT.
 
+    :param string host: Nome ou endereço IP do host para o SATHub.
+
+    :param integer port: Número da porta pela qual o HTTPd responde.
+
+    :param integer numero_caixa: Número do caixa, conforme atributo ``B14`` do
+        item 4.2.2 da ER SAT. Deve ser um número inteiro entre ``0`` e ``999``.
+        Na verdade, prefira deixar o número de caixa ``999`` livre, para uso
+        pelo próprio SATHub.
+
+    :param string baseurl: Opcional. Prefixo base da URL para os serviços da API
+        RESTful. Se não for informado será utilizado o padrão ``"/hub/v1"``.
+
+    .. note::
+
+        Note que não é necessário especificar o código de ativação quando se
+        está usando um :class:`ClienteSATHub`, já que o código é configurado
+        no servidor.
+
     .. _`SATHub`: https://github.com/base4sistemas/sathub
 
     """
+
+    def __init__(self, host, port, numero_caixa=1, baseurl='/hub/v1'):
+        self._host = host
+        self._port = port
+        self._numero_caixa = numero_caixa
+        self._baseurl = baseurl
+
 
     def _request_headers(self):
         headers = {
@@ -62,14 +86,14 @@ class ClienteSATHub(FuncoesSAT):
 
     def _url(self, metodo):
         return 'http://{}:{}/{}/{}'.format(
-                conf.sathub.host,
-                conf.sathub.port,
-                conf.sathub.baseurl.strip('/'), metodo)
+                self._host,
+                self._port,
+                self._baseurl.strip('/'), metodo)
 
 
     def _http_post(self, metodo, **payload):
         if 'numero_caixa' not in payload:
-            payload.update({'numero_caixa': conf.numero_caixa})
+            payload.update({'numero_caixa': self._numero_caixa})
         headers = self._request_headers()
         resp = requests.post(self._url(metodo), data=payload, headers=headers)
         resp.raise_for_status()
