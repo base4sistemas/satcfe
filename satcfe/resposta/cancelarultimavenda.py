@@ -68,7 +68,7 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
 
     def xml(self):
         """Retorna o XML do CF-e-SAT de cancelamento decodificado."""
-        return base64.b64decode(self.resposta.arquivoCFeBase64)
+        return base64.b64decode(getattr(self, 'arquivoCFeBase64', ''))
 
 
     def qrcode(self):
