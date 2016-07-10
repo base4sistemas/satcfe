@@ -93,7 +93,7 @@ XML do CF-e-SAT de Venda
 ------------------------
 
 O seguinte documento XML **seria um documento fiscal com validade jurídica** se
-não tivesse sido emitido contra um equipamento SAT para desenvolvimento [#f1]_.
+não tivesse sido **emitido contra um equipamento SAT para desenvolvimento** [#f1]_.
 Repare que o emitente possui os dados do fabricante do equipamento além de
 vários outros elementos importantes que foram adicionados pelo equipamento, tais
 como o valor do troco e o bloco de assinatura no final do documento.
@@ -222,6 +222,117 @@ como o valor do troco e o bloco de assinatura no final do documento.
     </CFe>
 
 
-.. rubric:: Nota
+.. _exemplos-xml-do-cfe-de-cancelamento:
+
+XML do CF-e de Cancelamento
+---------------------------
+
+O seguinte documento XML representa um CF-e de cancelamento pronto para ser
+enviado ao equipamento SAT. Um documento como este pode ser criado como visto
+em :ref:`criando-um-cfe-de-cancelamento` e submetido à função SAT
+:meth:`~satcfe.base.FuncoesSAT.cancelar_ultima_venda`.
+
+.. sourcecode:: xml
+
+    <CFeCanc>
+      <infCFe chCanc="CFe35150761099008000141599000026310000100500297">
+        <ide>
+          <CNPJ>08427847000169</CNPJ>
+          <signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC>
+          <numeroCaixa>002</numeroCaixa>
+        </ide>
+        <emit/>
+        <dest/>
+        <total/>
+      </infCFe>
+    </CFeCanc>
+
+
+.. _exemplos-xml-do-cfe-sat-cancelamento:
+
+XML do CF-e-SAT de Cancelamento
+-------------------------------
+
+O seguinte documento XML **seria um documento fiscal com validade jurídica** se
+não tivesse sido **emitido contra um equipamento SAT para desenvolvimento**.
+Repare que o equipamento SAT adiciona vários outros elementos ao documento
+antes de assiná-lo e enviá-lo à SEFAZ.
+
+.. sourcecode:: xml
+
+    <?xml version="1.0"?>
+    <CFeCanc>
+      <infCFe
+            Id="CFe35150908723218000186599000040190000378585470"
+            chCanc="CFe35150908723218000186599000040190000360539948"
+            versao="0.06">
+        <dEmi>20150911</dEmi>
+        <hEmi>175840</hEmi>
+        <ide>
+          <cUF>35</cUF>
+          <cNF>858547</cNF>
+          <mod>59</mod>
+          <nserieSAT>900004019</nserieSAT>
+          <nCFe>000037</nCFe>
+          <dEmi>20150911</dEmi>
+          <hEmi>175921</hEmi>
+          <cDV>0</cDV>
+          <CNPJ>16716114000172</CNPJ>
+          <signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC>
+          <assinaturaQRCODE>UKJ77VyQ0tc+EdLm5ZdAYILMqXvPSSB+QLYz+0ZgJpUhNN5AchnYuArKPzVTiKqbObtxbR7l+s5X/TmMGMQw1TIryqv7A0Az73LagV+6oS5uk3yvBbYR+tWjfh+JcmktllYVZv8QVo+AY7ygj+lCqLjfUhMqBzU4HbJzBQMy7QPtCEy27wk7c3S3mVcsmWALxd3H7lHnZj1wJ+ldhWJpNX17o/6sB0Nc6ksz4dYkLRfHheCspFyTORtE1Any+DasmmaW8I4jNQfrWnxWbQxOJ3zqiE/pYb/wf/3r8WvC1luR5xdb9kMedd+TM0lZwZXndXkAcQOFVMq5CaYietV/og==</assinaturaQRCODE>
+          <numeroCaixa>002</numeroCaixa>
+        </ide>
+        <emit>
+          <CNPJ>08723218000186</CNPJ>
+          <xNome>TANCA INFORMATICA EIRELI</xNome>
+          <enderEmit>
+            <xLgr>RUA ENGENHEIRO JORGE OLIVA</xLgr>
+            <xBairro>VILA MASCOTE</xBairro>
+            <xMun>SAO PAULO</xMun>
+            <CEP>04362060</CEP>
+          </enderEmit>
+          <IE>149626224113</IE>
+          <IM>123123</IM>
+        </emit>
+        <dest/>
+        <total>
+          <vCFe>2.00</vCFe>
+        </total>
+        <infAdic>
+          <obsFisco xCampo="xCampo1">
+            <xTexto>xTexto1</xTexto>
+          </obsFisco>
+        </infAdic>
+      </infCFe>
+      <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <SignedInfo>
+          <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+          <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+          <Reference URI="#CFe35150908723218000186599000040190000378585470">
+            <Transforms>
+              <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+              <Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+            </Transforms>
+            <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+            <DigestValue>cKjiw47QNwzsTllPL2AqZa2q53472inwU8Uavl3sBQg=</DigestValue>
+          </Reference>
+        </SignedInfo>
+        <SignatureValue>U59QqadjXTF6exMfRKF5WpppK61MB+7Eq4zdnxSeIZOw/nML2Z17F7VpvKmcPzqr2EU/z3ZkWYMSuKJOO4kb51QeoOYdwbycBMDsI8BwyreMeV4wGLhQ7IIIXcorPqmZ22ZpnuSwlT0m4lwjVpoMZERbXpc1Q4z+8O/eefKP5HUP1MZ6r8C2iHN1P/3ZT2JJhRGMvQ+OGlPz3RHPNAWuQ2MeKLk+/ZMNXfjSgaJnBt0TrNz0YSJlzXadNrrvuUEsP90uwWAtIgm8AfK8eWEU6FT7jvGbU0/Xa6zg4rbajtaV8mrzt8gmJc+8rUtrtcl//FPD/xbDiv3tSpefSTDz6w==</SignatureValue>
+        <KeyInfo>
+          <X509Data>
+            <X509Certificate>MIIGsDCCBJigAwIBAgIJARjgvIzmd2BGMA0GCSqGSIb3DQEBCwUAMGcxCzAJBgNVBAYTAkJSMTUwMwYDVQQKEyxTZWNyZXRhcmlhIGRhIEZhemVuZGEgZG8gRXN0YWRvIGRlIFNhbyBQYXVsbzEhMB8GA1UEAxMYQUMgU0FUIGRlIFRlc3RlIFNFRkFaIFNQMB4XDTE1MDcwODE1MzYzNloXDTIwMDcwODE1MzYzNlowgbUxEjAQBgNVBAUTCTkwMDAwNDAxOTELMAkGA1UEBhMCQlIxEjAQBgNVBAgTCVNBTyBQQVVMTzERMA8GA1UEChMIU0VGQVotU1AxDzANBgNVBAsTBkFDLVNBVDEoMCYGA1UECxMfQXV0ZW50aWNhZG8gcG9yIEFSIFNFRkFaIFNQIFNBVDEwMC4GA1UEAxMnVEFOQ0EgSU5GT1JNQVRJQ0EgRUlSRUxJOjA4NzIzMjE4MDAwMTg2MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAl89PfjfjZy0QatgBzvV+Du04ekjbiYmnVe5S9AHNiexno8Vdp9B79hwLKiDrvvwAtVqrocWOQmM3SIx5OECy/vvFi46wawJT9Y2a4zuEFGvHZSuE/Up3PB52dP34aGbplis0d1RqIoXoKWq+FljWs+N89rwvPxgJGafGp3e3t8CqIjqBPSCX8Bmy/2YDj1C/J1CLW91q94qVX0CxhKFHAwfgIKe7ZHeZpws2jiOmtLFWKofCSaconQu5PHUVzOv7kTpK8ZbvsvnzwLwHa6/rDJsORW/33V+ryfuDtRH+nos3usE/avc/8mU25q3rj7fTNax4ggb6rpFtSyTAWRkFZQIDAQABo4ICDjCCAgowDgYDVR0PAQH/BAQDAgXgMHsGA1UdIAR0MHIwcAYJKwYBBAGB7C0DMGMwYQYIKwYBBQUHAgEWVWh0dHA6Ly9hY3NhdC5pbXByZW5zYW9maWNpYWwuY29tLmJyL3JlcG9zaXRvcmlvL2RwYy9hY3NhdHNlZmF6c3AvZHBjX2Fjc2F0c2VmYXpzcC5wZGYwawYDVR0fBGQwYjBgoF6gXIZaaHR0cDovL2Fjc2F0LXRlc3RlLmltcHJlbnNhb2ZpY2lhbC5jb20uYnIvcmVwb3NpdG9yaW8vbGNyL2Fjc2F0c2VmYXpzcC9hY3NhdHNlZmF6c3BjcmwuY3JsMIGmBggrBgEFBQcBAQSBmTCBljA0BggrBgEFBQcwAYYoaHR0cDovL29jc3AtcGlsb3QuaW1wcmVuc2FvZmljaWFsLmNvbS5icjBeBggrBgEFBQcwAoZSaHR0cDovL2Fjc2F0LXRlc3RlLmltcHJlbnNhb2ZpY2lhbC5jb20uYnIvcmVwb3NpdG9yaW8vY2VydGlmaWNhZG9zL2Fjc2F0LXRlc3RlLnA3YzATBgNVHSUEDDAKBggrBgEFBQcDAjAJBgNVHRMEAjAAMCQGA1UdEQQdMBugGQYFYEwBAwOgEAQOMDg3MjMyMTgwMDAxODYwHwYDVR0jBBgwFoAUjjlBAFzyuAXaqG2YuQFGbW5j3wIwDQYJKoZIhvcNAQELBQADggIBAEmyNu2JbRf7geMopWPAWgaspxVOCQz56P/iA0xWmEpeayPjSzPNFr79FpEHEF5by4it0xiHj3cZmXnmkTNVDXSx03C1SNOBy6p9p5ps8bvSMlYVmiyr5C7sjp9AcvS92BXekNazcr/cHsTUmlGTHZRmwWYkdNzaVLMgQJ5RyLnWPyacP6KMuuU+y1SjgrKHcseaw987NHO2q/fCRL5Lgg/O6aA2sFP/QMO3WuAEzIBPT0k9g80L4DnnZBInyU5jdGB6/CvZhd7lau6ncQZPl4cnr+Y6Dr4TZ1ytA/Mpf2/MJjW8w5XqtatgRCl3DZ7W7D5ThxIW7oBnNbtkjvokH38OSQJg+Fvtd7Ab6b0o8RDyxVjUi5Kla+4CAxZs10vyW4BkD7fFktiTzSPsyStqbinsWiPW/XzNmlmCX+PDsQmkaziox4MHQ2XPFRngBLLjZOBWTNdMPo+zDTyfG9jVAeLEr4vtY/zRITP5I5Gk7c0VGi7uUUgqsqdluH+ygHqs52lNo1oxLYmODUFq1xejgmGu4CMcJhz3RuFjXDX6BUc0U0cJbvtzETKq5psOYklZmA4nSHeWE4p5xI1o0/8DKEfEs4GtImIBYPubUSLEoGFnDF45PeQU7cI+yMIYrct5Czn0M52l/77anc+9NyIGi+lCVW/IHfEZawYziMiUUiBx</X509Certificate>
+          </X509Data>
+        </KeyInfo>
+      </Signature>
+    </CFeCanc>
+
+.. todo::
+
+    O exemplo do XML do CF-e-SAT de cancelamento não está relacionado ao
+    exemplo do CF-e de cancelamento pronto para ser submetido ao equipamento
+    SAT. Talvez seja mais fácil compreender se os exemplos estiverem
+    relacionados.
+
+.. rubric:: Notas
 
 .. [#f1] Também são chamados de "kit SAT".

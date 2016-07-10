@@ -2281,11 +2281,23 @@ class CFeVenda(Entidade):
 class CFeCancelamento(Entidade):
     """Representa um CF-e de cancelamento.
 
-    :param Destinatario destinatario:
-    :param str chCanc:
-    :param str CNPJ:
-    :param str signAC:
-    :param int numeroCaixa:
+    :param Destinatario destinatario: *Opcional*. Uma instância de
+        :class:`Destinatario` contendo apenas os dados exigidos para a operação
+        de cancelamento (ie. ``CPF`` ou ``CNPJ`` do destinatário).
+
+    :param str chCanc: Chave de acesso do CF-e a ser cancelado. Deve ser
+        precedido do literal ``CFe`` seguido dos quarenta e quatro dígitos
+        que compõem a chave de acesso.
+
+    :param str CNPJ: CNPJ da software house, desenvolvedora do aplicativo
+        comercial, contendo apenas os dígitos do número e incluindo zeros não
+        significativos, se for o caso (14 dígitos).
+
+    :param str signAC: Assinatura do aplicativo comercial (344 dígitos).
+
+    :param int numeroCaixa: Número do caixa ao qual o SAT está conectado.
+        Normalmente este será o número do caixa de onde parte a solicitação de
+        cancelamento. Deverá ser um número inteiro entre ``0`` e ``999``.
 
     .. sourcecode:: python
 
