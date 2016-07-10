@@ -5,7 +5,6 @@ Venda e Cancelamento
 ====================
 
 
-
 .. _anatomia-do-cfe:
 
 Anatomia do CF-e
@@ -199,10 +198,46 @@ para geração do QRCode e outras informações:
     Decimal('5.75')
 
 
+.. _criando-um-cfe-de-cancelamento:
+
 Criando um CF-e de Cancelamento
 -------------------------------
 
-.. todo:: Escrever este tópico.
+Para realizar o cancelamento de um CF-e-SAT de venda, você irá precisar da
+chave de acesso do documento a ser cancelado:
+
+.. sourcecode:: python
+
+    from satcomum import constantes
+    from satcfe import BibliotecaSAT
+    from satcfe import ClienteSATLocal
+    from satcfe.entidades import CFeCancelamento
+
+    chave_acesso_venda = ... # obter a chave de acesso do CF-e-SAT de venda
+
+    cfecanc = CFeCancelamento(
+            chCanc=chave_acesso_venda,
+            CNPJ='08427847000169',
+            signAC=contantes.ASSINATURA_AC_TESTE,
+            numeroCaixa=2)
+
+    cliente = ClienteSATLocal(BibliotecaSAT('/opt/fabricante/libsat.so'),
+            codigo_ativacao='12345678')
+
+    resposta = cliente.cancelar_ultima_venda(cfecanc.chCanc, cfecanc)
+
+Assim como na venda, o cancelamento irá produzir um XML ainda incompleto que
+será submetido ao equipamento SAT, que o irá completá-lo, assiná-lo e
+transmití-lo à SEFAZ. Veja um exemplo do :ref:`exemplos-xml-do-cfe-de-cancelamento`
+e do :ref:`exemplos-xml-do-cfe-sat-cancelamento`.
+
+Se algo der errado durante o cancelamento serão lançadas exceções apropriadas.
+Mais detalhes em :ref:`lidando-com-as-respostas` e :ref:`lidando-com-excecoes`.
+
+Para obter o XML da resposta (o CF-e-SAT de cancelamento) ou os dados do
+QRcode, use os métodos
+:meth:`~satcfe.resposta.cancelarultimavenda.RespostaCancelarUltimaVenda.xml` e
+:meth:`~satcfe.resposta.cancelarultimavenda.RespostaCancelarUltimaVenda.qrcode`.
 
 
 .. include:: references.rst
