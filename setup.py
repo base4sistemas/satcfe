@@ -96,7 +96,7 @@ setup(
         author=u'Daniel Gonçalves',
         author_email='daniel@base4.com.br',
         classifiers = [
-                'Development Status :: 3 - Alpha',
+                'Development Status :: 5 - Production/Stable',
                 'Environment :: Other Environment',
                 'Intended Audience :: Developers',
                 'Intended Audience :: Information Technology',
