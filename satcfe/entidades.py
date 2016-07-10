@@ -1989,9 +1989,13 @@ class DescAcrEntr(Entidade):
     """Grupo de valores de entrada de desconto/acréscimo sobre subtotal
     (``DescAcrEntr``, grupo ``W19``).
 
-    :param Decimal vDescSubtot:
-    :param Decimal vAcresSubtot:
-    :param Decimal vCFeLei12741:
+    :param Decimal vDescSubtot: Valor de entrada de desconto sobre subtotal.
+        Se este argumento for informado, então o argumento ``vAcresSubtot`` não
+        deve ser informado.
+
+    :param Decimal vAcresSubtot: Valor de entrada de acréscimo sobre subtotal.
+        Se este argumento for informado, então o argumento ``vDescSubtot`` não
+        deve ser informado.
 
     .. sourcecode:: python
 
@@ -1999,24 +2003,47 @@ class DescAcrEntr(Entidade):
         >>> ET.tostring(grupo._xml())
         '<DescAcrEntr />'
 
+        >>> # os atributos são mutamente exclusivos
         >>> grupo = DescAcrEntr(
         ...         vDescSubtot=Decimal('0.01'),
-        ...         vAcresSubtot=Decimal('0.02'),
-        ...         vCFeLei12741=Decimal('0.03'))
+        ...         vAcresSubtot=Decimal('0.02'))
         >>> ET.tostring(grupo._xml())
-        '<DescAcrEntr><vDescSubtot>0.01</vDescSubtot><vAcresSubtot>0.02</vAcresSubtot><vCFeLei12741>0.03</vCFeLei12741></DescAcrEntr>'
+        Traceback (most recent call last):
+         ...
+        ValidationError: ...
+
+        >>> grupo = DescAcrEntr(vDescSubtot=Decimal('0.01'))
+        >>> ET.tostring(grupo._xml())
+        '<DescAcrEntr><vDescSubtot>0.01</vDescSubtot></DescAcrEntr>'
+
+        >>> grupo = DescAcrEntr(vAcresSubtot=Decimal('0.02'))
+        >>> ET.tostring(grupo._xml())
+        '<DescAcrEntr><vAcresSubtot>0.02</vAcresSubtot></DescAcrEntr>'
 
     """
+
+    class _Validator(ExtendedValidator):
+
+        def _validate_type_vDescSubtot_W20(self, field, value):
+            if 'vAcresSubtot' in self.document:
+                self._error(field,
+                        u'vDescSubtot (W20) e vAcresSubtot (W21) são mutuamente exclusivos.')
+
+        def _validate_type_vAcresSubtot_W21(self, field, value):
+            if 'vDescSubtot' in self.document:
+                self._error(field,
+                        u'vAcresSubtot (W21) e vDescSubtot (W20) são mutuamente exclusivos.')
+
 
     def __init__(self, **kwargs):
         super(DescAcrEntr, self).__init__(schema={
                 'vDescSubtot': {
-                        'type': 'decimal',
+                        'type': 'vDescSubtot_W20',
                         'required': False},
                 'vAcresSubtot': {
-                        'type': 'decimal',
+                        'type': 'vAcresSubtot_W21',
                         'required': False},
-            }, **kwargs)
+            }, validator_class=DescAcrEntr._Validator, **kwargs)
 
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -2114,17 +2141,42 @@ class InformacoesAdicionais(Entidade):
 class CFeVenda(Entidade):
     """Representa um CF-e de venda.
 
-    :param Emitente emitente:
-    :param Destinatario destinatario: *Opcional*
-    :param LocalEntrega entrega: *Opcional*
-    :param list detalhamentos:
-    :param DescAcrEntr descontos_acrescimos_subtotal: *Opcional*
-    :param list pagamentos:
-    :param InformacoesAdicionais informacoes_adicionais: *Opcional*
-    :param str versaoDadosEnt: *Opcional*
-    :param str CNPJ:
-    :param str signAC:
-    :param int numeroCaixa:
+    :param Emitente emitente: Identificação do emitente do CF-e.
+
+    :param Destinatario destinatario: *Opcional*. Identificação do destinatário.
+
+    :param LocalEntrega entrega: *Opcional*. Informações do local de entrega.
+
+    :param list detalhamentos: Uma lista de objetos :class:`ProdutoServico` que
+        representam os produtos/serviços participantes do CF-e de venda.
+
+    :param DescAcrEntr descontos_acrescimos_subtotal: *Opcional*. Se informado,
+        deverá ser um objeto :class:`DescAcrEntr` que contenha o valor de
+        desconto ou acréscimo sobre o subtotal.
+
+    :param list pagamentos: Uma lista de objetos :class:`MeioPagamento` que
+        descrevem cada um dos meios de pagamentos usados no CF-e de venda.
+
+    :param InformacoesAdicionais informacoes_adicionais: *Opcional*.
+
+    :param str versaoDadosEnt: *Opcional*. String contendo a versão do layout
+        do arquivo de dados do aplicativo comercial. Se não informado será
+        utilizado o valor da constante ``VERSAO_LAYOUT_ARQUIVO_DADOS_AC`` do
+        módulo ``constantes`` do `projeto ``satcomum`` <https://github.com/base4sistemas/satcomum/>`_
+
+    :param str CNPJ:  CNPJ da software house, desenvolvedora do aplicativo
+        comercial, contendo apenas os dígitos do número e incluindo zeros não
+        significativos, se for o caso (14 dígitos).
+
+    :param str signAC:  Assinatura do aplicativo comercial (344 dígitos).
+
+    :param int numeroCaixa: Número do caixa ao qual o SAT está conectado.
+        Normalmente este será o número do caixa de onde parte a solicitação de
+        cancelamento. Deverá ser um número inteiro entre ``0`` e ``999``.
+
+    :param Decimal vCFeLei12741: *Opcional*. Se informado deve representar a
+        soma total dos valores aproximados dos tributos, em cumprimento à Lei
+        nº 12.741/2012.
 
     Note que não há uma classe específica para representar o elemento ``ide``
     do grupo ``B01``, já que todos os seus atributos são esperados nesta classe.
@@ -2261,7 +2313,7 @@ class CFeVenda(Entidade):
 
         total = ET.SubElement(infCFe, 'total')
 
-        if self.vCFeLei12741:
+        if hasattr(self, 'vCFeLei12741'):
             ET.SubElement(total, 'vCFeLei12741').text = str(self.vCFeLei12741)
 
         if self.descontos_acrescimos_subtotal is not None:

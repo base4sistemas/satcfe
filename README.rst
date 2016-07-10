@@ -22,6 +22,9 @@ Projeto SATCFe
     :target: http://satcfe.readthedocs.org/
     :alt: Latest Documentation
 
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/base4sistemas/satcfe
+   :target: https://gitter.im/base4sistemas/satcfe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 -------
 
@@ -53,10 +56,6 @@ maiores informações, consulte a `documentação do projeto
 
 Se estiver procurando meios para emitir um extrato do CF-e-SAT, o
 `Projeto SATExtrato`_ pode ajudar.
-
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/base4sistemas/satcfe
-   :target: https://gitter.im/base4sistemas/satcfe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 
 Utilização
@@ -165,10 +164,16 @@ Executando Testes Manualmente
 Se não quiser usar o script ``runtests.sh`` ou se estiver usando um ambiente
 Windows, poderá invocar a execução dos testes manualmente, por exemplo:
 
-.. sourcecode:: text
+.. sourcecode:: ps1con
 
     C> python setup.py test -a "--cnpj-ac=01234567000199 ..."
 
+Ou para apenas executar os testes unitários que não interagem com o equipamento
+SAT de nenhuma maneira:
+
+.. sourcecode:: shell
+
+    $ python setup.py test -a "-rs --skip-funcoes-sat"
 
 .. _`SAT-CF-e`: http://www.fazenda.sp.gov.br/sat/
 .. _`Projeto SATExtrato`: https://github.com/base4sistemas/satextrato
