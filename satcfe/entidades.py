@@ -2016,9 +2016,6 @@ class DescAcrEntr(Entidade):
                 'vAcresSubtot': {
                         'type': 'decimal',
                         'required': False},
-                'vCFeLei12741': {
-                        'type': 'decimal',
-                        'required': False},
             }, **kwargs)
 
 
@@ -2032,10 +2029,6 @@ class DescAcrEntr(Entidade):
         if hasattr(self, 'vAcresSubtot'):
             ET.SubElement(grupo, 'vAcresSubtot').text = \
                     str(self.vAcresSubtot)
-
-        if hasattr(self, 'vCFeLei12741'):
-            ET.SubElement(grupo, 'vCFeLei12741').text = \
-                    str(self.vCFeLei12741)
 
         return grupo
 
@@ -2182,6 +2175,9 @@ class CFeVenda(Entidade):
                                 'type': 'integer',
                                 'required': True,
                                 'min': 0, 'max': 999},
+                        'vCFeLei12741': {
+                                'type': 'decimal',
+                                'required': False},
                     }, **kwargs)
 
 
@@ -2264,6 +2260,9 @@ class CFeVenda(Entidade):
             infCFe.append(det._xml(nItem=n+1))
 
         total = ET.SubElement(infCFe, 'total')
+
+        if self.vCFeLei12741:
+            ET.SubElement(total, 'vCFeLei12741').text = str(self.vCFeLei12741)
 
         if self.descontos_acrescimos_subtotal is not None:
             total.append(self.descontos_acrescimos_subtotal._xml())
