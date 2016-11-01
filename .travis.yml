@@ -1,0 +1,23 @@
+language: python
+dist: trusty
+
+python:
+  - "2.7"
+
+sudo: required
+
+cache:
+  pip: true
+
+env:
+  - LINT="1" FLAKE="0" TEST="0"
+  - LINT="0" FLAKE="1" TEST="0"
+  - LINT="0" FLAKE="0" TEST="1"
+
+install:
+  - virtualenv .
+  - bin/pip install -r requirements.txt
+
+script:
+  - sh travis_run_script.sh
+
