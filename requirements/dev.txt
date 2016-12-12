@@ -1,0 +1,8 @@
+-r base.txt
+
+sphinx==1.5
+sphinx-rtd-theme==0.1.9
+
+flake8
+setuptools-lint
+coveralls

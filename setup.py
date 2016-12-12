@@ -37,7 +37,8 @@ def read(*filenames, **kwargs):
 
 
 def read_install_requires():
-    content = read('requirements.txt')
+    content = read(os.path.join(
+            os.path.dirname(__file__), 'requirements', 'base.txt'))
     return content.strip().split(os.linesep)
 
 
