@@ -5,33 +5,10 @@
 Projeto SATCFe
 ==============
 
-    This project is about **SAT-CF-e** which is a system for autorization and
-    transmission of fiscal documents, developed by Finance Secretary of
-    state of São Paulo, Brazil. This entire project, variables, methods and
-    class names, as well as documentation, are written in brazilian
-    portuguese.
-
-    Refer to the `oficial web site <http://www.fazenda.sp.gov.br/sat/>`_ for
-    more information (in brazilian portuguese only).
-
-
-.. note::
-
-    **This documentation is a work in progress**
-
-
-.. note::
-
-    **Esta documentação é um trabalho em andamento**
-
-
-A Secretaria da Fazenda do Estado de São Paulo, `SEFAZ/SP`_ desenvolveu o
-projeto conhecido como **SAT-CF-e**, Sistema de Autorização e Transmissão de
-Cupons Fiscais eletrônicos, conforme descrito na `Portaria CAT 147`_ de 05
-de novembro de 2012. Na prática esse sistema torna obsoletos os Emissores de
-Cupons Fiscais (ECF) no Estado de São Paulo. Visite a página da
-`Secretaria da Fazenda de São Paulo <http://www.fazenda.sp.gov.br/sat>`_ para
-outras informações.
+A Secretaria da Fazenda do Estado de São Paulo, `SEFAZ/SP`_, implantou através
+da `Portaria CAT 147`_ o `SAT-CF-e <http://www.fazenda.sp.gov.br/sat>`_ (Sistema
+de Autorização e Transmissão de Cupons Fiscais eletrônicos), em substituição às
+impressoras fiscais (ECF).
 
 Esta documentação diz respeito ao projeto `SATCFe`_ desenvolvido pela Base4
 Sistemas Ltda com o objetivo de abstrair o acesso ao Equipamento SAT através da
@@ -187,6 +164,15 @@ Glossário
         pagamentos, por exemplo, além de toda a lógica de negócios, conforme os
         ramo de atividade do estabelecimento usuário. Este é o aplicativo
         cliente típico deste projeto.
+
+
+Créditos
+========
+
+Imagens criadas com `Inkscape <https://inkscape.org/pt-br/>`_ e editadas usando
+`GIMP <https://www.gimp.org/>`_. Foram usadas as famílias de fontes de tipos
+`Ubuntu Font Family <http://font.ubuntu.com/>`_ e
+`Font Awesome <http://fontawesome.io/>`_.
 
 
 .. include:: references.rst

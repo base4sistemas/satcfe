@@ -15,7 +15,7 @@
    version="1.1"
    inkscape:version="0.48.4 r9939"
    sodipodi:docname="modelo-op-sat.svg"
-   inkscape:export-filename="/home/daniel/shared/oss/satcfe/docs/_static/modelo-op-sat.png"
+   inkscape:export-filename="/home/daniel/OSS/satcfe/docs/_static/svg/modelo-op-sat.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -35,7 +35,7 @@
      showgrid="false"
      inkscape:window-width="1881"
      inkscape:window-height="1056"
-     inkscape:window-x="1959"
+     inkscape:window-x="39"
      inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
@@ -374,37 +374,5 @@
            y="965.94238"
            style="font-size:12px;text-align:center;text-anchor:middle;fill:#808080">Comercial</tspan></text>
     </g>
-    <text
-       xml:space="preserve"
-       style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#b3b3b3;fill-opacity:1;stroke:none;font-family:FontAwesome;-inkscape-font-specification:FontAwesome"
-       x="17.182617"
-       y="987.49011"
-       id="text3136"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3138"
-         x="17.182617"
-         y="987.49011"
-         style="font-size:9px;fill:#b3b3b3">Font from Ubuntu Font Family</tspan><tspan
-         sodipodi:role="line"
-         x="17.182617"
-         y="998.74011"
-         style="font-size:9px;fill:#b3b3b3"
-         id="tspan3144">http://font.ubuntu.com</tspan><tspan
-         sodipodi:role="line"
-         x="17.182617"
-         y="1009.9901"
-         style="font-size:9px;fill:#b3b3b3"
-         id="tspan3146" /><tspan
-         sodipodi:role="line"
-         x="17.182617"
-         y="1021.2401"
-         style="font-size:9px;fill:#b3b3b3"
-         id="tspan3142">Icons from Font Awesome by Dave Gandy</tspan><tspan
-         sodipodi:role="line"
-         x="17.182617"
-         y="1032.4901"
-         style="font-size:9px;fill:#b3b3b3"
-         id="tspan3140">http://fontawesome.io</tspan></text>
   </g>
 </svg>
