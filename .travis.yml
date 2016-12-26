@@ -16,7 +16,7 @@ env:
 
 install:
   - virtualenv .
-  - bin/pip install -r requirements.txt
+  - bin/pip install -r requirements/base.txt
 
 script:
   - sh travis_run_script.sh
