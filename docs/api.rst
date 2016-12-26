@@ -53,3 +53,14 @@ Veja como lidar com algumas das respostas mais básicas em
 
 .. include:: references.rst
 
+
+Infraestrutura de Alertas
+-------------------------
+
+Fornece um mecanismo simples e robusto para checagem de potenciais problemas de
+operação com base no status operacional do equipamento SAT.
+
+.. toctree::
+    :maxdepth: 1
+
+    apidoc/alertas
