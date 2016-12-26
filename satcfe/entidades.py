@@ -124,11 +124,11 @@ Detalhamento dos produtos/serviços e impostos:
         .         |    |         > ICMS 00, 20, 90
         .         |    |
                   |    +--- ICMS40 (N03, 0..1)
-                  |    |         > ICMS 40, 41, 50, 60
+                  |    |         > ICMS 40, 41, 60
                   |    |
                   |    +--- ICMSSN102 (N04, 0..1)
                   |    |         > cRegTrib = 1, Simples Nacional
-                  |    |         > CSOSN 102, 300, 500
+                  |    |         > CSOSN 102, 300, 400, 500
                   |    |
                   |    +--- ICMSSN900 (N05, 0..1)
                   |              > cRegTrib = 1, Simples Nacional
@@ -900,7 +900,7 @@ class ICMS00(Entidade):
 
 
 class ICMS40(Entidade):
-    """Grupo de tributação do ICMS 40, 41, 50 e 60 (``ICMS40``, grupo ``N03``).
+    """Grupo de tributação do ICMS 40, 41 e 60 (``ICMS40``, grupo ``N03``).
 
     :param str Orig:
     :param str CST:
@@ -934,7 +934,7 @@ class ICMS40(Entidade):
 
 
 class ICMSSN102(Entidade):
-    """Grupo de tributação do ICMS Simples Nacional, CSOSN 102, 300 e 500
+    """Grupo de tributação do ICMS Simples Nacional, CSOSN 102, 300, 400 e 500
     (``ICMSSN102``, grupo ``N04``).
 
     :param str Orig:
@@ -2194,7 +2194,7 @@ class CFeVenda(Entidade):
         ...                 cRegTribISSQN=constantes.C15_SOCIEDADE_PROFISSIONAIS,
         ...                 indRatISSQN=constantes.C16_NAO_RATEADO))
         >>> ET.tostring(cfe._xml())
-        '<CFe><infCFe versaoDadosEnt="0.06"><ide><CNPJ>08427847000169</CNPJ><signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC><numeroCaixa>001</numeroCaixa></ide><emit><CNPJ>61099008000141</CNPJ><IE>111111111111</IE><IM>12345</IM><cRegTribISSQN>3</cRegTribISSQN><indRatISSQN>N</indRatISSQN></emit><dest /><total /><pgto /></infCFe></CFe>'
+        '<CFe><infCFe versaoDadosEnt="0.07"><ide><CNPJ>08427847000169</CNPJ><signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC><numeroCaixa>001</numeroCaixa></ide><emit><CNPJ>61099008000141</CNPJ><IE>111111111111</IE><IM>12345</IM><cRegTribISSQN>3</cRegTribISSQN><indRatISSQN>N</indRatISSQN></emit><dest /><total /><pgto /></infCFe></CFe>'
 
     """
 
