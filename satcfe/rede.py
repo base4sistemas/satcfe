@@ -81,15 +81,6 @@ class ConfiguracaoRede(Entidade):
         relacionado ao parâmetro ``proxy_user``, se necessário, contendo
         até 64 caracteres.
 
-    .. sourcecode:: python
-
-        >>> from satcomum import constantes
-        >>> conf = ConfiguracaoRede(
-        ...         tipoInter=constantes.REDE_TIPOINTER_ETHE,
-        ...         tipoLan=constantes.REDE_TIPOLAN_DHCP)
-        >>> ET.tostring(conf._xml())
-        '<config><tipoInter>ETHE</tipoInter><tipoLan>DHCP</tipoLan></config>'
-
     """
 
     def __init__(self, **kwargs):
@@ -97,7 +88,7 @@ class ConfiguracaoRede(Entidade):
                 'tipoInter': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in REDE_TIPOINTER_OPCOES]},
+                        'allowed': [v for v, s in REDE_TIPOINTER_OPCOES]},
                 'SSID': {
                         'type': 'string',
                         'required': False,
@@ -105,7 +96,7 @@ class ConfiguracaoRede(Entidade):
                 'seg': {
                         'type': 'string',
                         'required': False,
-                        'allowed': [v for v,s in REDE_SEG_OPCOES]},
+                        'allowed': [v for v, s in REDE_SEG_OPCOES]},
                 'codigo': {
                         'type': 'string',
                         'required': False,
@@ -113,7 +104,7 @@ class ConfiguracaoRede(Entidade):
                 'tipoLan': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in REDE_TIPOLAN_OPCOES]},
+                        'allowed': [v for v, s in REDE_TIPOLAN_OPCOES]},
                 'lanIP': {
                         'type': 'ipv4',
                         'required': False},
@@ -140,7 +131,7 @@ class ConfiguracaoRede(Entidade):
                 'proxy': {
                         'type': 'string',
                         'required': False,
-                        'allowed': [v for v,s in REDE_PROXY_OPCOES]},
+                        'allowed': [v for v, s in REDE_PROXY_OPCOES]},
                 'proxy_ip': {
                         'type': 'ipv4',
                         'required': False},
@@ -157,7 +148,6 @@ class ConfiguracaoRede(Entidade):
                         'required': False,
                         'minlength': 1, 'maxlength': 64},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         config = ET.Element('config')

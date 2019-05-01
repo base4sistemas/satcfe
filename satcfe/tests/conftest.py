@@ -30,7 +30,6 @@ from satcomum import constantes
 
 from satcfe.base import BibliotecaSAT
 from satcfe.clientelocal import ClienteSATLocal
-from satcfe.entidades import CFeCancelamento
 from satcfe.entidades import CFeVenda
 from satcfe.entidades import Destinatario
 from satcfe.entidades import Emitente

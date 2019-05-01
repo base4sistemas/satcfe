@@ -19,7 +19,6 @@
 
 import collections
 import ctypes
-import os
 import random
 
 from ctypes import c_int
@@ -130,25 +129,6 @@ class NumeroSessaoMemoria(object):
     persistente, que irá gerar um número de sessão (seis dígitos) diferente
     entre os ``n`` últimos números de sessão gerados. Conforme a ER SAT, um
     número de sessão não poderá ser igual aos últimos ``100`` números.
-
-    .. sourcecode:: python
-
-        >>> numerador = NumeroSessaoMemoria(tamanho=5)
-        >>> n1 = numerador()
-        >>> 100000 <= n1 <= 999999
-        True
-        >>> n1 in numerador
-        True
-        >>> n2 = numerador()
-        >>> n3 = numerador()
-        >>> n4 = numerador()
-        >>> n5 = numerador()
-        >>> len(set([n1, n2, n3, n4, n5]))
-        5
-        >>> n6 = numerador()
-        >>> n1 in numerador
-        False
-
     """
 
     def __init__(self, tamanho=100):
@@ -156,10 +136,8 @@ class NumeroSessaoMemoria(object):
         self._tamanho = tamanho
         self._memoria = collections.deque(maxlen=tamanho)
 
-
     def __contains__(self, item):
         return item in self._memoria
-
 
     def __call__(self, *args, **kwargs):
         while True:

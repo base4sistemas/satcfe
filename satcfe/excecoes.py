@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 
+
 class ErroRespostaSATInvalida(Exception):
     """
     Lançada quando a resposta dada por uma função da DLL SAT não contém
@@ -28,10 +29,9 @@ class ErroRespostaSATInvalida(Exception):
 
 
 class ExcecaoRespostaSAT(Exception):
-    """
-    Lançada quando uma resposta à uma função da DLL SAT (comando SAT) é
-    interpretada como tendo falhado. São casos em que a resposta é perfeitamente
-    válida mas é interpretada como falha.
+    """Lançada quando uma resposta à uma função da DLL SAT (comando SAT) é
+    interpretada como tendo falhado. São casos em que a resposta é
+    perfeitamente válida mas é interpretada como falha.
 
     Por exemplo, quando a função ``ConsultarSAT`` é invocada e a resposta
     indica um código ``EEEEE`` diferente de ``08000``, então uma exceção como
@@ -49,7 +49,6 @@ class ExcecaoRespostaSAT(Exception):
                         getattr(resposta, 'cod', '?'),
                         getattr(resposta, 'mensagemSEFAZ', '?')))
         self._resposta = resposta
-
 
     @property
     def resposta(self):
