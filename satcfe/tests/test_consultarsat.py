@@ -24,8 +24,8 @@ from unidecode import unidecode
 
 
 @pytest.mark.skipif(
-        pytest.config.getoption('--skip-consultarsat') or
-        pytest.config.getoption('--skip-funcoes-sat'),
+        pytest.config.getoption('--skip-consultarsat', default=True) or
+        pytest.config.getoption('--skip-funcoes-sat', default=True),
         reason='Funcao `ConsultarSAT` explicitamente ignorada')
 def test_consultarsat(clientesatlocal):
     resposta = clientesatlocal.consultar_sat()

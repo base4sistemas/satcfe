@@ -16,44 +16,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import base64
 
 from datetime import datetime
-from unidecode import unidecode
 
 
-def as_ascii(value):
-    """Converte a sequência unicode para ``str`` ou apenas retorna o argumento.
+def str_to_base64(data, encoding='utf-8'):
+    """Codifica uma string (por padrão, UTF-8) em Base64.
 
-    .. sourcecode:: python
+    :param str data: String a ser codificada em Base64.
+    :param str encoding: Opcional. O *encoding* da string `data`. Se não for
+        especificado, o padrão é `'utf-8'`.
 
-        >>> type(as_ascii('testando'))
-        <type 'str'>
-        >>> type(as_ascii(u'bênção'))
-        <type 'str'>
-        >>> as_ascii(u'b\u00EAn\u00E7\u00E3o')
-        'bencao'
-
+    :returns: Uma string UTF-8 contendo a massa de dados em Base64.
+    :rtype: str
     """
-    if isinstance(value, unicode):
-        return unidecode(value)
-    return value
+    data_as_bytes = data.encode(encoding)
+    base64_data = base64.b64encode(data_as_bytes)
+    return base64_data.decode('utf-8')
 
 
-def as_clean_unicode(value):
-    """Resulta na conversão do argumento para ``unicode`` e a subsequente
-    remoção dos espaços em branco das bordas.
+def base64_to_str(data):
+    """Decodifica uma massa de dados codificada em Base64.
 
-    .. sourcecode:: python
-
-        >>> as_clean_unicode('abc')
-        u'abc'
-        >>> as_clean_unicode('abc\\n')
-        u'abc'
-        >>> as_clean_unicode(' \\tabc \\t \\n   ')
-        u'abc'
-
+    :param str data: String contendo a massa de dados codificada em Base64.
+    :rtype: str
     """
-    return unicode(value).strip()
+    data_as_bytes = data.encode('utf-8')
+    decoded_bytes = base64.b64decode(data_as_bytes)
+    return decoded_bytes.decode('utf-8')
 
 
 def as_date(value):
@@ -163,7 +154,7 @@ def normalizar_ip(ip):
     return '.'.join([str(int(n, 10)) for n in ip.split('.')])
 
 
-def hms(segundos):  # TODO: mover para util.py
+def hms(segundos):
     """
     Retorna o número de horas, minutos e segundos a partir do total de
     segundos informado.
@@ -193,13 +184,13 @@ def hms(segundos):  # TODO: mover para util.py
 
     :rtype: tuple
     """
-    h = (segundos / 3600)
-    m = (segundos - (3600 * h)) / 60
+    h = (segundos // 3600)
+    m = (segundos - (3600 * h)) // 60
     s = (segundos - (3600 * h) - (m * 60));
     return (h, m, s)
 
 
-def hms_humanizado(segundos): # TODO: mover para util.py
+def hms_humanizado(segundos):
     """
     Retorna um texto legível que descreve o total de horas, minutos e segundos
     calculados a partir do total de segundos informados.

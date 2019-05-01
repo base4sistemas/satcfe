@@ -1,0 +1,2 @@
+Resposta sem nenhum separador
+Numero inesperado de campos|a|b|c|d|e|f|g|h|i|j|k

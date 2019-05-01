@@ -17,8 +17,6 @@
 # limitations under the License.
 #
 
-import base64
-
 import pytest
 
 from satcomum import br
@@ -27,6 +25,7 @@ from satcomum import constantes
 from satcfe.excecoes import ErroRespostaSATInvalida
 from satcfe.excecoes import ExcecaoRespostaSAT
 from satcfe.resposta import RespostaAtivarSAT
+from satcfe.util import str_to_base64
 
 
 CSR_EXEMPLO = """-----BEGIN CERTIFICATE REQUEST-----
@@ -42,50 +41,37 @@ PdlrrliKNknFmHKIaCKTLRcU59ScA6ADEIWUzqmUzP5Cs6jrSRo3NKfg1bd09D1K
 -----END CERTIFICATE REQUEST-----"""
 
 
-RESP_SUCESSO = [
-        u'123456|04000|Ativado corretamente|||LS0tLS1CRUdJTiBDRVJUSUZJQ0FURSBSRVFVRVNULS0tLS0KTUlJQm5UQ0NBUVlDQVFBd1hURUxNQWtHQTFVRUJoTUNVMGN4RVRBUEJnTlZCQW9UQ0UweVEzSjVjSFJ2TVJJdwpFQVlEVlFRREV3bHNiMk5oYkdodmMzUXhKekFsQmdrcWhraUc5dzBCQ1FFV0dHRmtiV2x1UUhObGNuWmxjaTVsCmVHRnRjR3hsTG1SdmJUQ0JuekFOQmdrcWhraUc5dzBCQVFFRkFBT0JqUUF3Z1lrQ2dZRUFyMW5ZWTFRcmxsMXIKdUIvRnFsQ1JycjVudnVwZElOKzN3RjdxOTE1dHZFUW9jNzRibnU2YjhJYmJHUk1oemR6bXZRNFN6RmZWRUF1TQpNdVRIZXliUHE1dGg3WURyVE5pektLeE9CbnFFMktZdVg5WDIyQTFLaDQ5c29KSkZnNmtQYjlNVWdpWkJpTWx2CnRiN0szQ0hmZ3c1V2FnV25MbDhMYitjY3ZLWlpsKzhDQXdFQUFhQUFNQTBHQ1NxR1NJYjNEUUVCQkFVQUE0R0IKQUhwb1JwNVlTNTVDWnB5K3dkaWdRRXdqTC93U2x1dm8rV2p0cHZQMFlvQk1KdTRWTUtlWmk0MDVSN284b0V3aQpQZGxycmxpS05rbkZtSEtJYUNLVExSY1U1OVNjQTZBREVJV1V6cW1VelA1Q3M2anJTUm8zTktmZzFiZDA5RDFLCjlyc1FrUmM5VXJ2OW1SQklzcmVkR25ZRUNOZVJhSzVSMXl6cE9vd25pblhDCi0tLS0tRU5EIENFUlRJRklDQVRFIFJFUVVFU1QtLS0tLQ==',
-        u'123456|04006|CSR ICP-BRASIL criado com sucesso|||LS0tLS1CRUdJTiBDRVJUSUZJQ0FURSBSRVFVRVNULS0tLS0KTUlJQm5UQ0NBUVlDQVFBd1hURUxNQWtHQTFVRUJoTUNVMGN4RVRBUEJnTlZCQW9UQ0UweVEzSjVjSFJ2TVJJdwpFQVlEVlFRREV3bHNiMk5oYkdodmMzUXhKekFsQmdrcWhraUc5dzBCQ1FFV0dHRmtiV2x1UUhObGNuWmxjaTVsCmVHRnRjR3hsTG1SdmJUQ0JuekFOQmdrcWhraUc5dzBCQVFFRkFBT0JqUUF3Z1lrQ2dZRUFyMW5ZWTFRcmxsMXIKdUIvRnFsQ1JycjVudnVwZElOKzN3RjdxOTE1dHZFUW9jNzRibnU2YjhJYmJHUk1oemR6bXZRNFN6RmZWRUF1TQpNdVRIZXliUHE1dGg3WURyVE5pektLeE9CbnFFMktZdVg5WDIyQTFLaDQ5c29KSkZnNmtQYjlNVWdpWkJpTWx2CnRiN0szQ0hmZ3c1V2FnV25MbDhMYitjY3ZLWlpsKzhDQXdFQUFhQUFNQTBHQ1NxR1NJYjNEUUVCQkFVQUE0R0IKQUhwb1JwNVlTNTVDWnB5K3dkaWdRRXdqTC93U2x1dm8rV2p0cHZQMFlvQk1KdTRWTUtlWmk0MDVSN284b0V3aQpQZGxycmxpS05rbkZtSEtJYUNLVExSY1U1OVNjQTZBREVJV1V6cW1VelA1Q3M2anJTUm8zTktmZzFiZDA5RDFLCjlyc1FrUmM5VXJ2OW1SQklzcmVkR25ZRUNOZVJhSzVSMXl6cE9vd25pblhDCi0tLS0tRU5EIENFUlRJRklDQVRFIFJFUVVFU1QtLS0tLQ==',
-    ]
+def test_resposta_ativarsat(datadir):
+    with open(datadir.join('respostas-de-sucesso.txt'), 'r') as f:
+        r_sucessos = f.read().splitlines()
 
-
-RESP_FALHA = [
-        u'123456|04001|Erro na criação do certificado||',
-        u'123456|04002|SEFAZ não reconhece este SAT (CNPJ inválido)||',
-        u'123456|04003|SAT já ativado||',
-        u'123456|04004|SAT com uso cessado||',
-        u'123456|04005|Erro de comunicação com a SEFAZ||',
-        u'123456|04007|Erro na criação do CSR ICP-BRASIL||',
-        u'123456|04098|SAT em processamento. Tente novamente.||',
-        u'123456|04099|Erro desconhecido na ativacao||',
-    ]
-
-
-RESP_INVALIDA = [
-        u'Resposta sem nenhum separador',
-        u'Numero inesperado de campos|a|b|c|d|e|f',
-    ]
-
-
-def test_resposta_ativarsat():
-    resposta = RespostaAtivarSAT.analisar(RESP_SUCESSO[0])
+    resposta = RespostaAtivarSAT.analisar(r_sucessos[0])
     assert resposta.numeroSessao == 123456
     assert resposta.EEEEE == '04000'
-    assert resposta.CSR == base64.b64encode(CSR_EXEMPLO)
+    assert resposta.CSR == str_to_base64(CSR_EXEMPLO)
     assert resposta.csr() == CSR_EXEMPLO
 
-    resposta = RespostaAtivarSAT.analisar(RESP_SUCESSO[1])
+    resposta = RespostaAtivarSAT.analisar(r_sucessos[1])
     assert resposta.numeroSessao == 123456
     assert resposta.EEEEE == '04006'
-    assert resposta.CSR == base64.b64encode(CSR_EXEMPLO)
+    assert resposta.CSR == str_to_base64(CSR_EXEMPLO)
     assert resposta.csr() == CSR_EXEMPLO
 
-    for retorno in RESP_FALHA:
-        with pytest.raises(ExcecaoRespostaSAT):
-            resposta = RespostaAtivarSAT.analisar(retorno)
 
-    for retorno in RESP_INVALIDA:
+def test_respostas_de_falha(datadir):
+    with open(datadir.join('respostas-de-falha.txt'), 'r') as f:
+        respostas = f.read().splitlines()
+    for retorno in respostas:
+        with pytest.raises(ExcecaoRespostaSAT):
+            RespostaAtivarSAT.analisar(retorno)
+
+
+def test_respostas_invalidas(datadir):
+    with open(datadir.join('respostas-invalidas.txt'), 'r') as f:
+        respostas = f.read().splitlines()
+    for retorno in respostas:
         with pytest.raises(ErroRespostaSATInvalida):
-            resposta = RespostaAtivarSAT.analisar(retorno)
+            RespostaAtivarSAT.analisar(retorno)
 
 
 @pytest.mark.skipif(
@@ -97,7 +83,7 @@ def test_funcao_ativarsat(clientesatlocal):
     # permite a ativação, pois já vem ativado pelo fabricante, por isso
     # não esperamos sucesso na execução da função
     with pytest.raises(ExcecaoRespostaSAT):
-        resposta = clientesatlocal.ativar_sat(
+        clientesatlocal.ativar_sat(
                 constantes.CERTIFICADO_ACSAT_SEFAZ,
                 pytest.config.getoption('--emitente-cnpj'),
                 br.codigo_ibge_uf(pytest.config.getoption('--emitente-uf')))

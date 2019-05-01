@@ -17,15 +17,10 @@
 # limitations under the License.
 #
 
-import base64
-import errno
 import os
 import tempfile
 
-from satcomum.util import forcar_unicode
-
 from ..excecoes import ExcecaoRespostaSAT
-from ..util import as_clean_unicode
 from ..util import as_date
 from ..util import as_datetime
 from ..util import as_datetime_or_none
@@ -50,6 +45,10 @@ ESTADOS_OPERACAO = (
 """Códigos do estados de operação e suas descrições amigáveis."""
 
 
+def _stripped_str(s):
+    return s.strip()
+
+
 class RespostaConsultarStatusOperacional(RespostaSAT):
     """Lida com as respostas da função ``ConsultarStatusOperacional`` (veja o
     método :meth:`~satcfe.base.FuncoesSAT.consultar_status_operacional`).
@@ -60,21 +59,21 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
     +=====================+==================================+
     | ``numeroSessao``    | ``int``                          |
     +---------------------+----------------------------------+
-    | ``EEEEE``           | ``unicode``                      |
+    | ``EEEEE``           | ``str``                          |
     +---------------------+----------------------------------+
-    | ``mensagem``        | ``unicode``                      |
+    | ``mensagem``        | ``str``                          |
     +---------------------+----------------------------------+
-    | ``cod``             | ``unicode``                      |
+    | ``cod``             | ``str``                          |
     +---------------------+----------------------------------+
-    | ``mensagemSEFAZ``   | ``unicode``                      |
+    | ``mensagemSEFAZ``   | ``str``                          |
     +---------------------+----------------------------------+
-    | ``NSERIE``          | ``unicode``                      |
+    | ``NSERIE``          | ``str``                          |
     +---------------------+----------------------------------+
-    | ``TIPO_LAN``        | ``unicode``                      |
+    | ``TIPO_LAN``        | ``str``                          |
     +---------------------+----------------------------------+
     | ``LAN_IP``          | ``str``                          |
     +---------------------+----------------------------------+
-    | ``LAN_MAC``         | ``unicode``                      |
+    | ``LAN_MAC``         | ``str``                          |
     +---------------------+----------------------------------+
     | ``LAN_MASK``        | ``str``                          |
     +---------------------+----------------------------------+
@@ -84,25 +83,25 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
     +---------------------+----------------------------------+
     | ``LAN_DNS_2``       | ``str``                          |
     +---------------------+----------------------------------+
-    | ``STATUS_LAN``      | ``unicode``                      |
+    | ``STATUS_LAN``      | ``str``                          |
     +---------------------+----------------------------------+
-    | ``NIVEL_BATERIA``   | ``unicode``                      |
+    | ``NIVEL_BATERIA``   | ``str``                          |
     +---------------------+----------------------------------+
-    | ``MT_TOTAL``        | ``unicode``                      |
+    | ``MT_TOTAL``        | ``str``                          |
     +---------------------+----------------------------------+
-    | ``MT_USADA``        | ``unicode``                      |
+    | ``MT_USADA``        | ``str``                          |
     +---------------------+----------------------------------+
     | ``DH_ATUAL``        | ``datetime.datetime``            |
     +---------------------+----------------------------------+
-    | ``VER_SB``          | ``unicode``                      |
+    | ``VER_SB``          | ``str``                          |
     +---------------------+----------------------------------+
-    | ``VER_LAYOUT``      | ``unicode``                      |
+    | ``VER_LAYOUT``      | ``str``                          |
     +---------------------+----------------------------------+
-    | ``ULTIMO_CF_E_SAT`` | ``unicode``                      |
+    | ``ULTIMO_CF_E_SAT`` | ``str``                          |
     +---------------------+----------------------------------+
-    | ``LISTA_INICIAL``   | ``unicode``                      |
+    | ``LISTA_INICIAL``   | ``str``                          |
     +---------------------+----------------------------------+
-    | ``LISTA_FINAL``     | ``unicode``                      |
+    | ``LISTA_FINAL``     | ``str``                          |
     +---------------------+----------------------------------+
     | ``DH_CFE``          | ``datetime.datetime``|``None``   |
     +---------------------+----------------------------------+
@@ -135,30 +134,30 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
         """Constrói uma :class:`RespostaConsultarStatusOperacional` a partir do
         retorno informado.
 
-        :param unicode retorno: Retorno da função ``ConsultarStatusOperacional``.
+        :param str retorno: Retorno da função ``ConsultarStatusOperacional``.
         """
-        resposta = analisar_retorno(forcar_unicode(retorno),
+        resposta = analisar_retorno(retorno,
                 funcao='ConsultarStatusOperacional',
                 classe_resposta=RespostaConsultarStatusOperacional,
                 campos=RespostaSAT.CAMPOS + (
-                        ('NSERIE', as_clean_unicode),
-                        ('TIPO_LAN', as_clean_unicode),
+                        ('NSERIE', _stripped_str),
+                        ('TIPO_LAN', _stripped_str),
                         ('LAN_IP', normalizar_ip),
-                        ('LAN_MAC', unicode),
+                        ('LAN_MAC', str),
                         ('LAN_MASK', normalizar_ip),
                         ('LAN_GW', normalizar_ip),
                         ('LAN_DNS_1', normalizar_ip),
                         ('LAN_DNS_2', normalizar_ip),
-                        ('STATUS_LAN', as_clean_unicode),
-                        ('NIVEL_BATERIA', as_clean_unicode),
-                        ('MT_TOTAL', as_clean_unicode),
-                        ('MT_USADA', as_clean_unicode),
+                        ('STATUS_LAN', _stripped_str),
+                        ('NIVEL_BATERIA', _stripped_str),
+                        ('MT_TOTAL', _stripped_str),
+                        ('MT_USADA', _stripped_str),
                         ('DH_ATUAL', as_datetime),
-                        ('VER_SB', as_clean_unicode),
-                        ('VER_LAYOUT', as_clean_unicode),
-                        ('ULTIMO_CF_E_SAT', as_clean_unicode),
-                        ('LISTA_INICIAL', as_clean_unicode),
-                        ('LISTA_FINAL', as_clean_unicode),
+                        ('VER_SB', _stripped_str),
+                        ('VER_LAYOUT', _stripped_str),
+                        ('ULTIMO_CF_E_SAT', _stripped_str),
+                        ('LISTA_INICIAL', _stripped_str),
+                        ('LISTA_FINAL', _stripped_str),
                         ('DH_CFE', as_datetime_or_none),
                         ('DH_ULTIMA', as_datetime),
                         ('CERT_EMISSAO', as_date),

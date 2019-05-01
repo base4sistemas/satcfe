@@ -16,15 +16,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import base64
-import errno
 import os
 import tempfile
 
-from satcomum.util import forcar_unicode
-
 from ..excecoes import ExcecaoRespostaSAT
+from ..util import base64_to_str
 from .padrao import RespostaSAT
 from .padrao import analisar_retorno
 
@@ -37,11 +33,11 @@ class RespostaExtrairLogs(RespostaSAT):
     .. sourcecode:: text
 
         numeroSessao (int)
-        EEEEE (unicode)
-        mensagem (unicode)
-        cod (unicode)
-        mensagemSEFAZ (unicode)
-        arquivoLog (unicode)
+        EEEEE (str)
+        mensagem (str)
+        cod (str)
+        mensagemSEFAZ (str)
+        arquivoLog (str)
 
     Em caso de falha, são esperados apenas os atributos padrão, conforme
     descrito na constante :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
@@ -49,7 +45,7 @@ class RespostaExtrairLogs(RespostaSAT):
 
     def conteudo(self):
         """Retorna o conteúdo do log decodificado."""
-        return base64.b64decode(self.arquivoLog)
+        return base64_to_str(self.arquivoLog)
 
 
     def salvar(self, destino=None, prefix='tmp', suffix='-sat.log'):
@@ -68,13 +64,12 @@ class RespostaExtrairLogs(RespostaSAT):
         :return: Retorna o caminho completo para o arquivo salvo.
         :rtype: str
 
-        :raises IOError: Se o destino for informado e o arquivo já existir.
+        :raises FileExistsError: Se o destino informado já existir.
         """
         if destino:
             if os.path.exists(destino):
-                raise IOError((errno.EEXIST, 'File exists', destino,))
-            destino = os.path.abspath(destino)
-            fd = os.open(destino, os.O_EXCL|os.O_CREAT|os.O_WRONLY)
+                raise FileExistsError(destino)
+            fd = os.open(destino, 'w', encoding='utf-8')
         else:
             fd, destino = tempfile.mkstemp(prefix=prefix, suffix=suffix)
 
@@ -82,7 +77,7 @@ class RespostaExtrairLogs(RespostaSAT):
         os.fsync(fd)
         os.close(fd)
 
-        return os.path.abspath(destino)
+        return destino
 
 
     @staticmethod
@@ -90,13 +85,13 @@ class RespostaExtrairLogs(RespostaSAT):
         """Constrói uma :class:`RespostaExtrairLogs` a partir do retorno
         informado.
 
-        :param unicode retorno: Retorno da função ``ExtrairLogs``.
+        :param str retorno: Retorno da função ``ExtrairLogs``.
         """
-        resposta = analisar_retorno(forcar_unicode(retorno),
+        resposta = analisar_retorno(retorno,
                 funcao='ExtrairLogs',
                 classe_resposta=RespostaExtrairLogs,
                 campos=RespostaSAT.CAMPOS + (
-                        ('arquivoLog', unicode),
+                        ('arquivoLog', str),
                     ),
                 campos_alternativos=[
                         # se a extração dos logs falhar espera-se o padrão de

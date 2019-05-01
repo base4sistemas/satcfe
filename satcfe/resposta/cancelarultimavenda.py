@@ -16,16 +16,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import base64
-
 from decimal import Decimal
 
 from satcomum.ersat import dados_qrcode
-from satcomum.util import forcar_unicode
 
 from ..excecoes import ExcecaoRespostaSAT
 from ..util import as_datetime
+from ..util import base64_to_str
 from .padrao import RespostaSAT
 from .padrao import analisar_retorno
 
@@ -38,28 +35,28 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
     .. sourcecode:: text
 
         numeroSessao (int)
-        EEEEE (unicode)
-        CCCC (unicode)
-        mensagem (unicode)
-        cod (unicode)
-        mensagemSEFAZ (unicode)
-        arquivoCFeBase64 (unicode)
+        EEEEE (str)
+        CCCC (str)
+        mensagem (str)
+        cod (str)
+        mensagemSEFAZ (str)
+        arquivoCFeBase64 (str)
         timeStamp (datetime.datetime)
-        chaveConsulta (unicode)
+        chaveConsulta (str)
         valorTotalCFe (decimal.Decimal)
-        CPFCNPJValue (unicode)
-        assinaturaQRCODE (unicode)
+        CPFCNPJValue (str)
+        assinaturaQRCODE (str)
 
     Em caso de falha, são esperados apenas os atributos:
 
     .. sourcecode:: text
 
         numeroSessao (int)
-        EEEEE (unicode)
-        CCCC (unicode)
-        mensagem (unicode)
-        cod (unicode)
-        mensagemSEFAZ (unicode)
+        EEEEE (str)
+        CCCC (str)
+        mensagem (str)
+        cod (str)
+        mensagemSEFAZ (str)
 
     Finalmente, como último recurso, a resposta poderá incluir apenas os
     atributos padrão, conforme descrito na constante
@@ -67,12 +64,16 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
     """
 
     def xml(self):
-        """Retorna o XML do CF-e-SAT de cancelamento decodificado."""
-        return base64.b64decode(getattr(self, 'arquivoCFeBase64', ''))
+        """Retorna o XML do CF-e-SAT de cancelamento decodificado.
+        :rtype: str
+        """
+        cfe_canc = getattr(self, 'arquivoCFeBase64', '')
+        return base64_to_str(self.arquivoCFeBase64)
 
 
     def qrcode(self):
         """Resulta nos dados que compõem o QRCode."""
+        # FIXME: dados_qrcode() espera um argumento xml.etree.ElementTree, mas note que self.xml() resulta str!
         return dados_qrcode(self.xml())
 
 
@@ -83,33 +84,33 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
 
         :param unicode retorno: Retorno da função ``CancelarUltimaVenda``.
         """
-        resposta = analisar_retorno(forcar_unicode(retorno),
+        resposta = analisar_retorno(retorno,
                 funcao='EnviarDadosVenda',
                 classe_resposta=RespostaCancelarUltimaVenda,
                 campos=(
                         ('numeroSessao', int),
-                        ('EEEEE', unicode),
-                        ('CCCC', unicode),
-                        ('mensagem', unicode),
-                        ('cod', unicode),
-                        ('mensagemSEFAZ', unicode),
-                        ('arquivoCFeBase64', unicode),
+                        ('EEEEE', str),
+                        ('CCCC', str),
+                        ('mensagem', str),
+                        ('cod', str),
+                        ('mensagemSEFAZ', str),
+                        ('arquivoCFeBase64', str),
                         ('timeStamp', as_datetime),
-                        ('chaveConsulta', unicode),
+                        ('chaveConsulta', str),
                         ('valorTotalCFe', Decimal),
-                        ('CPFCNPJValue', unicode),
-                        ('assinaturaQRCODE', unicode),
+                        ('CPFCNPJValue', str),
+                        ('assinaturaQRCODE', str),
                     ),
                 campos_alternativos=[
                         # se a venda falhar apenas os primeiros seis campos
                         # especificados na ER deverão ser retornados...
                         (
                                 ('numeroSessao', int),
-                                ('EEEEE', unicode),
-                                ('CCCC', unicode),
-                                ('mensagem', unicode),
-                                ('cod', unicode),
-                                ('mensagemSEFAZ', unicode),
+                                ('EEEEE', str),
+                                ('CCCC', str),
+                                ('mensagem', str),
+                                ('cod', str),
+                                ('mensagemSEFAZ', str),
                         ),
                         # por via das dúvidas, considera o padrão de campos,
                         # caso não haja nenhuma coincidência...

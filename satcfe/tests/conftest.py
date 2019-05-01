@@ -16,6 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
+import re
+import shutil
 
 from decimal import Decimal
 
@@ -71,19 +74,20 @@ def pytest_addoption(parser):
     parser.addoption('--emitente-issqn-regime',
             action='store',
             default='3',
-            help='Regime especial de tributacao do ISSQN ({}) do emitente, '
-                    'em casos de testes de emissao de venda e/ou '
-                    'cancelamento'.format(_valores_possiveis(
-                            constantes.C15_CREGTRIBISSQN_EMIT)))
+            help=(
+                    'Regime especial de tributacao do ISSQN ({:s}) do '
+                    'emitente, em casos de testes de emissao de venda e/ou '
+                    'cancelamento'
+                ).format(_valores_possiveis(constantes.C15_CREGTRIBISSQN_EMIT)))
 
     parser.addoption('--emitente-issqn-rateio',
             action='store',
             default='N',
-            help='Indicador de rateio do desconto sobre o subtotal para '
-                    'produtos tributados no ISSQN ({}) do emitente, '
-                    'em casos de testes de emissao de venda e/ou '
-                    'cancelamento'.format(_valores_possiveis(
-                            constantes.C16_INDRATISSQN_EMIT)))
+            help=(
+                    'Indicador de rateio do desconto sobre o subtotal para '
+                    'produtos tributados no ISSQN ({:s}) do emitente, em '
+                    'casos de testes de emissao de venda e/ou cancelamento'
+                ).format(_valores_possiveis(constantes.C16_INDRATISSQN_EMIT)))
 
     parser.addoption('--codigo-ativacao',
             action='store',
@@ -111,9 +115,9 @@ def pytest_addoption(parser):
             choices=[constantes.STANDARD_C, constantes.WINDOWS_STDCALL],
             default=constantes.STANDARD_C,
             type=int,
-            help='Convencao de chamada para a biblioteca SAT '
-                    '({})'.format(_valores_possiveis(
-                            constantes.CONVENCOES_CHAMADA)))
+            help=(
+                    'Convencao de chamada para a biblioteca SAT ({:s})'
+                ).format(_valores_possiveis(constantes.CONVENCOES_CHAMADA)))
 
     # TODO: implementar testes para acesso compartilhado ao equipamento SAT
     # --sathub-host     127.0.0.1
@@ -125,68 +129,134 @@ def pytest_addoption(parser):
     # opções para ignorar funções SAT específicas
     parser.addoption('--skip-funcoes-sat',
             action='store_true',
-            help='Ignora testes de todas as funcoes SAT evitando qualquer '
-                    'acesso ao equipamento')
+            default=True,
+            help=(
+                    'Ignora testes de todas as funcoes SAT evitando qualquer '
+                    'acesso ao equipamento'
+                ))
 
     parser.addoption('--skip-ativarsat',
             action='store_true',
+            default=True,
             help='Ignora funcao `AtivarSAT`')
 
     parser.addoption('--skip-comunicarcertificadoicpbrasil',
             action='store_true',
+            default=True,
             help='Ignora funcao `ComunicarCertificadoICPBRASIL`')
 
     parser.addoption('--skip-enviardadosvenda',
             action='store_true',
+            default=True,
             help='Ignora funcao `EnviarDadosVenda`')
 
     parser.addoption('--skip-cancelarultimavenda',
             action='store_true',
+            default=True,
             help='Ignora funcao `CancelarUltimaVenda`')
 
     parser.addoption('--skip-consultarsat',
             action='store_true',
+            default=True,
             help='Ignora funcao `ConsultarSAT`')
 
     parser.addoption('--skip-testefimafim',
             action='store_true',
+            default=True,
             help='Ignora funcao `TesteFimAFim`')
 
     parser.addoption('--skip-consultarstatusoperacional',
             action='store_true',
+            default=True,
             help='Ignora funcao `ConsultarStatusOperacional`')
 
     parser.addoption('--skip-consultarnumerosessao',
             action='store_true',
+            default=True,
             help='Ignora funcao `ConsultarNumeroSessao`')
 
     parser.addoption('--skip-configurarinterfacederede',
             action='store_true',
+            default=True,
             help='Ignora funcao `ConfigurarInterfaceDeRede`')
 
     parser.addoption('--skip-associarassinatura',
             action='store_true',
+            default=True,
             help='Ignora funcao `AssociarAssinatura`')
 
     parser.addoption('--skip-atualizarsoftwaresat',
             action='store_true',
+            default=True,
             help='Ignora funcao `AtualizarSoftwareSAT`')
 
     parser.addoption('--skip-extrairlogs',
             action='store_true',
+            default=True,
             help='Ignora funcao `ExtrairLogs`')
 
     parser.addoption('--skip-bloquearsat',
             action='store_true',
+            default=True,
             help='Ignora funcao `BloquearSAT`')
 
     parser.addoption('--skip-desbloquearsat',
             action='store_true',
+            default=True,
             help='Ignora funcao `DesbloquearSAT`')
 
     parser.addoption('--skip-trocarcodigodeativacao',
             action='store_true',
+            default=True,
             help='Ignora funcao `TrocarCodigoDeAtivacao`')
+
+
+@pytest.fixture(scope='function')
+def datadir(tmpdir, request):
+    """Este fixture procura por um diretório de dados com o mesmo nome do
+    módulo de teste (mas sem a extensão ".py" e com o prefixo "test_" e/ou o
+    sufixo "_test" removidos) dentro de ``satcfe/tests/data/``.
+
+    Por exemplo, o módulo de testes ``tests/test_ativarsat.py`` possui um
+    diretório de dados em ``tests/data/ativarsat/``.
+
+    Existindo um diretório de dados, todo seu conteúdo será copiado para o
+    diretório temporário (*fixture* ``tmpdir`` de pytest), de modo que os
+    testes possam usar esses arquivos.
+
+    No exemplo abaixo, os arquivos ``data.txt`` e ``huge.txt`` deverão ser
+    criados no diretório ``tests/data/foo/``. Note que o diretório ``data/``
+    está no mesmo diretório em que módulo ``test_foo.py`` se encontra:
+
+    .. sourcecode:: python
+
+        def test_foo(datadir):
+            with open(datadir.join('data.txt'), 'r') as f_data, \
+                 open(datadir.join('huge.txt'), 'r') as f_huge:
+                data = f_data.read()
+                expected_result = f_huge.read()
+            result = do_something_with(data)
+            assert result == expected_result
+
+    .. note::
+
+        Baseado `nesta resposta <https://stackoverflow.com/a/29631801>`_ de
+        Stack Overflow.
+
+    """
+    path, name = os.path.split(request.module.__file__)
+    name, _ = os.path.splitext(name)
+    name = re.sub(r'^test_|_test$', '', name)
+    dirname = os.path.join(path, 'data', name)
+
+    if os.path.isdir(dirname):
+        for name in os.listdir(dirname):
+            filename = os.path.join(dirname, name)
+            if os.path.isfile(filename):
+                # copia apenas arquivos regulares (os.path.isfile)
+                shutil.copy(filename, tmpdir)
+
+    return tmpdir
 
 
 @pytest.fixture(scope='module')

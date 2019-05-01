@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<CFe>
+  <infCFe versaoDadosEnt="0.06">
+    <ide>
+      <CNPJ>16716114000172</CNPJ>
+      <signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC>
+      <numeroCaixa>002</numeroCaixa>
+    </ide>
+    <emit>
+      <CNPJ>08723218000186</CNPJ>
+      <IE>149626224113</IE>
+      <IM>123123</IM>
+      <cRegTribISSQN>3</cRegTribISSQN>
+      <indRatISSQN>N</indRatISSQN>
+    </emit>
+    <dest/>
+    <det nItem="1">
+      <prod>
+        <cProd>7894321722016</cProd>
+        <xProd>TODDYNHO 200 ML</xProd>
+        <CFOP>5102</CFOP>
+        <uCom>UN</uCom>
+        <qCom>1.0000</qCom>
+        <vUnCom>2.00</vUnCom>
+        <indRegra>A</indRegra>
+      </prod>
+      <imposto>
+        <ICMS>
+          <ICMSSN102>
+            <Orig>0</Orig>
+            <CSOSN>500</CSOSN>
+          </ICMSSN102>
+        </ICMS>
+        <PIS>
+          <PISSN>
+            <CST>49</CST>
+          </PISSN>
+        </PIS>
+        <COFINS>
+          <COFINSSN>
+            <CST>49</CST>
+          </COFINSSN>
+        </COFINS>
+      </imposto>
+    </det>
+    <total/>
+    <pgto>
+      <MP>
+        <cMP>01</cMP>
+        <vMP>2.00</vMP>
+      </MP>
+    </pgto>
+    <infAdic>
+      <infCpl>Valores aproximados dos tributos:
+Fed R$   0,23 / Est R$   0,36
+Fonte: IBPT (9oi3aC)
+ Balcao: Venda Balcao
+ TK: 100296906  SS: 100001680  VND: PATRI  OP
+</infCpl>
+    </infAdic>
+  </infCFe>
+</CFe>

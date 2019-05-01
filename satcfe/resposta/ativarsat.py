@@ -16,12 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import base64
-
-from satcomum.util import forcar_unicode
-
 from ..excecoes import ExcecaoRespostaSAT
+from ..util import base64_to_str
 from .padrao import RespostaSAT
 from .padrao import analisar_retorno
 
@@ -38,11 +34,11 @@ class RespostaAtivarSAT(RespostaSAT):
     .. sourcecode:: text
 
         numeroSessao (int)
-        EEEEE (unicode)
-        mensagem (unicode)
-        cod (unicode)
-        mensagemSEFAZ (unicode)
-        CSR (unicode)
+        EEEEE (str)
+        mensagem (str)
+        cod (str)
+        mensagemSEFAZ (str)
+        CSR (str)
 
     Em caso de falha, são esperados apenas os atributos padrão, conforme
     descrito na constante :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
@@ -50,7 +46,7 @@ class RespostaAtivarSAT(RespostaSAT):
 
     def csr(self):
         """Retorna o CSR (**Certificate Signing Request**) decodificado."""
-        return base64.b64decode(self.CSR)
+        return base64_to_str(self.CSR)
 
 
     @staticmethod
@@ -60,16 +56,16 @@ class RespostaAtivarSAT(RespostaSAT):
 
         :param unicode retorno: Retorno da função ``AtivarSAT``.
         """
-        resposta = analisar_retorno(forcar_unicode(retorno),
+        resposta = analisar_retorno(retorno,
                 funcao='AtivarSAT',
                 classe_resposta=RespostaAtivarSAT,
                 campos=(
                         ('numeroSessao', int),
-                        ('EEEEE', unicode),
-                        ('mensagem', unicode),
-                        ('cod', unicode),
-                        ('mensagemSEFAZ', unicode),
-                        ('CSR', unicode),
+                        ('EEEEE', str),
+                        ('mensagem', str),
+                        ('cod', str),
+                        ('mensagemSEFAZ', str),
+                        ('CSR', str),
                     ),
                 campos_alternativos=[
                         # se a ativação falhar espera-se o padrão de campos

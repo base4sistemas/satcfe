@@ -1,0 +1,9 @@
+123456|07001|Código de ativação inválido||
+123456|07002|Cupom inválido||
+123456|07003|SAT bloqueado pelo contribuinte||
+123456|07004|SAT bloqueado pela SEFAZ||
+123456|07005|SAT bloqueado por falta de comunicação||
+123456|07006|SAT bloqueado, código de ativação incorreto||
+123456|07007|Erro de validação do conteúdo||
+123456|07098|SAT em processamento. Tente novamente.||
+123456|07099|Erro desconhecido na emissão||

@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<CFe>
+  <infCFe Id="CFe35150708723218000186599000040190000215133408" versao="0.06" versaoDadosEnt="0.06" versaoSB="010000">
+    <ide>
+      <cUF>35</cUF>
+      <cNF>513340</cNF>
+      <mod>59</mod>
+      <nserieSAT>900004019</nserieSAT>
+      <nCFe>000021</nCFe>
+      <dEmi>20150718</dEmi>
+      <hEmi>154423</hEmi>
+      <cDV>8</cDV>
+      <tpAmb>2</tpAmb>
+      <CNPJ>16716114000172</CNPJ>
+      <signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC>
+      <assinaturaQRCODE>Z5nVOlWceotpRwFEPDETl/rfmDnQraX7OaJB+fqpR6GxIEcdq0JIyoBa5Fu8vROhcYc/ESdJxGl7UKFbiPO1gxtPp5dle22k5vGHeK5t2TN6/HnFHL85qkLq/Nqzt9zkE37H71yvdoHldgYaJKmXz6mqFh530jbVVBL1u4leixeBBj5azg0sUrvVkpkC5uNWKWtCbUKnND7tHt4otprx0VQ1+5kA9eyJ2/uNM6oaXCutPmL70hwHPBGEePmZFGJQNlBnX6i/IpbnbURGBTw6txkvOWcdfb6cA+3gKGNiYfkur8F4jdeDBuPRYnVE4wVTvB9+wxNguqUxTrSXbT3RIw==</assinaturaQRCODE>
+      <numeroCaixa>002</numeroCaixa>
+    </ide>
+    <emit>
+      <CNPJ>08723218000186</CNPJ>
+      <xNome>TANCA INFORMATICA EIRELI</xNome>
+      <xFant>TANCA</xFant>
+      <enderEmit>
+        <xLgr>RUA ENGENHEIRO JORGE OLIVA</xLgr>
+        <nro>73</nro>
+        <xBairro>VILA MASCOTE</xBairro>
+        <xMun>SAO PAULO</xMun>
+        <CEP>04362060</CEP>
+      </enderEmit>
+      <IE>149626224113</IE>
+      <IM>123123</IM>
+      <cRegTrib>3</cRegTrib>
+      <cRegTribISSQN>3</cRegTribISSQN>
+      <indRatISSQN>N</indRatISSQN>
+    </emit>
+    <dest/>
+    <det nItem="1">
+      <prod>
+        <cProd>7894321722016</cProd>
+        <xProd>TODDYNHO 200 ML</xProd>
+        <CFOP>5102</CFOP>
+        <uCom>UN</uCom>
+        <qCom>1.0000</qCom>
+        <vUnCom>2.00</vUnCom>
+        <vProd>2.00</vProd>
+        <indRegra>A</indRegra>
+        <vItem>2.00</vItem>
+        <vRatDesc>0.00</vRatDesc>
+        <vRatAcr>0.00</vRatAcr>
+      </prod>
+      <imposto>
+        <ICMS>
+          <ICMSSN102>
+            <Orig>0</Orig>
+            <CSOSN>500</CSOSN>
+          </ICMSSN102>
+        </ICMS>
+        <PIS>
+          <PISSN>
+            <CST>49</CST>
+          </PISSN>
+        </PIS>
+        <COFINS>
+          <COFINSSN>
+            <CST>49</CST>
+          </COFINSSN>
+        </COFINS>
+      </imposto>
+    </det>
+    <total>
+      <ICMSTot>
+        <vICMS>0.00</vICMS>
+        <vProd>2.00</vProd>
+        <vDesc>0.00</vDesc>
+        <vPIS>0.00</vPIS>
+        <vCOFINS>0.00</vCOFINS>
+        <vPISST>0.00</vPISST>
+        <vCOFINSST>0.00</vCOFINSST>
+        <vOutro>0.00</vOutro>
+      </ICMSTot>
+      <vCFe>2.00</vCFe>
+    </total>
+    <pgto>
+      <MP>
+        <cMP>01</cMP>
+        <vMP>2.00</vMP>
+      </MP>
+      <vTroco>0.00</vTroco>
+    </pgto>
+    <infAdic>
+      <infCpl>Valores aproximados dos tributos:
+Fed R$   0,23 / Est R$   0,36
+Fonte: IBPT (9oi3aC)
+ Balcao: Venda Balcao
+ TK: 100296906  SS: 100001680  VND: PATRI  OP
+</infCpl>
+      <obsFisco xCampo="xCampo1">
+        <xTexto>xTexto1</xTexto>
+      </obsFisco>
+    </infAdic>
+  </infCFe>
+  <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+    <SignedInfo>
+      <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+      <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+      <Reference URI="#CFe35150708723218000186599000040190000215133408">
+        <Transforms>
+          <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+          <Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+        </Transforms>
+        <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+        <DigestValue>ZqVDFXd/eo4uGGpBbIHJQQ8ZcNN7k5eaZSE0xibgB1Y=</DigestValue>
+      </Reference>
+    </SignedInfo>
+    <SignatureValue>Bzpj/R9J5qX+Kjs52rLly5vAy/ddBTjn45CBfhWRae9FXqyJqQ/Xjs40eaCd5lbPTKq5PxAjhl8r1GZjLvYPceZSrOidR95WtcHNY/JCQw6cLkheU18UQdts4hsKxJXDWWuWB8KaOnfA1meY2u3RwmoTELmWo79aq6fjPOLyv3lTWfI51IPz+99KGT5MJbdZQzsS12syZZbmNn0llDiJ5153NuXbUhOaaXd8lSIiZi1lEqZIb7rUVbF3mb19uALZLrwOa/eK6B2UUyJ11p+FONln2sSp/w+wTjtKR0vD42Zo6mnBmBJxV8+qudVLOBOX5gHgZLnTtCos+PoQI4RuYQ==</SignatureValue>
+    <KeyInfo>
+      <X509Data>
+        <X509Certificate>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</X509Certificate>
+      </X509Data>
+    </KeyInfo>
+  </Signature>
+</CFe>

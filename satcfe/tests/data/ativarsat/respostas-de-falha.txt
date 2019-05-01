@@ -1,0 +1,8 @@
+123456|04001|Erro na criação do certificado||
+123456|04002|SEFAZ não reconhece este SAT (CNPJ inválido)||
+123456|04003|SAT já ativado||
+123456|04004|SAT com uso cessado||
+123456|04005|Erro de comunicação com a SEFAZ||
+123456|04007|Erro na criação do CSR ICP-BRASIL||
+123456|04098|SAT em processamento. Tente novamente.||
+123456|04099|Erro desconhecido na ativacao||

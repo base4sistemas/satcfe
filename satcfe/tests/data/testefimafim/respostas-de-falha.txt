@@ -1,0 +1,4 @@
+123456|09001|Código de ativação inválido||
+123456|09002|SAT ainda não ativado||
+123456|09098|SAT em processamento. Tente novamente.||
+123456|09099|Erro desconhecido||

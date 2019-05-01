@@ -80,8 +80,8 @@ def test_resposta_comunicarcertificadoicpbrasil():
 
 
 @pytest.mark.skipif(
-        pytest.config.getoption('--skip-comunicarcertificadoicpbrasil') or
-        pytest.config.getoption('--skip-funcoes-sat'),
+        pytest.config.getoption('--skip-comunicarcertificadoicpbrasil', default=True) or
+        pytest.config.getoption('--skip-funcoes-sat', default=True),
         reason='Funcao `ComunicarCertificadoICPBRASIL` explicitamente ignorada')
 def test_funcao_comunicarcertificadoicpbrasil(clientesatlocal):
     # a comunicação do certificado ICP Brasil é complementar à ativação do

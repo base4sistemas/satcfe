@@ -19,8 +19,6 @@
 
 from collections import namedtuple
 
-from satcomum.util import forcar_unicode
-
 from ..excecoes import ExcecaoRespostaSAT
 from .ativarsat import RespostaAtivarSAT
 from .cancelarultimavenda import RespostaCancelarUltimaVenda
@@ -69,13 +67,13 @@ class RespostaConsultarNumeroSessao(RespostaSAT):
         :param unicode retorno: Retorno da função ``ConsultarNumeroSessao``.
         """
         if '|' not in retorno:
-            raise ErroRespostaSATInvalida('Resposta nao possui pipes '
+            raise ErroRespostaSATInvalida('Resposta não possui pipes '
                     'separando os campos: {!r}'.format(retorno))
 
         resposta = _RespostaParcial(*(retorno.split('|')[:2]))
 
         for faixa, construtor in _RESPOSTAS_POSSIVEIS:
-            if int(resposta.EEEEE) in xrange(faixa, faixa+1000):
+            if int(resposta.EEEEE) in range(faixa, faixa+1000):
                 return construtor(retorno)
 
         return RespostaConsultarNumeroSessao._pos_analise(retorno)
@@ -83,15 +81,15 @@ class RespostaConsultarNumeroSessao(RespostaSAT):
 
     @staticmethod
     def _pos_analise(retorno):
-        resposta = analisar_retorno(forcar_unicode(retorno),
+        resposta = analisar_retorno(retorno,
                 funcao='ConsultarNumeroSessao',
                 classe_resposta=RespostaConsultarNumeroSessao,
                 campos=(
                         ('numeroSessao', int),
-                        ('EEEEE', unicode),
-                        ('mensagem', unicode),
-                        ('cod', unicode),
-                        ('mensagemSEFAZ', unicode),
+                        ('EEEEE', str),
+                        ('mensagem', str),
+                        ('cod', str),
+                        ('mensagemSEFAZ', str),
                     ),
             )
         if resposta.EEEEE not in ('11000',):

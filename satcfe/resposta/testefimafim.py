@@ -16,16 +16,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import base64
-
-from decimal import Decimal
-
 from satcomum.ersat import dados_qrcode
-from satcomum.util import forcar_unicode
 
 from ..excecoes import ExcecaoRespostaSAT
 from ..util import as_datetime
+from ..util import base64_to_str
 from .padrao import RespostaSAT
 from .padrao import analisar_retorno
 
@@ -38,14 +33,14 @@ class RespostaTesteFimAFim(RespostaSAT):
     .. sourcecode:: text
 
         numeroSessao (int)
-        EEEEE (unicode)
-        mensagem (unicode)
-        cod (unicode)
-        mensagemSEFAZ (unicode)
-        arquivoCFeBase64 (unicode)
+        EEEEE (str)
+        mensagem (str)
+        cod (str)
+        mensagemSEFAZ (str)
+        arquivoCFeBase64 (str)
         timeStamp (datetime.datetime)
         numDocFiscal (int)
-        chaveConsulta (unicode)
+        chaveConsulta (str)
 
     Em caso de falha, são esperados apenas os atributos padrão, conforme
     descrito na constante :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
@@ -53,11 +48,12 @@ class RespostaTesteFimAFim(RespostaSAT):
 
     def xml(self):
         """Retorna o XML do CF-e-SAT decodificado."""
-        return base64.b64decode(self.arquivoCFeBase64)
+        return base64_to_str(self.arquivoCFeBase64)
 
 
     def qrcode(self):
         """Resulta nos dados que compõem o QRCode."""
+        # FIXME: dados_qrcode() espera um argumento xml.etree.ElementTree, mas note que self.xml() resulta str!
         return dados_qrcode(self.xml())
 
 
@@ -66,24 +62,24 @@ class RespostaTesteFimAFim(RespostaSAT):
         """Constrói uma :class:`RespostaTesteFimAFim` a partir do retorno
         informado.
 
-        :param unicode retorno: Retorno da função ``TesteFimAFim``.
+        :param str retorno: Retorno da função ``TesteFimAFim``.
 
         :raises ExcecaoRespostaSAT: Se o atributo ``EEEEE`` não indicar o
             código de sucesso ``09000`` para ``TesteFimAFim``.
         """
-        resposta = analisar_retorno(forcar_unicode(retorno),
+        resposta = analisar_retorno(retorno,
                 funcao='TesteFimAFim',
                 classe_resposta=RespostaTesteFimAFim,
                 campos=(
                         ('numeroSessao', int),
-                        ('EEEEE', unicode),
-                        ('mensagem', unicode),
-                        ('cod', unicode),
-                        ('mensagemSEFAZ', unicode),
-                        ('arquivoCFeBase64', unicode),
+                        ('EEEEE', str),
+                        ('mensagem', str),
+                        ('cod', str),
+                        ('mensagemSEFAZ', str),
+                        ('arquivoCFeBase64', str),
                         ('timeStamp', as_datetime),
                         ('numDocFiscal', int),
-                        ('chaveConsulta', unicode),
+                        ('chaveConsulta', str),
                     ),
                 campos_alternativos=[
                         RespostaSAT.CAMPOS,

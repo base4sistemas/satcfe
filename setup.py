@@ -79,13 +79,7 @@ setup(
                 'satcfe.resposta',
             ],
         install_requires=read_install_requires(),
-        extras_require={
-                'testing': [
-                        'pytest',
-                        'pytest-cov',
-                    ],
-            },
-        tests_require=['pytest'],
+        tests_require=['pytest==2.7.3'],
         cmdclass={
                 'test': PyTest
             },

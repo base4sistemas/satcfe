@@ -1,0 +1,12 @@
+123456|06001|Código de ativação inválido||
+123456|06002|SAT ainda não ativado||
+123456|06003|SAT não vinculado ao AC||
+123456|06004|Vinculação do AC não confere||
+123456|06005|Tamanho do CF-e-SAT superior a 1.500KB||
+123456|06006|SAT bloqueado pelo contribuinte||
+123456|06007|SAT bloqueado pela SEFAZ||
+123456|06008|SAT bloqueado por falta de comunicação||
+123456|06009|SAT bloqueado, código de ativação incorreto||
+123456|06010|Erro de validação do conteúdo||
+123456|06098|SAT em processamento. Tente novamente.||
+123456|06099|Erro desconhecido na emissão||

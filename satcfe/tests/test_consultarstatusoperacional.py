@@ -108,8 +108,8 @@ def test_resposta_consultarstatusoperacional():
 
 
 @pytest.mark.skipif(
-        pytest.config.getoption('--skip-consultarstatusoperacional') or
-        pytest.config.getoption('--skip-funcoes-sat'),
+        pytest.config.getoption('--skip-consultarstatusoperacional', default=True) or
+        pytest.config.getoption('--skip-funcoes-sat', default=True),
         reason='Funcao `ConsultarStatusOperacional` explicitamente ignorada')
 def test_funcao_consultarstatusoperacional(clientesatlocal):
     resposta = clientesatlocal.consultar_status_operacional()

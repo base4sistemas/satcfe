@@ -17,9 +17,6 @@
 # limitations under the License.
 #
 
-from .util import as_ascii
-
-
 class ErroRespostaSATInvalida(Exception):
     """
     Lançada quando a resposta dada por uma função da DLL SAT não contém
@@ -42,16 +39,15 @@ class ExcecaoRespostaSAT(Exception):
     """
 
     def __init__(self, resposta):
-
         super(ExcecaoRespostaSAT, self).__init__(
-                '%s, numeroSessao=%s, EEEEE="%s", mensagem="%s", '
-                'cod="%s", mensagemSEFAZ="%s"' % (
+                '{}, numeroSessao={!r}, EEEEE={!r}, mensagem={!r}, '
+                'cod={!r}, mensagemSEFAZ={!r}'.format(
                         resposta.atributos.funcao or 'F(?)',
-                        as_ascii(getattr(resposta, 'numeroSessao', '?')),
-                        as_ascii(getattr(resposta, 'EEEEE', '?')),
-                        as_ascii(getattr(resposta, 'mensagem', '?')),
-                        as_ascii(getattr(resposta, 'cod', '?')),
-                        as_ascii(getattr(resposta, 'mensagemSEFAZ', '?')),))
+                        getattr(resposta, 'numeroSessao', '?'),
+                        getattr(resposta, 'EEEEE', '?'),
+                        getattr(resposta, 'mensagem', '?'),
+                        getattr(resposta, 'cod', '?'),
+                        getattr(resposta, 'mensagemSEFAZ', '?')))
         self._resposta = resposta
 
 
