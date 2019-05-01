@@ -70,8 +70,8 @@ def test_normalizar_ip():
 
 
 def test_hms():
-    assert hms(1)    == (0, 0, 1)
-    assert hms(60)   == (0, 1, 0)
+    assert hms(1) == (0, 0, 1)
+    assert hms(60) == (0, 1, 0)
     assert hms(3600) == (1, 0, 0)
     assert hms(3601) == (1, 0, 1)
     assert hms(3661) == (1, 1, 1)

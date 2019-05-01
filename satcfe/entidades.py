@@ -227,36 +227,30 @@ from satcomum import constantes
 
 
 class ExtendedValidator(cerberus.Validator):
+    # Notes on "Upgrading to Cerberus 1.0":
+    # http://docs.python-cerberus.org/en/stable/upgrading.html#data-types
 
-    def _validate_type_decimal(self, field, value):
-        if not isinstance(value, Decimal):
-            self._error(field,
-                    cerberus.errors.ERROR_BAD_TYPE % Decimal.__name__)
+    def _validate_type_decimal(self, value):
+        if isinstance(value, Decimal):
+            return True
 
+    def _validate_type_ipv4(self, value):
+        # <value> str (eg: "10.0.0.1")
+        octets = [int(b) for b in value.split('.') if int(b) in range(0, 256)]
+        if len(octets) == 4:
+            return True
 
-    def _validate_type_ipv4(self, field, value):
-            if isinstance(value, basestring):
-                _bytes = [int(b, 10) for b in value.split('.') \
-                        if int(b, 10) in xrange(0, 256)]
-                if len(_bytes) != 4:
-                    self._error(field, cerberus.errors.ERROR_BAD_TYPE % 'IPv4')
+    def _validate_type_cnpj(self, value):
+        if br.is_cnpj(value, estrito=True):
+            return True
 
-
-    def _validate_type_cnpj(self, field, value):
-        if not br.is_cnpj(value, estrito=True):
-            self._error(field, 'numero CNPJ "%s" invalido' % value)
-
-
-    def _validate_type_assinatura_ac(self, field, value):
+    def _validate_type_assinatura_ac(self, value):
         if re.match(r'^[ -~]{344}$', value):
-            # assume que quaisquer 344 'printable chars' formem uma
-            # assinatura de AC válida...
-            pass
-        elif value == constantes.ASSINATURA_AC_TESTE:
-            pass
-        else:
-            self._error(field, "campo '%s' nao possui uma assinatura AC "
-                    "valida: %s" % (field, value,))
+            # quaisquer 344 'printable chars' forma uma assinatura AC válida
+            return True
+
+        if value == constantes.ASSINATURA_AC_TESTE:
+            return True
 
 
 class Entidade(object):
@@ -276,7 +270,6 @@ class Entidade(object):
 
     _erros = {}
 
-
     def __init__(self, schema={}, validator_class=None, **kwargs):
         super(Entidade, self).__init__()
         self._schema = schema
@@ -291,19 +284,17 @@ class Entidade(object):
                         self.__class__.__name__, key))
             setattr(self, key, value)
 
-
     @property
     def erros(self):
         return dict(Entidade._erros)
-
 
     def validar(self):
         if not self._validator.validate(self._schema_fields()):
             nome_entidade = self.__class__.__name__
             Entidade._erros[nome_entidade] = self._validator.errors
-            raise cerberus.ValidationError('Entidade "{}" possui '
-                    'atributos invalidos.'.format(nome_entidade))
-
+            raise cerberus.DocumentError((
+                    'Entidade "{:s}" possui atributos inválidos.'
+                ).format(nome_entidade))
 
     def documento(self, *args, **kwargs):
         """Resulta no documento XML como string, que pode ou não incluir a
@@ -323,19 +314,15 @@ class Entidade(object):
                 doc = unidecode(doc)
         return doc
 
-
     def _xml(self, *args, **kwargs):
         self.validar()
         return self._construir_elemento_xml(*args, **kwargs)
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
         raise NotImplementedError()
 
-
     def _schema_fields(self):
         return {k: v for k, v in self.__dict__.items() if k in self._schema}
-
 
 
 class Emitente(Entidade):
@@ -359,21 +346,6 @@ class Emitente(Entidade):
         subtotal entre itens sujeitos à tributação pelo ISSQN. Veja as
         constantes em :attr:`~satcomum.constantes.C16_INDRATISSQN_EMIT`.
 
-    .. sourcecode:: python
-
-        >>> emit = Emitente(CNPJ='08427847000169', IE='111222333444', indRatISSQN='S')
-        >>> ET.tostring(emit._xml())
-        '<emit><CNPJ>08427847000169</CNPJ><IE>111222333444</IE><indRatISSQN>S</indRatISSQN></emit>'
-
-        >>> emit = Emitente(
-        ...         CNPJ='08427847000169',
-        ...         IE='111222333444',
-        ...         IM='123456789012345',
-        ...         cRegTribISSQN='1',
-        ...         indRatISSQN='S')
-        >>> ET.tostring(emit._xml())
-        '<emit><CNPJ>08427847000169</CNPJ><IE>111222333444</IE><IM>123456789012345</IM><cRegTribISSQN>1</cRegTribISSQN><indRatISSQN>S</indRatISSQN></emit>'
-
     """
 
     def __init__(self, **kwargs):
@@ -392,14 +364,12 @@ class Emitente(Entidade):
                 'cRegTribISSQN': {
                         'type': 'string',
                         'required': False,
-                        'allowed':
-                                [v for v,s in constantes.C15_CREGTRIBISSQN_EMIT]},
+                        'allowed': [v for v, s in constantes.C15_CREGTRIBISSQN_EMIT]},
                 'indRatISSQN': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.C16_INDRATISSQN_EMIT]},
+                        'allowed': [v for v, s in constantes.C16_INDRATISSQN_EMIT]},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
 
@@ -430,49 +400,19 @@ class Destinatario(Entidade):
         ``CNPJ`` for informado.**
 
     :param str xNome: *Opcional*. Nome ou razão social do destinatário.
-
-    Note que os parâmetros ``CNPJ`` e ``CPF`` são mutuamente exclusivos.
-
-    .. sourcecode:: python
-
-        >>> dest = Destinatario()
-        >>> ET.tostring(dest._xml(), encoding='utf-8')
-        '<dest />'
-        >>> dest = Destinatario(CNPJ='08427847000169')
-        >>> ET.tostring(dest._xml(), encoding='utf-8')
-        '<dest><CNPJ>08427847000169</CNPJ></dest>'
-        >>> dest = Destinatario(CPF='11122233396', xNome=u'Fulano Beltrano')
-        >>> ET.tostring(dest._xml(), encoding='utf-8')
-        '<dest><CPF>11122233396</CPF><xNome>Fulano Beltrano</xNome></dest>'
-        >>> dest = Destinatario(CPF='11122233396', CNPJ='08427847000169')
-        >>> dest._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
-
-        # testa criação do XML para cancelamento; o nome deverá ser ignorado
-        >>> dest = Destinatario(CPF='11122233396', xNome=u'Fulano Beltrano')
-        >>> ET.tostring(dest._xml(cancelamento=True), encoding='utf-8')
-        '<dest><CPF>11122233396</CPF></dest>'
+        O nome do destinatário será ignorado no XML do CF-e de cancelamento.
 
     """
 
     class _Validator(ExtendedValidator):
 
-        def _validate_type_CNPJ_E02(self, field, value):
-            if 'CPF' in self.document:
-                self._error(field,
-                        u'CNPJ (E02) e CPF (E03) são mutuamente exclusivos.')
-            elif not br.is_cnpj(value):
-                self._error(field, u'CNPJ (E02) não é válido: "%s"' % value)
+        def _validate_type_CNPJ_E02(self, value):
+            if br.is_cnpj(value):
+                return True
 
-        def _validate_type_CPF_E03(self, field, value):
-            if 'CNPJ' in self.document:
-                self._error(field,
-                        u'CNPJ (E02) e CPF (E03) são mutuamente exclusivos.')
-            elif not br.is_cpf(value):
-                self._error(field, u'CPF (E03) não é válido: "%s"' % value)
-
+        def _validate_type_CPF_E03(self, value):
+            if br.is_cpf(value):
+                return True
 
     def __init__(self, **kwargs):
         super(Destinatario, self).__init__(schema={
@@ -484,8 +424,13 @@ class Destinatario(Entidade):
                         'minlength': 2, 'maxlength': 60}
             }, validator_class=Destinatario._Validator, **kwargs)
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
+        if hasattr(self, 'CNPJ') and hasattr(self, 'CPF'):
+            raise cerberus.DocumentError(
+                    (
+                        '{:s} (grupo E01 "dest") atributos "CNPJ" e "CPF" '
+                        'são mutuamente exclusivos.'
+                    ).format(self.__class__.__name__))
 
         is_cancelamento = kwargs.pop('cancelamento', False)
 
@@ -513,29 +458,12 @@ class LocalEntrega(Entidade):
     :param str xMun:
     :param str UF:
 
-    .. sourcecode:: python
-
-        >>> entrega = LocalEntrega()
-        >>> ET.tostring(entrega._xml(), encoding='utf-8')
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
-        >>> entrega.xLgr = 'Rua Armando Gulim'
-        >>> entrega.nro = '65'
-        >>> entrega.xBairro = 'Parque Gloria III'
-        >>> entrega.xMun = 'Catanduva'
-        >>> entrega.UF = 'SP'
-        >>> ET.tostring(entrega._xml(), encoding='utf-8')
-        '<entrega><xLgr>Rua Armando Gulim</xLgr><nro>65</nro><xBairro>Parque Gloria III</xBairro><xMun>Catanduva</xMun><UF>SP</UF></entrega>'
-
     """
 
     class _Validator(ExtendedValidator):
-        def _validate_type_UF_G07(self, field, value):
-            if not br.is_uf(value):
-                self._error(field, u'UF (G07) do Local de Entrega, '
-                        u'não é válido: "%s"' % value)
-
+        def _validate_type_UF_G07(self, value):
+            if br.is_uf(value):
+                return True
 
     def __init__(self, **kwargs):
         super(LocalEntrega, self).__init__(schema={
@@ -564,7 +492,6 @@ class LocalEntrega(Entidade):
                         'required': True},
             }, validator_class=LocalEntrega._Validator, **kwargs)
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
 
         entrega = ET.Element('entrega')
@@ -588,28 +515,10 @@ class Detalhamento(Entidade):
     :param Imposto imposto:
     :param str infAdProd: *Opcional*
 
-    Note que o atributo XML ``nItem`` (``H02``) não é determinado aqui, mas
-    atribuído automaticamente, conforme a sua posição na lista de
-    :attr:`~CFeVenda.detalhamentos`.
-
-    .. sourcecode:: python
-
-        >>> det = Detalhamento(
-        ...         produto=ProdutoServico(
-        ...                 cProd='123456',
-        ...                 xProd='BORRACHA STAEDTLER',
-        ...                 CFOP='5102',
-        ...                 uCom='UN',
-        ...                 qCom=Decimal('1.0000'),
-        ...                 vUnCom=Decimal('5.75'),
-        ...                 indRegra='A'),
-        ...         imposto=Imposto(
-        ...                 pis=PISSN(CST='49'),
-        ...                 cofins=COFINSSN(CST='49'),
-        ...                 icms=ICMSSN102(Orig='2', CSOSN='500')),
-        ...         infAdProd='Teste')
-        >>> ET.tostring(det._xml(nItem=1))
-        '<det nItem="1"><prod><cProd>123456</cProd><xProd>BORRACHA STAEDTLER</xProd><CFOP>5102</CFOP><uCom>UN</uCom><qCom>1.0000</qCom><vUnCom>5.75</vUnCom><indRegra>A</indRegra></prod><imposto><ICMS><ICMSSN102><Orig>2</Orig><CSOSN>500</CSOSN></ICMSSN102></ICMS><PIS><PISSN><CST>49</CST></PISSN></PIS><COFINS><COFINSSN><CST>49</CST></COFINSSN></COFINS></imposto><infAdProd>Teste</infAdProd></det>'
+    .. note::
+        O atributo XML ``nItem`` (``H02``) não é determinado aqui, mas
+        atribuído automaticamente, conforme a sua posição na lista de
+        :attr:`~CFeVenda.detalhamentos`.
 
     """
 
@@ -623,14 +532,12 @@ class Detalhamento(Entidade):
                         'minlength': 1, 'maxlength': 500},
             }, **kwargs)
 
-
     @property
     def produto(self):
         """O produto ou serviço como uma instância de :class:`ProdutoServico`
         ao qual o detalhamento se refere.
         """
         return self._produto
-
 
     @property
     def imposto(self):
@@ -639,9 +546,7 @@ class Detalhamento(Entidade):
         """
         return self._imposto
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
-
         det = ET.Element('det')
         det.attrib['nItem'] = str(kwargs.pop('nItem'))
 
@@ -668,117 +573,55 @@ class ProdutoServico(Entidade):
     :param str indRegra:
     :param Decimal vDesc: *Opcional*
     :param Decimal vOutro: *Opcional*
-    :param list observacoes_fisco: *Opcional*
-
-    .. sourcecode:: python
-
-        # apenas os atributos requeridos;
-        # note que, diferente da NF-e/NFC-e a ER SAT indica que o
-        # atributo NCM não é obrigatório
-        >>> prod = ProdutoServico(
-        ...         cProd='123456',
-        ...         xProd='BORRACHA STAEDTLER',
-        ...         CFOP='5102',
-        ...         uCom='UN',
-        ...         qCom=Decimal('1.0000'),
-        ...         vUnCom=Decimal('5.75'),
-        ...         indRegra='A')
-        >>> ET.tostring(prod._xml())
-        '<prod><cProd>123456</cProd><xProd>BORRACHA STAEDTLER</xProd><CFOP>5102</CFOP><uCom>UN</uCom><qCom>1.0000</qCom><vUnCom>5.75</vUnCom><indRegra>A</indRegra></prod>'
-
-        # todos os atributos (se vDesc for informado, então não informa vOutro)
-        >>> prod = ProdutoServico(
-        ...         cProd='123456',
-        ...         cEAN='4007817525074',
-        ...         xProd='BORRACHA STAEDTLER',
-        ...         NCM='40169200',
-        ...         CFOP='5102',
-        ...         uCom='UN',
-        ...         qCom=Decimal('1.0000'),
-        ...         vUnCom=Decimal('5.75'),
-        ...         indRegra='A',
-        ...         vDesc=Decimal('0.25'))
-        >>> ET.tostring(prod._xml())
-        '<prod><cProd>123456</cProd><cEAN>4007817525074</cEAN><xProd>BORRACHA STAEDTLER</xProd><NCM>40169200</NCM><CFOP>5102</CFOP><uCom>UN</uCom><qCom>1.0000</qCom><vUnCom>5.75</vUnCom><indRegra>A</indRegra><vDesc>0.25</vDesc></prod>'
-
-        # todos os atributos (informando vOutro)
-        >>> prod = ProdutoServico(
-        ...         cProd='123456',
-        ...         cEAN='4007817525074',
-        ...         xProd='BORRACHA STAEDTLER',
-        ...         NCM='40169200',
-        ...         CFOP='5102',
-        ...         uCom='UN',
-        ...         qCom=Decimal('1.0000'),
-        ...         vUnCom=Decimal('5.75'),
-        ...         indRegra='A',
-        ...         vOutro=Decimal('0.25'))
-        >>> ET.tostring(prod._xml())
-        '<prod><cProd>123456</cProd><cEAN>4007817525074</cEAN><xProd>BORRACHA STAEDTLER</xProd><NCM>40169200</NCM><CFOP>5102</CFOP><uCom>UN</uCom><qCom>1.0000</qCom><vUnCom>5.75</vUnCom><indRegra>A</indRegra><vOutro>0.25</vOutro></prod>'
-
-        # informa vDesc e vOutro, não deve validar
-        >>> prod = ProdutoServico(
-        ...         cProd='123456',
-        ...         xProd='BORRACHA STAEDTLER',
-        ...         CFOP='5102',
-        ...         uCom='UN',
-        ...         qCom=Decimal('1.0000'),
-        ...         vUnCom=Decimal('5.75'),
-        ...         indRegra='A',
-        ...         vDesc=Decimal('0.25'),
-        ...         vOutro=Decimal('0.25'))
-        >>> prod._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: 'ProdutoServico' (grupo H01 'prod') atributos 'vDesc' e 'vOutro' sao mutuamente exclusivos
+    :param list observacoes_fisco: *Opcional* Lista de objetos
+        :class:`ObsFiscoDet`.
 
     """
 
-    def __init__(self, observacoes_fisco=[], **kwargs):
+    def __init__(self, observacoes_fisco=None, **kwargs):
         self._observacoes_fisco = observacoes_fisco
         super(ProdutoServico, self).__init__(schema={
-                'cProd': { # I02
+                'cProd': {  # I02
                         'type': 'string',
                         'required': True,
                         'minlength': 1, 'maxlength': 60},
-                'cEAN': { # I03
+                'cEAN': {  # I03
                         'type': 'string',
                         'required': False,
                         'regex': r'^(\d{8}|\d{12}|\d{13}|\d{14})$'},
-                'xProd': { # I04
+                'xProd': {  # I04
                         'type': 'string',
                         'required': True,
                         'minlength': 1, 'maxlength': 120},
-                'NCM': { # I05
+                'NCM': {  # I05
                         'type': 'string',
                         'required': False,
                         'regex': r'^(\d{2}|\d{8})$'},
-                'CFOP': { # I06
+                'CFOP': {  # I06
                         'type': 'string',
                         'required': True,
                         'regex': r'^\d{4}$'},
-                'uCom': { # I07
+                'uCom': {  # I07
                         'type': 'string',
                         'required': True,
                         'minlength': 1, 'maxlength': 6},
-                'qCom': { # I08
+                'qCom': {  # I08
                         'type': 'decimal',
                         'required': True},
-                'vUnCom': { # I09
+                'vUnCom': {  # I09
                         'type': 'decimal',
                         'required': True},
-                'indRegra': { # I11
+                'indRegra': {  # I11
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.I11_INDREGRA]},
-                'vDesc': { # I12
+                        'allowed': [v for v, s in constantes.I11_INDREGRA]},
+                'vDesc': {  # I12
                         'type': 'decimal',
                         'required': False},
-                'vOutro': { # I13
+                'vOutro': {  # I13
                         'type': 'decimal',
                         'required': False},
             }, **kwargs)
-
 
     @property
     def observacoes_fisco(self):
@@ -786,15 +629,14 @@ class ProdutoServico(Entidade):
         livre do fisco, cujos campos e valores são representados por instâncias
         da classe :class:`ObsFiscoDet`.
         """
-        return self._observacoes_fisco
-
+        return tuple(self._observacoes_fisco or ())
 
     def _construir_elemento_xml(self, *args, **kwargs):
-
         if hasattr(self, 'vDesc') and hasattr(self, 'vOutro'):
-            raise cerberus.ValidationError("'%s' (grupo H01 'prod') atributos "
-                    "'vDesc' e 'vOutro' sao mutuamente exclusivos" %
-                    self.__class__.__name__)
+            raise cerberus.DocumentError((
+                    '{:s} (grupo H01 "prod") atributos "vDesc" e "vOutro"'
+                    'são mutuamente exclusivos.'
+                ).format(self.__class__.__name__))
 
         prod = ET.Element('prod')
         ET.SubElement(prod, 'cProd').text = self.cProd
@@ -831,13 +673,6 @@ class ObsFiscoDet(Entidade):
 
     :param str xCampoDet:
     :param str xTextoDet:
-
-    .. sourcecode:: python
-
-        >>> obs = ObsFiscoDet(xCampoDet='Cod. Produto ANP', xTextoDet='320101001')
-        >>> ET.tostring(obs._xml())
-        '<obsFiscoDet xCampoDet="Cod. Produto ANP"><xTextoDet>320101001</xTextoDet></obsFiscoDet>'
-
     """
 
     def __init__(self, **kwargs):
@@ -852,7 +687,6 @@ class ObsFiscoDet(Entidade):
                         'minlength': 1, 'maxlength': 60},
             }, **kwargs)
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
         obs = ET.Element('obsFiscoDet')
         obs.attrib['xCampoDet'] = self.xCampoDet
@@ -866,30 +700,22 @@ class ICMS00(Entidade):
     :param str Orig:
     :param str CST:
     :param Decimal pICMS:
-
-    .. sourcecode:: python
-
-        >>> icms = ICMS00(Orig='0', CST='00', pICMS=Decimal('18.00'))
-        >>> ET.tostring(icms._xml())
-        '<ICMS00><Orig>0</Orig><CST>00</CST><pICMS>18.00</pICMS></ICMS00>'
-
     """
 
     def __init__(self, **kwargs):
         super(ICMS00, self).__init__(schema={
-                'Orig': { # N06
+                'Orig': {  # N06
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.N06_ORIG]},
-                'CST': { # N07
+                        'allowed': [v for v, s in constantes.N06_ORIG]},
+                'CST': {  # N07
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.N07_CST_ICMS00]},
+                        'allowed': [v for v, s in constantes.N07_CST_ICMS00]},
                 'pICMS': {
                         'type': 'decimal',
                         'required': True},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         icms00 = ET.Element(self.__class__.__name__)
@@ -904,27 +730,19 @@ class ICMS40(Entidade):
 
     :param str Orig:
     :param str CST:
-
-    .. sourcecode:: python
-
-        >>> icms = ICMS40(Orig='0', CST='60')
-        >>> ET.tostring(icms._xml())
-        '<ICMS40><Orig>0</Orig><CST>60</CST></ICMS40>'
-
     """
 
     def __init__(self, **kwargs):
         super(ICMS40, self).__init__(schema={
-                'Orig': { # N06
+                'Orig': {  # N06
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.N06_ORIG]},
-                'CST': { # N07
+                        'allowed': [v for v, s in constantes.N06_ORIG]},
+                'CST': {  # N07
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.N07_CST_ICMS40]},
+                        'allowed': [v for v, s in constantes.N07_CST_ICMS40]},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         icms40 = ET.Element('ICMS40')
@@ -939,27 +757,19 @@ class ICMSSN102(Entidade):
 
     :param str Orig:
     :param str CSOSN:
-
-    .. sourcecode:: python
-
-        >>> icms = ICMSSN102(Orig='0', CSOSN='500')
-        >>> ET.tostring(icms._xml())
-        '<ICMSSN102><Orig>0</Orig><CSOSN>500</CSOSN></ICMSSN102>'
-
     """
 
     def __init__(self, **kwargs):
         super(ICMSSN102, self).__init__(schema={
-                'Orig': { # N06
+                'Orig': {  # N06
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.N06_ORIG]},
-                'CSOSN': { # N10
+                        'allowed': [v for v, s in constantes.N06_ORIG]},
+                'CSOSN': {  # N10
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.N10_CSOSN_ICMSSN102]},
+                        'allowed': [v for v, s in constantes.N10_CSOSN_ICMSSN102]},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         icmssn102 = ET.Element('ICMSSN102')
@@ -975,13 +785,6 @@ class ICMSSN900(Entidade):
     :param str Orig:
     :param str CSOSN:
     :param Decimal pICMS:
-
-    .. sourcecode:: python
-
-        >>> icms = ICMSSN900(Orig='0', CSOSN='900', pICMS=Decimal('18.00'))
-        >>> ET.tostring(icms._xml())
-        '<ICMSSN900><Orig>0</Orig><CSOSN>900</CSOSN><pICMS>18.00</pICMS></ICMSSN900>'
-
     """
 
     def __init__(self, **kwargs):
@@ -989,16 +792,15 @@ class ICMSSN900(Entidade):
                 'Orig': { # N06
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.N06_ORIG]},
-                'CSOSN': { # N10
+                        'allowed': [v for v, s in constantes.N06_ORIG]},
+                'CSOSN': {  # N10
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.N10_CSOSN_ICMSSN900]},
+                        'allowed': [v for v, s in constantes.N10_CSOSN_ICMSSN900]},
                 'pICMS': {
                         'type': 'decimal',
                         'required': True},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         icmssn900 = ET.Element('ICMSSN900')
@@ -1015,13 +817,6 @@ class PISAliq(Entidade):
     :param str CST:
     :param Decimal vBC:
     :param Decimal pPIS:
-
-    .. sourcecode:: python
-
-        >>> pis = PISAliq(CST='01', vBC=Decimal('1.00'), pPIS=Decimal('0.0065'))
-        >>> ET.tostring(pis._xml())
-        '<PISAliq><CST>01</CST><vBC>1.00</vBC><pPIS>0.0065</pPIS></PISAliq>'
-
     """
 
     def __init__(self, **kwargs):
@@ -1029,7 +824,7 @@ class PISAliq(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.Q07_CST_PISALIQ]},
+                        'allowed': [v for v, s in constantes.Q07_CST_PISALIQ]},
                 'vBC': {
                         'type': 'decimal',
                         'required': True},
@@ -1037,7 +832,6 @@ class PISAliq(Entidade):
                         'type': 'decimal',
                         'required': True},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         pisaliq = ET.Element('PISAliq')
@@ -1054,13 +848,6 @@ class PISQtde(Entidade):
     :param str CST:
     :param Decimal qBCProd:
     :param Decimal vAliqProd:
-
-    .. sourcecode:: python
-
-        >>> pis = PISQtde(CST='03', qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-        >>> ET.tostring(pis._xml())
-        '<PISQtde><CST>03</CST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></PISQtde>'
-
     """
 
     def __init__(self, **kwargs):
@@ -1068,7 +855,7 @@ class PISQtde(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.Q07_CST_PISQTDE]},
+                        'allowed': [v for v, s in constantes.Q07_CST_PISQTDE]},
                 'qBCProd': {
                         'type': 'decimal',
                         'required': True},
@@ -1076,7 +863,6 @@ class PISQtde(Entidade):
                         'type': 'decimal',
                         'required': True},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         pisqtde = ET.Element('PISQtde')
@@ -1091,13 +877,6 @@ class PISNT(Entidade):
     grupo ``Q04``).
 
     :param str CST:
-
-    .. sourcecode:: python
-
-        >>> pis = PISNT(CST='04')
-        >>> ET.tostring(pis._xml())
-        '<PISNT><CST>04</CST></PISNT>'
-
     """
 
     def __init__(self, **kwargs):
@@ -1105,9 +884,8 @@ class PISNT(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.Q07_CST_PISNT]},
+                        'allowed': [v for v, s in constantes.Q07_CST_PISNT]},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         pisnt = ET.Element('PISNT')
@@ -1120,13 +898,6 @@ class PISSN(Entidade):
     grupo ``Q05``).
 
     :param str CST:
-
-    .. sourcecode:: python
-
-        >>> pis = PISSN(CST='49')
-        >>> ET.tostring(pis._xml())
-        '<PISSN><CST>49</CST></PISSN>'
-
     """
 
     def __init__(self, **kwargs):
@@ -1134,9 +905,8 @@ class PISSN(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.Q07_CST_PISSN]},
+                        'allowed': [v for v, s in constantes.Q07_CST_PISSN]},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         pissn = ET.Element('PISSN')
@@ -1161,54 +931,10 @@ class PISOutr(Entidade):
     :param str vAliqProd: *Opcional* Se informado deverá ser também informado o
         parâmetro ``qBCProd``.
 
-    Os parâmetros ``vBC`` e ``qBCProd`` são mutuamente exclusivos, e um ou
-    outro **devem** ser informados.
+    .. note::
 
-    .. sourcecode:: python
-
-        >>> pis = PISOutr(CST='99', vBC=Decimal('1.00'), pPIS=Decimal('0.0065'))
-        >>> ET.tostring(pis._xml())
-        '<PISOutr><CST>99</CST><vBC>1.00</vBC><pPIS>0.0065</pPIS></PISOutr>'
-        >>> pis = PISOutr(CST='99', qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-        >>> ET.tostring(pis._xml())
-        '<PISOutr><CST>99</CST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></PISOutr>'
-
-        # atributo vBC depende de pPIS que não foi informado
-        >>> pis = PISOutr(CST='99', vBC=Decimal('1.00')) # vBC depende de pPIS
-        >>> pis._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
-
-        # atributo qBCProd depende de vAliqProd que não foi informado
-        >>> pis = PISOutr(CST='99', qBCProd=Decimal('100.0000'))
-        >>> pis._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
-
-        # neste caso, deve falhar pois vBC ou qBCProd não foram informados
-        >>> pis = PISOutr(CST='99')
-        >>> pis._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: Grupo 'PISOutr' requer exclusivamente 'vBC' ou 'qBCProd' (nenhum informado)
-
-        # neste caso, deve falhar pois apenas um ou outro grupo pode ser informado:
-        # ou informa-se vBC e pPIS ou informa-se qBCProd e vAliqProd
-        >>> pis = PISOutr(CST='99', vBC=Decimal('1.00'), pPIS=Decimal('1.00'), qBCProd=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> pis._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: Grupo 'PISOutr' requer exclusivamente 'vBC' ou 'qBCProd' (ambos informados)
-
-        # neste caso as falhara pela ausencia das dependencias:
-        # pPIS depende de vBC e vAliqProd depende de qBCProd
-        >>> pis = PISOutr(CST='99', pPIS=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> pis._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
+        Os parâmetros ``vBC`` e ``qBCProd`` são mutuamente exclusivos,
+        e **um ou outro devem** ser informados.
 
     """
 
@@ -1217,7 +943,7 @@ class PISOutr(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.Q07_CST_PISOUTR]},
+                        'allowed': [v for v, s in constantes.Q07_CST_PISOUTR]},
                 'vBC': {
                         'type': 'decimal',
                         'required': False,
@@ -1236,18 +962,18 @@ class PISOutr(Entidade):
                         'dependencies': ['qBCProd']},
             }, **kwargs)
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
-
         if hasattr(self, 'vBC') and hasattr(self, 'qBCProd'):
-            raise cerberus.ValidationError("Grupo '%s' requer "
-                    "exclusivamente 'vBC' ou 'qBCProd' (ambos informados)" %
-                    self.__class__.__name__)
+            raise cerberus.DocumentError((
+                    '{:s} (grupo Q06) os atributos "vBC" e "qBCProd" são '
+                    'mutuamente exclusivos.'
+                ).format(self.__class__.__name__))
 
         elif not hasattr(self, 'vBC') and not hasattr(self, 'qBCProd'):
-            raise cerberus.ValidationError("Grupo '%s' requer "
-                    "exclusivamente 'vBC' ou 'qBCProd' (nenhum informado)" %
-                    self.__class__.__name__)
+            raise cerberus.DocumentError((
+                    '{:s} (grupo Q06) requer que exclusivamente um dos '
+                    'atributos "vBC" ou "qBCProd" seja informado.'
+                ).format(self.__class__.__name__))
 
         pisoutr = ET.Element(self.__class__.__name__)
         ET.SubElement(pisoutr, 'CST').text = self.CST
@@ -1258,8 +984,7 @@ class PISOutr(Entidade):
 
         elif hasattr(self, 'qBCProd'):
             ET.SubElement(pisoutr, 'qBCProd').text = str(self.qBCProd)
-            ET.SubElement(pisoutr, 'vAliqProd').text = \
-                    str(self.vAliqProd)
+            ET.SubElement(pisoutr, 'vAliqProd').text = str(self.vAliqProd)
 
         return pisoutr
 
@@ -1279,54 +1004,10 @@ class PISST(Entidade):
     :param str vAliqProd: *Opcional* Se informado deverá ser também informado o
         parâmetro ``qBCProd``.
 
-    Os parâmetros ``vBC`` e ``qBCProd`` são mutuamente exclusivos, e um ou
-    outro **devem** ser informados.
+    .. note::
 
-    .. sourcecode:: python
-
-        >>> pis = PISST(vBC=Decimal('1.00'), pPIS=Decimal('0.0065'))
-        >>> ET.tostring(pis._xml())
-        '<PISST><vBC>1.00</vBC><pPIS>0.0065</pPIS></PISST>'
-        >>> pis = PISST(qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-        >>> ET.tostring(pis._xml())
-        '<PISST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></PISST>'
-
-        # atributo vBC depende de pPIS que não foi informado
-        >>> pis = PISST(vBC=Decimal('1.00')) # vBC depende de pPIS
-        >>> pis._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
-
-        # atributo qBCProd depende de vAliqProd que não foi informado
-        >>> pis = PISST(qBCProd=Decimal('100.0000'))
-        >>> pis._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
-
-        # neste caso, deve falhar pois vBC ou qBCProd não foram informados
-        >>> pis = PISST()
-        >>> pis._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: Grupo 'PISST' requer exclusivamente 'vBC' ou 'qBCProd' (nenhum informado)
-
-        # neste caso, deve falhar pois apenas um ou outro grupo pode ser informado:
-        # ou informa-se vBC e pPIS ou informa-se qBCProd e vAliqProd
-        >>> pis = PISST(vBC=Decimal('1.00'), pPIS=Decimal('1.00'), qBCProd=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> pis._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: Grupo 'PISST' requer exclusivamente 'vBC' ou 'qBCProd' (ambos informados)
-
-        # neste caso as falhara pela ausencia das dependencias:
-        # pPIS depende de vBC e vAliqProd depende de qBCProd
-        >>> pis = PISST(pPIS=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> pis._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
+        Os parâmetros ``vBC`` e ``qBCProd`` são mutuamente exclusivos,
+        e **um ou outro devem** ser informados.
 
     """
 
@@ -1350,18 +1031,18 @@ class PISST(Entidade):
                         'dependencies': ['qBCProd']},
             }, **kwargs)
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
-
         if hasattr(self, 'vBC') and hasattr(self, 'qBCProd'):
-            raise cerberus.ValidationError("Grupo '%s' requer "
-                    "exclusivamente 'vBC' ou 'qBCProd' (ambos informados)" %
-                    self.__class__.__name__)
+            raise cerberus.DocumentError((
+                    '{:s} (grupo R01 "PISST") os atributos "vBC" e "qBCProd" '
+                    'são mutuamente exclusivos.'
+                ).format(self.__class__.__name__))
 
         elif not hasattr(self, 'vBC') and not hasattr(self, 'qBCProd'):
-            raise cerberus.ValidationError("Grupo '%s' requer "
-                    "exclusivamente 'vBC' ou 'qBCProd' (nenhum informado)" %
-                    self.__class__.__name__)
+            raise cerberus.DocumentError((
+                    '{:s} (grupo R01 "PISST") requer que exclusivamente '
+                    'um dos atributos "vBC" ou "qBCProd" seja informado.'
+                ).format(self.__class__.__name__))
 
         pisst = ET.Element(self.__class__.__name__)
 
@@ -1371,8 +1052,7 @@ class PISST(Entidade):
 
         elif hasattr(self, 'qBCProd'):
             ET.SubElement(pisst, 'qBCProd').text = str(self.qBCProd)
-            ET.SubElement(pisst, 'vAliqProd').text = \
-                    str(self.vAliqProd)
+            ET.SubElement(pisst, 'vAliqProd').text = str(self.vAliqProd)
 
         return pisst
 
@@ -1384,13 +1064,6 @@ class COFINSAliq(Entidade):
     :param str CST:
     :param Decimal vBC:
     :param Decimal pCOFINS:
-
-    .. sourcecode:: python
-
-        >>> cofins = COFINSAliq(CST='01', vBC=Decimal('1.00'), pCOFINS=Decimal('0.0065'))
-        >>> ET.tostring(cofins._xml())
-        '<COFINSAliq><CST>01</CST><vBC>1.00</vBC><pCOFINS>0.0065</pCOFINS></COFINSAliq>'
-
     """
 
     def __init__(self, **kwargs):
@@ -1398,7 +1071,7 @@ class COFINSAliq(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.S07_CST_COFINSALIQ]},
+                        'allowed': [v for v, s in constantes.S07_CST_COFINSALIQ]},
                 'vBC': {
                         'type': 'decimal',
                         'required': True},
@@ -1406,7 +1079,6 @@ class COFINSAliq(Entidade):
                         'type': 'decimal',
                         'required': True},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         cofinsaliq = ET.Element(self.__class__.__name__)
@@ -1423,13 +1095,6 @@ class COFINSQtde(Entidade):
     :param str CST:
     :param Decimal qBCProd:
     :param Decimal vAliqProd:
-
-    .. sourcecode:: python
-
-        >>> cofins = COFINSQtde(CST='03', qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-        >>> ET.tostring(cofins._xml())
-        '<COFINSQtde><CST>03</CST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></COFINSQtde>'
-
     """
 
     def __init__(self, **kwargs):
@@ -1437,7 +1102,7 @@ class COFINSQtde(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.S07_CST_COFINSQTDE]},
+                        'allowed': [v for v, s in constantes.S07_CST_COFINSQTDE]},
                 'qBCProd': {
                         'type': 'decimal',
                         'required': True},
@@ -1446,13 +1111,11 @@ class COFINSQtde(Entidade):
                         'required': True},
             }, **kwargs)
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
         cofinsqtde = ET.Element(self.__class__.__name__)
         ET.SubElement(cofinsqtde, 'CST').text = self.CST
         ET.SubElement(cofinsqtde, 'qBCProd').text = str(self.qBCProd)
-        ET.SubElement(cofinsqtde, 'vAliqProd').text = \
-                str(self.vAliqProd)
+        ET.SubElement(cofinsqtde, 'vAliqProd').text = str(self.vAliqProd)
         return cofinsqtde
 
 
@@ -1461,13 +1124,6 @@ class COFINSNT(Entidade):
     grupo ``S04``).
 
     :param str CST:
-
-    .. sourcecode:: python
-
-        >>> cofins = COFINSNT(CST='04')
-        >>> ET.tostring(cofins._xml())
-        '<COFINSNT><CST>04</CST></COFINSNT>'
-
     """
 
     def __init__(self, **kwargs):
@@ -1475,9 +1131,8 @@ class COFINSNT(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.S07_CST_COFINSNT]},
+                        'allowed': [v for v, s in constantes.S07_CST_COFINSNT]},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         cofinsnt = ET.Element(self.__class__.__name__)
@@ -1490,13 +1145,6 @@ class COFINSSN(Entidade):
     (``COFINSSN``, grupo ``S05``).
 
     :param str CST:
-
-    .. sourcecode:: python
-
-        >>> cofins = COFINSSN(CST='49')
-        >>> ET.tostring(cofins._xml())
-        '<COFINSSN><CST>49</CST></COFINSSN>'
-
     """
 
     def __init__(self, **kwargs):
@@ -1504,9 +1152,8 @@ class COFINSSN(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.S07_CST_COFINSSN]},
+                        'allowed': [v for v, s in constantes.S07_CST_COFINSSN]},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         cofinssn = ET.Element(self.__class__.__name__)
@@ -1532,54 +1179,10 @@ class COFINSOutr(Entidade):
     :param str vAliqProd: *Opcional* Se informado deverá ser também informado o
         parâmetro ``qBCProd``.
 
-    Os parâmetros ``vBC`` e ``qBCProd`` são mutuamente exclusivos, e um ou
-    outro **devem** ser informados.
+    .. note::
 
-    .. sourcecode:: python
-
-        >>> cofins = COFINSOutr(CST='99', vBC=Decimal('1.00'), pCOFINS=Decimal('0.0065'))
-        >>> ET.tostring(cofins._xml())
-        '<COFINSOutr><CST>99</CST><vBC>1.00</vBC><pCOFINS>0.0065</pCOFINS></COFINSOutr>'
-        >>> cofins = COFINSOutr(CST='99', qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-        >>> ET.tostring(cofins._xml())
-        '<COFINSOutr><CST>99</CST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></COFINSOutr>'
-
-        # atributo vBC depende de pCOFINS que não foi informado
-        >>> cofins = COFINSOutr(CST='99', vBC=Decimal('1.00')) # vBC depende de pCOFINS
-        >>> cofins._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
-
-        # atributo qBCProd depende de vAliqProd que não foi informado
-        >>> cofins = COFINSOutr(CST='99', qBCProd=Decimal('100.0000'))
-        >>> cofins._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
-
-        # neste caso, deve falhar pois vBC ou qBCProd não foram informados
-        >>> cofins = COFINSOutr(CST='99')
-        >>> cofins._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: Grupo 'COFINSOutr' requer exclusivamente 'vBC' ou 'qBCProd' (nenhum informado)
-
-        # neste caso, deve falhar pois apenas um ou outro grupo pode ser informado:
-        # ou informa-se vBC e pCOFINS ou informa-se qBCProd e vAliqProd
-        >>> cofins = COFINSOutr(CST='99', vBC=Decimal('1.00'), pCOFINS=Decimal('1.00'), qBCProd=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> cofins._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: Grupo 'COFINSOutr' requer exclusivamente 'vBC' ou 'qBCProd' (ambos informados)
-
-        # neste caso as falhara pela ausencia das dependencias:
-        # pCOFINS depende de vBC e vAliqProd depende de qBCProd
-        >>> cofins = COFINSOutr(CST='99', pCOFINS=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> cofins._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
+        Os parâmetros ``vBC`` e ``qBCProd`` são mutuamente exclusivos,
+        e **um ou outro devem** ser informados.
 
     """
 
@@ -1588,7 +1191,7 @@ class COFINSOutr(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.S07_CST_COFINSOUTR]},
+                        'allowed': [v for v, s in constantes.S07_CST_COFINSOUTR]},
                 'vBC': {
                         'type': 'decimal',
                         'required': False,
@@ -1607,32 +1210,29 @@ class COFINSOutr(Entidade):
                         'dependencies': ['qBCProd']},
             }, **kwargs)
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
-
         if hasattr(self, 'vBC') and hasattr(self, 'qBCProd'):
-            raise cerberus.ValidationError("Grupo '%s' requer "
-                    "exclusivamente 'vBC' ou 'qBCProd' (ambos informados)" %
-                    self.__class__.__name__)
+            raise cerberus.DocumentError((
+                    '{:s} (grupo S06) os atributos "vBC" e "qBCProd" são '
+                    'mutuamente exclusivos.'
+                ).format(self.__class__.__name__))
 
         elif not hasattr(self, 'vBC') and not hasattr(self, 'qBCProd'):
-            raise cerberus.ValidationError("Grupo '%s' requer "
-                    "exclusivamente 'vBC' ou 'qBCProd' (nenhum informado)" %
-                    self.__class__.__name__)
+            raise cerberus.DocumentError((
+                    '{:s} (grupo S06) requer que exclusivamente um dos '
+                    'atributos "vBC" ou "qBCProd" seja informado.'
+                ).format(self.__class__.__name__))
 
         cofinsoutr = ET.Element(self.__class__.__name__)
         ET.SubElement(cofinsoutr, 'CST').text = self.CST
 
         if hasattr(self, 'vBC'):
             ET.SubElement(cofinsoutr, 'vBC').text = str(self.vBC)
-            ET.SubElement(cofinsoutr, 'pCOFINS').text = \
-                    str(self.pCOFINS)
+            ET.SubElement(cofinsoutr, 'pCOFINS').text = str(self.pCOFINS)
 
         elif hasattr(self, 'qBCProd'):
-            ET.SubElement(cofinsoutr, 'qBCProd').text = \
-                    str(self.qBCProd)
-            ET.SubElement(cofinsoutr, 'vAliqProd').text = \
-                    str(self.vAliqProd)
+            ET.SubElement(cofinsoutr, 'qBCProd').text = str(self.qBCProd)
+            ET.SubElement(cofinsoutr, 'vAliqProd').text = str(self.vAliqProd)
 
         return cofinsoutr
 
@@ -1652,54 +1252,10 @@ class COFINSST(Entidade):
     :param str vAliqProd: *Opcional* Se informado deverá ser também informado o
         parâmetro ``qBCProd``.
 
-    Os parâmetros ``vBC`` e ``qBCProd`` são mutuamente exclusivos, e um ou
-    outro **devem** ser informados.
+    .. note::
 
-    .. sourcecode:: python
-
-        >>> cofins = COFINSST(vBC=Decimal('1.00'), pCOFINS=Decimal('0.0065'))
-        >>> ET.tostring(cofins._xml())
-        '<COFINSST><vBC>1.00</vBC><pCOFINS>0.0065</pCOFINS></COFINSST>'
-        >>> cofins = COFINSST(qBCProd=Decimal('100.0000'), vAliqProd=Decimal('0.6500'))
-        >>> ET.tostring(cofins._xml())
-        '<COFINSST><qBCProd>100.0000</qBCProd><vAliqProd>0.6500</vAliqProd></COFINSST>'
-
-        # atributo vBC depende de pCOFINS que não foi informado
-        >>> cofins = COFINSST(vBC=Decimal('1.00')) # vBC depende de pCOFINS
-        >>> cofins._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
-
-        # atributo qBCProd depende de vAliqProd que não foi informado
-        >>> cofins = COFINSST(qBCProd=Decimal('100.0000'))
-        >>> cofins._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
-
-        # neste caso, deve falhar pois vBC ou qBCProd não foram informados
-        >>> cofins = COFINSST()
-        >>> cofins._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: Grupo 'COFINSST' requer exclusivamente 'vBC' ou 'qBCProd' (nenhum informado)
-
-        # neste caso, deve falhar pois apenas um ou outro grupo pode ser informado:
-        # ou informa-se vBC e pCOFINS ou informa-se qBCProd e vAliqProd
-        >>> cofins = COFINSST(vBC=Decimal('1.00'), pCOFINS=Decimal('1.00'), qBCProd=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> cofins._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: Grupo 'COFINSST' requer exclusivamente 'vBC' ou 'qBCProd' (ambos informados)
-
-        # neste caso as falhara pela ausencia das dependencias:
-        # pCOFINS depende de vBC e vAliqProd depende de qBCProd
-        >>> cofins = COFINSST(pCOFINS=Decimal('1.00'), vAliqProd=Decimal('1.00'))
-        >>> cofins._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
+        Os parâmetros ``vBC`` e ``qBCProd`` são mutuamente exclusivos,
+        e **um ou outro **devem** ser informados.
 
     """
 
@@ -1723,18 +1279,18 @@ class COFINSST(Entidade):
                         'dependencies': ['qBCProd']},
             }, **kwargs)
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
-
         if hasattr(self, 'vBC') and hasattr(self, 'qBCProd'):
-            raise cerberus.ValidationError("Grupo '%s' requer "
-                    "exclusivamente 'vBC' ou 'qBCProd' (ambos informados)" %
-                    self.__class__.__name__)
+            raise cerberus.DocumentError((
+                    '{:s} (grupo T01) os atributos "vBC" e "qBCProd" são '
+                    'mutuamente exclusivos.'
+                ).format(self.__class__.__name__))
 
         elif not hasattr(self, 'vBC') and not hasattr(self, 'qBCProd'):
-            raise cerberus.ValidationError("Grupo '%s' requer "
-                    "exclusivamente 'vBC' ou 'qBCProd' (nenhum informado)" %
-                    self.__class__.__name__)
+            raise cerberus.DocumentError((
+                    '{:s} (grupo T01) requer que exclusivamente um dos '
+                    'atributos "vBC" ou "qBCProd" seja informado.'
+                ).format(self.__class__.__name__))
 
         pisst = ET.Element(self.__class__.__name__)
 
@@ -1744,8 +1300,7 @@ class COFINSST(Entidade):
 
         elif hasattr(self, 'qBCProd'):
             ET.SubElement(pisst, 'qBCProd').text = str(self.qBCProd)
-            ET.SubElement(pisst, 'vAliqProd').text = \
-                    str(self.vAliqProd)
+            ET.SubElement(pisst, 'vAliqProd').text = str(self.vAliqProd)
 
         return pisst
 
@@ -1760,17 +1315,6 @@ class ISSQN(Entidade):
     :param str cServTribMun: *Opcional*
     :param str cNatOp:
     :param str indIncFisc:
-
-    .. sourcecode:: python
-
-        >>> issqn = ISSQN(vDeducISSQN=Decimal('10.00'), vAliq=Decimal('7.00'), cNatOp='01', indIncFisc='2')
-        >>> ET.tostring(issqn._xml())
-        '<ISSQN><vDeducISSQN>10.00</vDeducISSQN><vAliq>7.00</vAliq><cNatOp>01</cNatOp><indIncFisc>2</indIncFisc></ISSQN>'
-
-        >>> issqn = ISSQN(vDeducISSQN=Decimal('10.00'), vAliq=Decimal('7.00'), cNatOp='01', indIncFisc='2', cMunFG='3511102', cListServ='01.01', cServTribMun='01234567890123456789')
-        >>> ET.tostring(issqn._xml())
-        '<ISSQN><vDeducISSQN>10.00</vDeducISSQN><vAliq>7.00</vAliq><cMunFG>3511102</cMunFG><cListServ>01.01</cListServ><cServTribMun>01234567890123456789</cServTribMun><cNatOp>01</cNatOp><indIncFisc>2</indIncFisc></ISSQN>'
-
     """
 
     def __init__(self, **kwargs):
@@ -1796,21 +1340,17 @@ class ISSQN(Entidade):
                 'cNatOp': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.U09_CNATOP_ISSQN]},
+                        'allowed': [v for v, s in constantes.U09_CNATOP_ISSQN]},
                 'indIncFisc': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.U10_INDINCFISC_ISSQN]},
+                        'allowed': [v for v, s in constantes.U10_INDINCFISC_ISSQN]},
             }, **kwargs)
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
-
         issqn = ET.Element(self.__class__.__name__)
 
-        ET.SubElement(issqn, 'vDeducISSQN').text = \
-                str(self.vDeducISSQN)
-
+        ET.SubElement(issqn, 'vDeducISSQN').text = str(self.vDeducISSQN)
         ET.SubElement(issqn, 'vAliq').text = str(self.vAliq)
 
         if hasattr(self, 'cMunFG'):
@@ -1855,34 +1395,16 @@ class Imposto(Entidade):
     :param Decimal vItem12741: *Opcional* Valor aproximado dos tributos do
         produto ou serviço, conforme a Lei 12.741/12.
 
-    .. sourcecode:: python
-
-        >>> imposto = Imposto(
-        ...         vItem12741=Decimal('0.10'),
-        ...         icms=ICMS00(Orig='0', CST='00', pICMS=Decimal('18.00')),
-        ...         pis=PISSN(CST='49'),
-        ...         cofins=COFINSSN(CST='49'))
-        >>> ET.tostring(imposto._xml())
-        '<imposto><vItem12741>0.10</vItem12741><ICMS><ICMS00><Orig>0</Orig><CST>00</CST><pICMS>18.00</pICMS></ICMS00></ICMS><PIS><PISSN><CST>49</CST></PISSN></PIS><COFINS><COFINSSN><CST>49</CST></COFINSSN></COFINS></imposto>'
-
-        # sem pis
-        >>> imposto = Imposto(cofins=COFINSSN(CST='49'))
-        >>> imposto._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: 'Imposto' (grupo M01 'imposto') atributo 'pis' nao pode ser 'None'
-
-        # sem cofins
-        >>> imposto = Imposto(pis=PISSN(CST='49'))
-        >>> imposto._xml()
-        Traceback (most recent call last):
-         ...
-        ValidationError: 'Imposto' (grupo M01 'imposto') atributo 'cofins' nao pode ser 'None'
-
     """
 
-    def __init__(self, icms=None, pis=None, pisst=None,
-            cofins=None, cofinsst=None, issqn=None, **kwargs):
+    def __init__(self,
+            icms=None,
+            pis=None,
+            pisst=None,
+            cofins=None,
+            cofinsst=None,
+            issqn=None,
+            **kwargs):
         self._icms = icms
         self._pis = pis
         self._pisst = pisst
@@ -1890,11 +1412,10 @@ class Imposto(Entidade):
         self._cofinsst = cofinsst
         self._issqn = issqn
         super(Imposto, self).__init__(schema={
-                'vItem12741': { # M02
+                'vItem12741': {  # M02
                         'type': 'decimal',
                         'required': False}
             }, **kwargs)
-
 
     @property
     def icms(self):
@@ -1904,14 +1425,12 @@ class Imposto(Entidade):
         """
         return self._icms
 
-
     @property
     def pis(self):
         """Um dos grupos de PIS (:class:`PISAliq`, :class:`PISQtde`,
         :class:`PISNT`, :class:`PISSN` ou :class:`PISOutr`).
         """
         return self._pis
-
 
     @property
     def pisst(self):
@@ -1920,14 +1439,12 @@ class Imposto(Entidade):
         """
         return self._pisst
 
-
     @property
     def cofins(self):
         """Um dos grupos de COFINS (:class:`COFINSAliq`, :class:`COFINSQtde`,
         :class:`COFINSNT`, :class:`COFINSSN` ou :class:`COFINSOutr`).
         """
         return self._cofins
-
 
     @property
     def cofinsst(self):
@@ -1936,7 +1453,6 @@ class Imposto(Entidade):
         """
         return self._cofinsst
 
-
     @property
     def issqn(self):
         """O grupo de ISSQN (:class:`ISSQN`) se o item for um serviço
@@ -1944,24 +1460,21 @@ class Imposto(Entidade):
         """
         return self._issqn
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
-
         if self.pis is None:
-            raise cerberus.ValidationError("'%s' (grupo M01 'imposto') "
-                    "atributo 'pis' nao pode ser 'None'" %
-                    self.__class__.__name__)
+            raise cerberus.DocumentError((
+                    '{:s} (grupo M01) atributo "pis" não pode ser None.'
+                ).format(self.__class__.__name__))
 
         if self.cofins is None:
-            raise cerberus.ValidationError("'%s' (grupo M01 'imposto') "
-                    "atributo 'cofins' nao pode ser 'None'" %
-                    self.__class__.__name__)
+            raise cerberus.DocumentError((
+                    '{:s} (grupo M01) atributo "cofins" não pode ser None.'
+                ).format(self.__class__.__name__))
 
         imposto = ET.Element('imposto')
 
         if hasattr(self, 'vItem12741'):
-            ET.SubElement(imposto, 'vItem12741').text = \
-                    str(self.vItem12741)
+            ET.SubElement(imposto, 'vItem12741').text = str(self.vItem12741)
 
         if self.icms is not None:
             icms = ET.SubElement(imposto, 'ICMS')
@@ -1997,65 +1510,32 @@ class DescAcrEntr(Entidade):
         Se este argumento for informado, então o argumento ``vDescSubtot`` não
         deve ser informado.
 
-    .. sourcecode:: python
-
-        >>> grupo = DescAcrEntr()
-        >>> ET.tostring(grupo._xml())
-        '<DescAcrEntr />'
-
-        >>> # os atributos são mutamente exclusivos
-        >>> grupo = DescAcrEntr(
-        ...         vDescSubtot=Decimal('0.01'),
-        ...         vAcresSubtot=Decimal('0.02'))
-        >>> ET.tostring(grupo._xml())
-        Traceback (most recent call last):
-         ...
-        ValidationError: ...
-
-        >>> grupo = DescAcrEntr(vDescSubtot=Decimal('0.01'))
-        >>> ET.tostring(grupo._xml())
-        '<DescAcrEntr><vDescSubtot>0.01</vDescSubtot></DescAcrEntr>'
-
-        >>> grupo = DescAcrEntr(vAcresSubtot=Decimal('0.02'))
-        >>> ET.tostring(grupo._xml())
-        '<DescAcrEntr><vAcresSubtot>0.02</vAcresSubtot></DescAcrEntr>'
-
     """
-
-    class _Validator(ExtendedValidator):
-
-        def _validate_type_vDescSubtot_W20(self, field, value):
-            if 'vAcresSubtot' in self.document:
-                self._error(field,
-                        u'vDescSubtot (W20) e vAcresSubtot (W21) são mutuamente exclusivos.')
-
-        def _validate_type_vAcresSubtot_W21(self, field, value):
-            if 'vDescSubtot' in self.document:
-                self._error(field,
-                        u'vAcresSubtot (W21) e vDescSubtot (W20) são mutuamente exclusivos.')
-
 
     def __init__(self, **kwargs):
         super(DescAcrEntr, self).__init__(schema={
                 'vDescSubtot': {
-                        'type': 'vDescSubtot_W20',
+                        'type': 'decimal',
                         'required': False},
                 'vAcresSubtot': {
-                        'type': 'vAcresSubtot_W21',
+                        'type': 'decimal',
                         'required': False},
-            }, validator_class=DescAcrEntr._Validator, **kwargs)
-
+            }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
+        if hasattr(self, 'vAcresSubtot') and hasattr(self, 'vDescSubtot'):
+            raise cerberus.DocumentError((
+                    '{:s} (grupo W19) atributos "vAcresSubtot" e '
+                    '"vDescSubtot" são mutuamente exclusivos.'
+                ).format(self.__class__.__name__))
+
         grupo = ET.Element(self.__class__.__name__)
 
         if hasattr(self, 'vDescSubtot'):
-            ET.SubElement(grupo, 'vDescSubtot').text = \
-                    str(self.vDescSubtot)
+            ET.SubElement(grupo, 'vDescSubtot').text = str(self.vDescSubtot)
 
         if hasattr(self, 'vAcresSubtot'):
-            ET.SubElement(grupo, 'vAcresSubtot').text = \
-                    str(self.vAcresSubtot)
+            ET.SubElement(grupo, 'vAcresSubtot').text = str(self.vAcresSubtot)
 
         return grupo
 
@@ -2066,17 +1546,6 @@ class MeioPagamento(Entidade):
     :param str cMP:
     :param Decimal vMP:
     :param str cAdmC: *Opcional*
-
-    .. sourcecode:: python
-
-        >>> mp = MeioPagamento(cMP='01', vMP=Decimal('10.00'))
-        >>> ET.tostring(mp._xml())
-        '<MP><cMP>01</cMP><vMP>10.00</vMP></MP>'
-
-        >>> mp = MeioPagamento(cMP='01', vMP=Decimal('10.00'), cAdmC='999')
-        >>> ET.tostring(mp._xml())
-        '<MP><cMP>01</cMP><vMP>10.00</vMP><cAdmC>999</cAdmC></MP>'
-
     """
 
     def __init__(self, **kwargs):
@@ -2084,17 +1553,15 @@ class MeioPagamento(Entidade):
                 'cMP': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v,s in constantes.WA03_CMP_MP]},
+                        'allowed': [v for v, s in constantes.WA03_CMP_MP]},
                 'vMP': {
                         'type': 'decimal',
                         'required': True},
                 'cAdmC': {
                         'type': 'string',
                         'required': False,
-                        'allowed':
-                                [a for a,b,c in constantes.CREDENCIADORAS_CARTAO]},
+                        'allowed': [a for a, b, c in constantes.CREDENCIADORAS_CARTAO]},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         mp = ET.Element('MP')
@@ -2109,17 +1576,6 @@ class InformacoesAdicionais(Entidade):
     """Grupo de informações adicionais (``infAdic``, grupo ``Z01``).
 
     :param str infCpl: *Opcional*
-
-    .. sourcecode:: python
-
-        >>> grupo = InformacoesAdicionais()
-        >>> ET.tostring(grupo._xml())
-        '<infAdic />'
-
-        >>> grupo = InformacoesAdicionais(infCpl='Teste')
-        >>> ET.tostring(grupo._xml())
-        '<infAdic><infCpl>Teste</infCpl></infAdic>'
-
     """
 
     def __init__(self, **kwargs):
@@ -2129,7 +1585,6 @@ class InformacoesAdicionais(Entidade):
                         'required': False,
                         'minlength': 1, 'maxlength': 5000},
             }, **kwargs)
-
 
     def _construir_elemento_xml(self, *args, **kwargs):
         grupo = ET.Element('infAdic')
@@ -2178,29 +1633,23 @@ class CFeVenda(Entidade):
         soma total dos valores aproximados dos tributos, em cumprimento à Lei
         nº 12.741/2012.
 
-    Note que não há uma classe específica para representar o elemento ``ide``
-    do grupo ``B01``, já que todos os seus atributos são esperados nesta classe.
+    ..note::
 
-    .. sourcecode:: python
-
-        >>> cfe = CFeVenda(
-        ...         CNPJ='08427847000169',
-        ...         signAC=constantes.ASSINATURA_AC_TESTE,
-        ...         numeroCaixa=1,
-        ...         emitente=Emitente(
-        ...                 CNPJ='61099008000141',
-        ...                 IE='111111111111',
-        ...                 IM='12345',
-        ...                 cRegTribISSQN=constantes.C15_SOCIEDADE_PROFISSIONAIS,
-        ...                 indRatISSQN=constantes.C16_NAO_RATEADO))
-        >>> ET.tostring(cfe._xml())
-        '<CFe><infCFe versaoDadosEnt="0.07"><ide><CNPJ>08427847000169</CNPJ><signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC><numeroCaixa>001</numeroCaixa></ide><emit><CNPJ>61099008000141</CNPJ><IE>111111111111</IE><IM>12345</IM><cRegTribISSQN>3</cRegTribISSQN><indRatISSQN>N</indRatISSQN></emit><dest /><total /><pgto /></infCFe></CFe>'
+        Não há uma classe específica para representar o elemento ``ide``
+        do grupo ``B01``, já que todos os seus atributos são esperados nesta
+        classe.
 
     """
 
-    def __init__(self, emitente=None, destinatario=None, entrega=None,
-            detalhamentos=[], descontos_acrescimos_subtotal=None,
-            pagamentos=[], informacoes_adicionais=None, **kwargs):
+    def __init__(self,
+            emitente=None,
+            destinatario=None,
+            entrega=None,
+            detalhamentos=None,
+            descontos_acrescimos_subtotal=None,
+            pagamentos=None,
+            informacoes_adicionais=None,
+            **kwargs):
 
         self._emitente = emitente
         self._destinatario = destinatario
@@ -2232,32 +1681,27 @@ class CFeVenda(Entidade):
                                 'required': False},
                     }, **kwargs)
 
-
     @property
     def emitente(self):
         """O :class:`Emitente` do CF-e."""
         return self._emitente
-
 
     @property
     def destinatario(self):
         """O :class:`Destinatario` do CF-e ou ``None``."""
         return self._destinatario
 
-
     @property
     def entrega(self):
         """O Local de entrega (:class:`LocalEntrega`) ou ``None``."""
         return self._entrega
-
 
     @property
     def detalhamentos(self):
         """Lista de objetos :class:`Detalhamento`, descrevendo os produtos e
         serviços do CF-e.
         """
-        return self._detalhamentos
-
+        return tuple(self._detalhamentos or ())
 
     @property
     def descontos_acrescimos_subtotal(self):
@@ -2266,14 +1710,12 @@ class CFeVenda(Entidade):
         """
         return self._descontos_acrescimos_subtotal
 
-
     @property
     def pagamentos(self):
         """Lista de objetos :class`MeioPagamento`, descrevendo os meios de
         pagamento empregados na quitação do CF-e.
         """
-        return self._pagamentos
-
+        return tuple(self._pagamentos or ())
 
     @property
     def informacoes_adicionais(self):
@@ -2282,14 +1724,11 @@ class CFeVenda(Entidade):
         """
         return self._informacoes_adicionais
 
-
     def _xml(self, *args, **kwargs):
         Entidade._erros.clear()
         return super(CFeVenda, self)._xml(*args, **kwargs)
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
-
         cfe = ET.Element('CFe')
         infCFe = ET.SubElement(cfe, 'infCFe')
         infCFe.attrib['versaoDadosEnt'] = self.versaoDadosEnt
@@ -2308,8 +1747,9 @@ class CFeVenda(Entidade):
         if self.entrega is not None:
             infCFe.append(self.entrega._xml())
 
-        for n, det in enumerate(self.detalhamentos):
-            infCFe.append(det._xml(nItem=n+1))
+        if self.detalhamentos:
+            for n, det in enumerate(self.detalhamentos):
+                infCFe.append(det._xml(nItem=n+1))
 
         total = ET.SubElement(infCFe, 'total')
 
@@ -2320,8 +1760,9 @@ class CFeVenda(Entidade):
             total.append(self.descontos_acrescimos_subtotal._xml())
 
         pgto = ET.SubElement(infCFe, 'pgto')
-        for pg in self.pagamentos:
-            pgto.append(pg._xml())
+        if self.pagamentos:
+            for pg in self.pagamentos:
+                pgto.append(pg._xml())
 
         if self.informacoes_adicionais is not None:
             infCFe.append(self.informacoes_adicionais._xml())
@@ -2350,16 +1791,6 @@ class CFeCancelamento(Entidade):
         Normalmente este será o número do caixa de onde parte a solicitação de
         cancelamento. Deverá ser um número inteiro entre ``0`` e ``999``.
 
-    .. sourcecode:: python
-
-        >>> cfecanc = CFeCancelamento(
-        ...         chCanc='CFe01234567890123456789012345678901234567890123',
-        ...         CNPJ='08427847000169',
-        ...         signAC=constantes.ASSINATURA_AC_TESTE,
-        ...         numeroCaixa=1)
-        >>> ET.tostring(cfecanc._xml())
-        '<CFeCanc><infCFe chCanc="CFe01234567890123456789012345678901234567890123"><ide><CNPJ>08427847000169</CNPJ><signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC><numeroCaixa>001</numeroCaixa></ide><emit /><dest /><total /></infCFe></CFeCanc>'
-
     """
 
     def __init__(self, destinatario=None, **kwargs):
@@ -2381,20 +1812,16 @@ class CFeCancelamento(Entidade):
                         'min': 0, 'max': 999},
             }, **kwargs)
 
-
     @property
     def destinatario(self):
         """O :class:`Destinatario` ou ``None``."""
         return self._destinatario
 
-
     def _xml(self, *args, **kwargs):
         Entidade._erros.clear()
         return super(CFeCancelamento, self)._xml(*args, **kwargs)
 
-
     def _construir_elemento_xml(self, *args, **kwargs):
-
         cfecanc = ET.Element('CFeCanc')
 
         infCFe = ET.SubElement(cfecanc, 'infCFe')
