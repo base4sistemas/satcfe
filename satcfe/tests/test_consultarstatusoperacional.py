@@ -16,9 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import base64
-
 import pytest
 
 from satcfe.excecoes import ErroRespostaSATInvalida
@@ -107,10 +104,8 @@ def test_resposta_consultarstatusoperacional():
             resposta = RespostaConsultarStatusOperacional.analisar(retorno)
 
 
-@pytest.mark.skipif(
-        pytest.config.getoption('--skip-consultarstatusoperacional', default=True) or
-        pytest.config.getoption('--skip-funcoes-sat', default=True),
-        reason='Funcao `ConsultarStatusOperacional` explicitamente ignorada')
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_consultarstatusoperacional
 def test_funcao_consultarstatusoperacional(clientesatlocal):
     resposta = clientesatlocal.consultar_status_operacional()
     assert resposta.EEEEE == '10000'

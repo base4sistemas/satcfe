@@ -62,10 +62,8 @@ def test_respostas_invalidas(datadir):
             RespostaTesteFimAFim.analisar(retorno)
 
 
-@pytest.mark.skipif(
-        pytest.config.getoption('--skip-testefimafim', default=True) or
-        pytest.config.getoption('--skip-funcoes-sat', default=True),
-        reason='Funcao `TesteFimAFim` explicitamente ignorada')
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_testefimafim
 def test_funcao_testefimafim(clientesatlocal, cfevenda):
     resposta = clientesatlocal.teste_fim_a_fim(cfevenda)
     assert resposta.EEEEE == '09000'

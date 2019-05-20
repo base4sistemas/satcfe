@@ -67,10 +67,8 @@ def test_respostas_invalidas(datadir):
             RespostaEnviarDadosVenda.analisar(retorno)
 
 
-@pytest.mark.skipif(
-        pytest.config.getoption('--skip-enviardadosvenda') or
-        pytest.config.getoption('--skip-funcoes-sat'),
-        reason='Funcao `EnviarDadosVenda` explicitamente ignorada')
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_enviardadosvenda
 def test_funcao_enviardadosvenda(clientesatlocal, cfevenda):
     resposta = clientesatlocal.enviar_dados_venda(cfevenda)
     assert resposta.EEEEE == '06000'

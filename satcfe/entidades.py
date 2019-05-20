@@ -94,122 +94,122 @@ Hierarquia dos elementos XML do layout do CF-e, ER SAT, item 4.2.2.
 
 Destinatário e Local de entrega:
 
-    .. sourcecode:: text
+.. sourcecode:: text
 
-        infCFe (A01, 1)
-        |
-        +--- dest (E01, 1)
-        |
-        +--- entrega (G01, 0..1)
-        :
+    infCFe (A01, 1)
+    |
+    +--- dest (E01, 1)
+    |
+    +--- entrega (G01, 0..1)
+    :
 
 
 Detalhamento dos produtos/serviços e impostos:
 
-    .. sourcecode:: text
+.. sourcecode:: text
 
-        infCFe (A01, 1)
-        |
-        +--- det (H01, 1..500)
-        |    |
-        |    +--- prod (I01, 1)
-        |    |    |
-        |    |    +--- obsFiscoDet (I17, 0..10)
-        |    |
-        |    +--- imposto (M01, 1)
-        |         |
-        |         +--- ICMS (N01, 0..1)
-        :         |    |
-        :         |    +--- ICMS00 (N02, 0..1)
-        .         |    |         > ICMS 00, 20, 90
-        .         |    |
-                  |    +--- ICMS40 (N03, 0..1)
-                  |    |         > ICMS 40, 41, 60
-                  |    |
-                  |    +--- ICMSSN102 (N04, 0..1)
-                  |    |         > cRegTrib = 1, Simples Nacional
-                  |    |         > CSOSN 102, 300, 400, 500
-                  |    |
-                  |    +--- ICMSSN900 (N05, 0..1)
-                  |              > cRegTrib = 1, Simples Nacional
-                  |              > CSOSN 900
-                  |
-                  +--- PIS (Q01, 1..1)
-                  |    |
-                  |    +--- PISAliq (Q02, 0..1)
-                  |    |         > CST 01, 02, 05
-                  |    |
-                  |    +--- PISQtde (Q03, 0..1)
-                  |    |         > CST 03
-                  |    |
-                  |    +--- PISNT (Q04, 0..1)
-                  |    |         > Não Tributado
-                  |    |         > CST 04, 06, 07, 08, 09
-                  |    |
-                  |    +--- PISSN (Q05, 0..1)
-                  |    |         > Simples Nacional
-                  |    |         > CST 49
-                  |    |
-                  |    +--- PISOutr (Q06, 0..1)
-                  |              > Outras Operações
-                  |              > CST 99
-                  |
-                  +--- PISST (R01, 0..1)
-                  |          > Substituição Tributária
-                  |
-                  +--- COFINS (S01, 1..1)
-                  |    |
-                  |    +--- COFINSAliq (S02, 0..1)
-                  |    |         > CST 01, 02, 05
-                  |    |
-                  |    +--- COFINSQtde (S03, 0..1)
-                  |    |         > CST 03
-                  |    |
-                  |    +--- COFINSNT (S04, 0..1)
-                  |    |         > Não Tributado
-                  |    |         > CST 04, 06, 07, 08, 09
-                  |    |
-                  |    +--- COFINSSN (S05, 0..1)
-                  |    |         > Simples Nacional
-                  |    |         > CST 49
-                  |    +--- COFINSOutr (S06, 0..1)
-                  |              > Outras Operações
-                  |              > CST 99
-                  |
-                  +--- COFINSST (T01, 0..1)
-                  |          > Substituição Tributária
-                  |
-                  +--- ISSQN (U01, 0..1)
+    infCFe (A01, 1)
+    |
+    +--- det (H01, 1..500)
+    |    |
+    |    +--- prod (I01, 1)
+    |    |    |
+    |    |    +--- obsFiscoDet (I17, 0..10)
+    |    |
+    |    +--- imposto (M01, 1)
+    |         |
+    |         +--- ICMS (N01, 0..1)
+    :         |    |
+    :         |    +--- ICMS00 (N02, 0..1)
+    .         |    |         > ICMS 00, 20, 90
+    .         |    |
+              |    +--- ICMS40 (N03, 0..1)
+              |    |         > ICMS 40, 41, 60
+              |    |
+              |    +--- ICMSSN102 (N04, 0..1)
+              |    |         > cRegTrib = 1, Simples Nacional
+              |    |         > CSOSN 102, 300, 400, 500
+              |    |
+              |    +--- ICMSSN900 (N05, 0..1)
+              |              > cRegTrib = 1, Simples Nacional
+              |              > CSOSN 900
+              |
+              +--- PIS (Q01, 1..1)
+              |    |
+              |    +--- PISAliq (Q02, 0..1)
+              |    |         > CST 01, 02, 05
+              |    |
+              |    +--- PISQtde (Q03, 0..1)
+              |    |         > CST 03
+              |    |
+              |    +--- PISNT (Q04, 0..1)
+              |    |         > Não Tributado
+              |    |         > CST 04, 06, 07, 08, 09
+              |    |
+              |    +--- PISSN (Q05, 0..1)
+              |    |         > Simples Nacional
+              |    |         > CST 49
+              |    |
+              |    +--- PISOutr (Q06, 0..1)
+              |              > Outras Operações
+              |              > CST 99
+              |
+              +--- PISST (R01, 0..1)
+              |          > Substituição Tributária
+              |
+              +--- COFINS (S01, 1..1)
+              |    |
+              |    +--- COFINSAliq (S02, 0..1)
+              |    |         > CST 01, 02, 05
+              |    |
+              |    +--- COFINSQtde (S03, 0..1)
+              |    |         > CST 03
+              |    |
+              |    +--- COFINSNT (S04, 0..1)
+              |    |         > Não Tributado
+              |    |         > CST 04, 06, 07, 08, 09
+              |    |
+              |    +--- COFINSSN (S05, 0..1)
+              |    |         > Simples Nacional
+              |    |         > CST 49
+              |    +--- COFINSOutr (S06, 0..1)
+              |              > Outras Operações
+              |              > CST 99
+              |
+              +--- COFINSST (T01, 0..1)
+              |          > Substituição Tributária
+              |
+              +--- ISSQN (U01, 0..1)
 
 
 Totais:
 
-    .. sourcecode:: text
+.. sourcecode:: text
 
-        infCFe (A01, 1)
-        |
-        +--- total (W01, 1)
-        |    |
-        |    +--- ICMSTot (W02, 0..1)
-        |    |          > Neste grupo, todos os elementos
-        :    |          > são calculados pelo equipamento SAT
-        :    |
-        .    +--- ISSQNTot (W12, 0..1)
-        .    |          > Neste grupo, todos os elementos
-             |          > são calculados pelo equipamento SAT
-             |
-             +--- DescAcrEntr (W19, 0..1)
+    infCFe (A01, 1)
+    |
+    +--- total (W01, 1)
+    |    |
+    |    +--- ICMSTot (W02, 0..1)
+    |    |          > Neste grupo, todos os elementos
+    :    |          > são calculados pelo equipamento SAT
+    :    |
+    .    +--- ISSQNTot (W12, 0..1)
+    .    |          > Neste grupo, todos os elementos
+         |          > são calculados pelo equipamento SAT
+         |
+         +--- DescAcrEntr (W19, 0..1)
 
 
 Pagamento:
 
-    .. sourcecode:: text
+.. sourcecode:: text
 
-        infCFe (A01, 1)
-        |
-        +--- pgto (WA01, 1)
-        :    |
-             +--- MP (WA02, 1..10)
+    infCFe (A01, 1)
+    |
+    +--- pgto (WA01, 1)
+    :    |
+         +--- MP (WA02, 1..10)
 
 """
 

@@ -44,8 +44,8 @@ class RespostaSAT(object):
         resposta.atributos.verbatim
 
     Esta classe fornece uma série de métodos construtores (*factory methods*)
-    para respostas que são comuns. Para as respostas que não são comuns, existem
-    especializações desta classe.
+    para respostas que são comuns. Para as respostas que não são comuns,
+    existem especializações desta classe.
 
     .. note::
 
@@ -56,7 +56,6 @@ class RespostaSAT(object):
 
     class _Atributos(object):
         pass
-
 
     CAMPOS = (
             ('numeroSessao', int),
@@ -69,7 +68,6 @@ class RespostaSAT(object):
     o tipo Python, a partir da resposta original.
     """
 
-
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -78,17 +76,17 @@ class RespostaSAT(object):
         self.atributos.funcao = None
         self.atributos.verbatim = None
 
-
     @staticmethod
     def comunicar_certificado_icpbrasil(retorno):
         """Constrói uma :class:`RespostaSAT` para o retorno da função
         :meth:`~satcfe.base.FuncoesSAT.comunicar_certificado_icpbrasil`.
         """
-        resposta = analisar_retorno(retorno, funcao='ComunicarCertificadoICPBRASIL')
+        resposta = analisar_retorno(
+                retorno,
+                funcao='ComunicarCertificadoICPBRASIL')
         if resposta.EEEEE not in ('05000',):
             raise ExcecaoRespostaSAT(resposta)
         return resposta
-
 
     @staticmethod
     def consultar_sat(retorno):
@@ -100,17 +98,17 @@ class RespostaSAT(object):
             raise ExcecaoRespostaSAT(resposta)
         return resposta
 
-
     @staticmethod
     def configurar_interface_de_rede(retorno):
         """Constrói uma :class:`RespostaSAT` para o retorno da função
         :meth:`~satcfe.base.FuncoesSAT.configurar_interface_de_rede`.
         """
-        resposta = analisar_retorno(retorno, funcao='ConfigurarInterfaceDeRede')
+        resposta = analisar_retorno(
+                retorno,
+                funcao='ConfigurarInterfaceDeRede')
         if resposta.EEEEE not in ('12000',):
             raise ExcecaoRespostaSAT(resposta)
         return resposta
-
 
     @staticmethod
     def associar_assinatura(retorno):
@@ -122,7 +120,6 @@ class RespostaSAT(object):
             raise ExcecaoRespostaSAT(resposta)
         return resposta
 
-
     @staticmethod
     def atualizar_software_sat(retorno):
         """Constrói uma :class:`RespostaSAT` para o retorno da função
@@ -132,7 +129,6 @@ class RespostaSAT(object):
         if resposta.EEEEE not in ('14000',):
             raise ExcecaoRespostaSAT(resposta)
         return resposta
-
 
     @staticmethod
     def bloquear_sat(retorno):
@@ -144,7 +140,6 @@ class RespostaSAT(object):
             raise ExcecaoRespostaSAT(resposta)
         return resposta
 
-
     @staticmethod
     def desbloquear_sat(retorno):
         """Constrói uma :class:`RespostaSAT` para o retorno da função
@@ -154,7 +149,6 @@ class RespostaSAT(object):
         if resposta.EEEEE not in ('17000',):
             raise ExcecaoRespostaSAT(resposta)
         return resposta
-
 
     @staticmethod
     def trocar_codigo_de_ativacao(retorno):
@@ -167,36 +161,17 @@ class RespostaSAT(object):
         return resposta
 
 
-def analisar_retorno(retorno,
-        classe_resposta=RespostaSAT, campos=RespostaSAT.CAMPOS,
-        campos_alternativos=[], funcao=None, manter_verbatim=True):
-    """Analisa o retorno (supostamente um retorno de uma função do SAT) conforme
-    o padrão e campos esperados. O retorno deverá possuir dados separados entre
-    si através de pipes e o número de campos deverá coincidir com os campos
-    especificados.
-
-    O campos devem ser especificados como uma tupla onde cada elemento da tupla
-    deverá ser uma tupla contendo dois elementos: o nome do campo e uma função
-    de conversão a partir de uma string. Por exemplo:
-
-    .. sourcecode:: python
-
-        >>> retorno = '123456|08000|SAT em operacao||'
-        >>> resposta = analisar_retorno(retorno, funcao='ConsultarSAT')
-        >>> resposta.numeroSessao
-        123456
-        >>> resposta.EEEEE
-        u'08000'
-        >>> resposta.mensagem
-        u'SAT em operacao'
-        >>> resposta.cod
-        u''
-        >>> resposta.mensagemSEFAZ
-        u''
-        >>> resposta.atributos.funcao
-        'ConsultarSAT'
-        >>> resposta.atributos.verbatim
-        '123456|08000|SAT em operacao||'
+def analisar_retorno(
+        retorno,
+        classe_resposta=RespostaSAT,
+        campos=RespostaSAT.CAMPOS,
+        campos_alternativos=[],
+        funcao=None,
+        manter_verbatim=True):
+    """Analisa o retorno (supostamente um retorno de uma função do SAT)
+    conforme o padrão e campos esperados. O retorno deverá possuir dados
+    separados entre si através de pipes e o número de campos deverá coincidir
+    com os campos especificados.
 
     :param str retorno: O conteúdo da resposta retornada pela função da
         biblioteca do fabricante do equipamento SAT, que espera-se que seja um
@@ -206,12 +181,15 @@ def analisar_retorno(retorno,
         que irá representar o retorno, após sua decomposição em campos.
 
     :param tuple campos: Especificação dos campos e seus conversores.
+        Os campos devem ser especificados como uma tupla onde cada elemento
+        deverá ser uma tupla contendo dois elementos: o nome do campo e uma
+        função de conversão a partir de uma string.
 
-    :param list campos_alternativos: Especifica conjuntos de campos alternativos
-        que serão considerados caso o número de campos encontrados na resposta
-        não coincida com o número de campos especificados em ``campos``.
-        Para que a relação alternativa de campos funcione, é importante que
-        cada relação de campos alternativos tenha um número diferente de campos.
+    :param list campos_alternativos: Uma lista de campos alternativos que
+        serão considerados caso o número de campos encontrados na resposta não
+        coincida com o número de campos do argumento ``campos``. Para que a
+        relação alternativa de campos funcione, é importante que cada relação
+        de campos alternativos tenha um número diferente de campos.
 
     :param str funcao: Nome da função da DLL SAT que gerou o retorno, que
         estará disponível nos atributos adicionais à resposta.
@@ -228,8 +206,9 @@ def analisar_retorno(retorno,
     """
 
     if '|' not in retorno:
-        raise ErroRespostaSATInvalida('Resposta não possui pipes separando os '
-                'campos: {!r}'.format(retorno))
+        raise ErroRespostaSATInvalida((
+                'Resposta não possui pipes separando os campos: {!r}'
+            ).format(retorno))
 
     partes = retorno.split('|')
 
@@ -240,12 +219,10 @@ def analisar_retorno(retorno,
                 relacao_campos = relacao_alternativa
                 break
         else:
-            raise ErroRespostaSATInvalida('Resposta não possui o número '
-                    'esperado de campos. Esperados {:d} campos, mas '
-                    'contém {:d}: {!r}'.format(
-                            len(campos),
-                            len(partes),
-                            retorno))
+            raise ErroRespostaSATInvalida((
+                    'Resposta não possui o número esperado de campos. '
+                    'Esperados {:d} campos, mas contém {:d}: {!r}'
+                ).format(len(campos), len(partes), retorno))
     else:
         relacao_campos = campos
 

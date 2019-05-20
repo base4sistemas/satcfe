@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/tests/test_consultarsat.py
+# satcfe/tests/__init__.py
 #
-# Copyright 2015 Base4 Sistemas Ltda ME
+# Copyright 2019 Base4 Sistemas Ltda ME
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +16,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import pytest
-
-from unidecode import unidecode
-
-
-@pytest.mark.acessa_sat
-@pytest.mark.invoca_consultarsat
-def test_consultarsat(clientesatlocal):
-    resposta = clientesatlocal.consultar_sat()
-    assert resposta.EEEEE in ('08000',)
-    assert unidecode(resposta.mensagem) == 'SAT em operacao'

@@ -79,15 +79,12 @@ def test_resposta_comunicarcertificadoicpbrasil():
             resposta = RespostaSAT.comunicar_certificado_icpbrasil(retorno)
 
 
-@pytest.mark.skipif(
-        pytest.config.getoption('--skip-comunicarcertificadoicpbrasil', default=True) or
-        pytest.config.getoption('--skip-funcoes-sat', default=True),
-        reason='Funcao `ComunicarCertificadoICPBRASIL` explicitamente ignorada')
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_comunicarcertificadoicpbrasil
 def test_funcao_comunicarcertificadoicpbrasil(clientesatlocal):
     # a comunicação do certificado ICP Brasil é complementar à ativação do
     # equipamento SAT e nenhum equipamento em desenvolvimento permite a
     # ativação, pois já vem ativado pelo fabricante, por isso, não esperamos
     # sucesso na execução da função
     with pytest.raises(ExcecaoRespostaSAT):
-        resposta = clientesatlocal.comunicar_certificado_icpbrasil(
-                CERTIFICADO_ICPBRASIL)
+        clientesatlocal.comunicar_certificado_icpbrasil(CERTIFICADO_ICPBRASIL)

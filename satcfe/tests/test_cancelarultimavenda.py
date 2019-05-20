@@ -69,10 +69,9 @@ def test_respostas_invalidas(datadir):
             RespostaCancelarUltimaVenda.analisar(retorno)
 
 
-@pytest.mark.skipif(
-        pytest.config.getoption('--skip-cancelarultimavenda') or
-        pytest.config.getoption('--skip-funcoes-sat'),
-        reason='Funcao `CancelarUltimaVenda` explicitamente ignorada')
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_enviardadosvenda
+@pytest.mark.invoca_cancelarultimavenda
 def test_funcao_cancelarultimavenda(clientesatlocal, cfevenda):
     # realiza uma venda para cancelar em seguida
     rvenda = clientesatlocal.enviar_dados_venda(cfevenda)

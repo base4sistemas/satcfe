@@ -67,7 +67,8 @@ Este é um exemplo básico de uso, para consultar o equipamento SAT:
 
     >>> from satcfe import BibliotecaSAT
     >>> from satcfe import ClienteSATLocal
-    >>> cliente = ClienteSATLocal(BibliotecaSAT('/caminho/para/sat.dll'),
+    >>> cliente = ClienteSATLocal(
+    ...         BibliotecaSAT('/caminho/para/libsat.so'),
     ...         codigo_ativacao='12345678')
     ...
     >>> resposta = cliente.consultar_sat()
@@ -96,7 +97,10 @@ equipamento SAT está registrado.
 
 Antes de executar os testes propriamente, é conveniente revisar a parametrização
 no script ``runtests.sh`` que, dependendo do seu equipamento SAT, os valores
-para configuração dos dados do emitente e outros dados podem variar.
+para configuração dos dados do emitente e outros dados podem variar. Isto irá
+executar os testes invocando as funções ``ConsultarSAT`` e
+``ConsultarStatusOperacional`` (revise o script para adicionar ou remover
+funções a serem invocadas):
 
 .. sourcecode:: shell
 
@@ -147,33 +151,83 @@ As opções de parametrização dos testes são:
 ``--lib-convencao``
     | Convenção de chamada para a biblioteca SAT.
 
-``--skip-funcoes-sat``
-    | Ignora testes de todas as funções SAT evitando qualquer acesso ao
-    | equipamento.
+``--acessa-sat``
+    | Permite que sejam executados os testes que acessem a biblioteca SAT,
+    | eventualmente acessando o equipamento SAT real
 
-``--skip-[funcao]``
-    | Permite evitar a execução de testes para uma função em particular,
-    | substituindo ``[funcao]`` pelo nome da função SAT em letras minúsculas,
-    | por exemplo, para evitar a execução da função ``ConsultarSAT`` use
-    | ``--skip-consultarsat``.
+``--invoca-[funcao]``
+
+    Permite que sejam executados os testes que acessem a biblioteca SAT,
+    eventualmente acessando o equipamento SAT real, para acesso à função
+    especificada (``funcao``). Por exemplo, ``--invoca-consultarsat``.
 
 
 Executando Testes Manualmente
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Se não quiser usar o script ``runtests.sh`` ou se estiver usando um ambiente
-Windows, poderá invocar a execução dos testes manualmente, por exemplo:
-
-.. sourcecode:: ps1con
-
-    C> python setup.py test -a "--cnpj-ac=01234567000199 ..."
-
-Ou para apenas executar os testes unitários que não interagem com o equipamento
-SAT de nenhuma maneira:
+Para apenas executar os testes unitários que não irão invocar funções da
+biblioteca SAT, faça:
 
 .. sourcecode:: shell
 
-    $ python setup.py test -a "-rs --skip-funcoes-sat"
+    $ python setup.py test
+
+Se não quiser (ou não puder) usar o script ``runtests.sh`` por alguma razão,
+você poderá comandar a execução dos testes unitários e dos testes que acessam a
+biblioteca SAT e invocam funções específicas (você terá que especificar uma por
+uma). Por exemplo, para executar o teste da função ``ConsultarSAT`` faça:
+
+.. sourcecode:: shell
+
+    $ python setup.py test -a "--acessa-sat --invoca-consultarsat"
+
+
+Variáveis de Ambiente para os Testes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Estas são todas as variáveis de ambiente utilizadas no script ``runtests.sh`` e
+usadas como valor padrão quando os testes são invocados manualmente (e seus
+valores padrão):
+
++---------------------------------------+---------------------------+
+| Variável                              | Valor Padrão              |
++=======================================+===========================+
+| ``SATCFE_TEST_LIB``                   | ``libsat.so``             |
++---------------------------------------+---------------------------+
+| ``SATCFE_TEST_LIB_CONVENCAO``         | ``1`` [1]_                |
++---------------------------------------+---------------------------+
+| ``SATCFE_TEST_CODIGO_ATIVACAO``       | ``12345678`` [2]_         |
++---------------------------------------+---------------------------+
+| ``SATCFE_TEST_EMITENTE_UF``           | ``SP`` [2]_               |
++---------------------------------------+---------------------------+
+| ``SATCFE_TEST_CNPJ_AC``               | ``16716114000172`` [2]_   |
++---------------------------------------+---------------------------+
+| ``SATCFE_TEST_EMITENTE_CNPJ``         | ``08723218000186`` [2]_   |
++---------------------------------------+---------------------------+
+| ``SATCFE_TEST_EMITENTE_IE``           | ``149626224113`` [2]_     |
++---------------------------------------+---------------------------+
+| ``SATCFE_TEST_EMITENTE_IM``           | ``123123`` [2]_           |
++---------------------------------------+---------------------------+
+| ``SATCFE_TEST_EMITENTE_ISSQN_REGIME`` | ``3`` [3]_                |
++---------------------------------------+---------------------------+
+| ``SATCFE_TEST_EMITENTE_ISSQN_RATEIO`` | ``N`` [4]_                |
++---------------------------------------+---------------------------+
+
+.. [1] Veja constante ``CONVENCOES_CHAMADA`` no projeto `SATComum`_ para
+    conhecer os valores possíveis.
+
+.. [2] Os valores padrão são para equipamentos SAT de desenvolvimento
+    fabricados pela Tanca. Se o seu equipamento for de um fabricante diferente
+    substitua pelos valores indicados no manual. O script ``runtests.sh`` tem
+    os valores padrão para alguns outros fabricantes, mas observe que esses
+    valores podem mudar entre os modelos de um mesmo fabricante.
+
+.. [3] Veja constante ``C15_CREGTRIBISSQN_EMIT`` no projeto `SATComum`_ para
+    conhecer os valores possíveis.
+
+.. [4] Veja constante ``C16_INDRATISSQN_EMIT`` no projeto `SATComum`_ para
+    conhecer os valores possíveis.
 
 .. _`SAT-CF-e`: http://www.fazenda.sp.gov.br/sat/
 .. _`Projeto SATExtrato`: https://github.com/base4sistemas/satextrato
+.. _`SATComum`: https://github.com/base4sistemas/satcomum

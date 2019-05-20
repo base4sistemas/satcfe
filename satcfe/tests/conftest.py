@@ -20,6 +20,7 @@ import os
 import re
 import shutil
 
+from collections import namedtuple
 from decimal import Decimal
 
 import pytest
@@ -43,76 +44,182 @@ from satcfe.entidades import COFINSSN
 from satcfe.entidades import MeioPagamento
 
 
+_SATCFE_TEST_LIB = 'SATCFE_TEST_LIB'
+_SATCFE_TEST_LIB_CONVENCAO = 'SATCFE_TEST_LIB_CONVENCAO'
+_SATCFE_TEST_CODIGO_ATIVACAO = 'SATCFE_TEST_CODIGO_ATIVACAO'
+_SATCFE_TEST_EMITENTE_UF = 'SATCFE_TEST_EMITENTE_UF'
+_SATCFE_TEST_CNPJ_AC = 'SATCFE_TEST_CNPJ_AC'
+_SATCFE_TEST_EMITENTE_CNPJ = 'SATCFE_TEST_EMITENTE_CNPJ'
+_SATCFE_TEST_EMITENTE_IE = 'SATCFE_TEST_EMITENTE_IE'
+_SATCFE_TEST_EMITENTE_IM = 'SATCFE_TEST_EMITENTE_IM'
+_SATCFE_TEST_EMITENTE_ISSQN_REGIME = 'SATCFE_TEST_EMITENTE_ISSQN_REGIME'
+_SATCFE_TEST_EMITENTE_ISSQN_RATEIO = 'SATCFE_TEST_EMITENTE_ISSQN_RATEIO'
+
+
+_MarkerData = namedtuple('_MarkerData', 'name reason option_help')
+
+
+def _to_cmd_line_option(marker_name):
+    # <marker_name> str (eg. "invoca_ativarsat" -> "--invoca-ativarsat")
+    return '--{}'.format(marker_name.replace('_', '-'))
+
+
+def _marker_data(funcao_sat):
+    reason = (
+            'Ignorando testes marcados como "invoca-{name:s}"; '
+            'Requer "--invoca-{name:s}" e "--acessa-sat" para que '
+            'sejam executados'
+        ).format(name=funcao_sat.lower())
+
+    option_help = (
+            'Permite que sejam executados os testes que acessem a '
+            'biblioteca SAT (eventualmente acessando o equipamento SAT real), '
+            'para acesso à função "{:s}"'
+        ).format(funcao_sat)
+
+    md = _MarkerData(
+            name='invoca_{}'.format(funcao_sat.lower()),
+            reason=reason,
+            option_help=option_help)
+
+    return md
+
+
+_MARKERS = [
+        #
+        # Até a versão 4.5.0 pytest requer que os marcadores sejam
+        # explicitamente definidos; ao alterar estes dados, revise os
+        # marcadores relacionados em setup.cfg;
+        #
+        # Veja estes links:
+        # https://docs.pytest.org/en/latest/example/markers.html
+        # https://docs.pytest.org/en/latest/example/simple.html#control-skipping-of-tests-according-to-command-line-option
+        #
+        _MarkerData(
+                name='acessa_sat',
+                reason=(
+                        'Ignorando testes marcados como "acessa_sat"; '
+                        'Requer "--acessa-sat" para que sejam '
+                        'executados'
+                    ),
+                option_help=(
+                        'Permite que sejam executados os testes que acessem a '
+                        'biblioteca SAT (eventualmente acessando o '
+                        'equipamento SAT real)'
+                    ),
+            ),
+        _marker_data('AtivarSAT'),
+        _marker_data('ComunicarCertificadoICPBRASIL'),
+        _marker_data('EnviarDadosVenda'),
+        _marker_data('CancelarUltimaVenda'),
+        _marker_data('ConsultarSAT'),
+        _marker_data('TesteFimAFim'),
+        _marker_data('ConsultarStatusOperacional'),
+        _marker_data('ConsultarNumeroSessao'),
+        _marker_data('ConfigurarInterfaceDeRede'),
+        _marker_data('AssociarAssinatura'),
+        _marker_data('AtualizarSoftwareSAT'),
+        _marker_data('ExtrairLogs'),
+        _marker_data('BloquearSAT'),
+        _marker_data('DesbloquearSAT'),
+        _marker_data('TrocarCodigoDeAtivacao'),
+    ]
+
+
 def pytest_addoption(parser):
 
-    parser.addoption('--cnpj-ac',
+    parser.addoption(
+            '--cnpj-ac',
             action='store',
-            default='16716114000172',
+            default=os.getenv(_SATCFE_TEST_CNPJ_AC, default='16716114000172'),
             help='CNPJ da empresa desenvolvedora da AC (apenas digitos)')
 
-    parser.addoption('--emitente-cnpj',
+    parser.addoption(
+            '--emitente-cnpj',
             action='store',
-            default='08723218000186',
+            default=os.getenv(
+                    _SATCFE_TEST_EMITENTE_CNPJ,
+                    default='08723218000186'),
             help='CNPJ do estabelecimento emitente (apenas digitos)')
 
-    parser.addoption('--emitente-ie',
+    parser.addoption(
+            '--emitente-ie',
             action='store',
-            default='149626224113',
+            default=os.getenv(
+                    _SATCFE_TEST_EMITENTE_IE,
+                    default='149626224113'),
             help='Inscricao estadual do emitente (apenas digitos)')
 
-    parser.addoption('--emitente-im',
+    parser.addoption(
+            '--emitente-im',
             action='store',
-            default='123123',
+            default=os.getenv(_SATCFE_TEST_EMITENTE_IM, default='123123'),
             help='Inscricao municipal do emitente (apenas digitos)')
 
-    parser.addoption('--emitente-uf',
+    parser.addoption(
+            '--emitente-uf',
             action='store',
-            default='SP',
+            default=os.getenv(_SATCFE_TEST_EMITENTE_UF, default='SP'),
             help='Sigla da unidade federativa do estabelecimento emitente')
 
-    parser.addoption('--emitente-issqn-regime',
+    parser.addoption(
+            '--emitente-issqn-regime',
             action='store',
-            default='3',
+            default=os.getenv(
+                    _SATCFE_TEST_EMITENTE_ISSQN_REGIME,
+                    default=constantes.C15_SOCIEDADE_PROFISSIONAIS),
             help=(
                     'Regime especial de tributacao do ISSQN ({:s}) do '
                     'emitente, em casos de testes de emissao de venda e/ou '
                     'cancelamento'
                 ).format(_valores_possiveis(constantes.C15_CREGTRIBISSQN_EMIT)))
 
-    parser.addoption('--emitente-issqn-rateio',
+    parser.addoption(
+            '--emitente-issqn-rateio',
             action='store',
-            default='N',
+            default=os.getenv(
+                    _SATCFE_TEST_EMITENTE_ISSQN_RATEIO,
+                    default=constantes.C16_NAO_RATEADO),
             help=(
                     'Indicador de rateio do desconto sobre o subtotal para '
                     'produtos tributados no ISSQN ({:s}) do emitente, em '
                     'casos de testes de emissao de venda e/ou cancelamento'
                 ).format(_valores_possiveis(constantes.C16_INDRATISSQN_EMIT)))
 
-    parser.addoption('--codigo-ativacao',
+    parser.addoption(
+            '--codigo-ativacao',
             action='store',
-            default='12345678',
+            default=os.getenv(
+                    _SATCFE_TEST_CODIGO_ATIVACAO,
+                    default='12345678'),
             help='Codigo de ativacao configurado no equipamento SAT')
 
-    parser.addoption('--assinatura-ac',
+    parser.addoption(
+            '--assinatura-ac',
             action='store',
             default=constantes.ASSINATURA_AC_TESTE,
             help='Conteudo da assinatura da AC')
 
-    parser.addoption('--numero-caixa',
+    parser.addoption(
+            '--numero-caixa',
             action='store',
             default=1,
             type=int,
             help='Numero do caixa de origem')
 
-    parser.addoption('--lib-caminho',
+    parser.addoption(
+            '--lib-caminho',
             action='store',
-            default='sat.dll',
-            help='Caminho para a biblioteca SAT')
+            default=os.getenv(_SATCFE_TEST_LIB, default='libsat.so'),
+            help='Caminho completo para a biblioteca SAT')
 
-    parser.addoption('--lib-convencao',
+    parser.addoption(
+            '--lib-convencao',
             action='store',
             choices=[constantes.STANDARD_C, constantes.WINDOWS_STDCALL],
-            default=constantes.STANDARD_C,
+            default=os.getenv(
+                    _SATCFE_TEST_LIB_CONVENCAO,
+                    default=constantes.STANDARD_C),
             type=int,
             help=(
                     'Convencao de chamada para a biblioteca SAT ({:s})'
@@ -125,89 +232,40 @@ def pytest_addoption(parser):
     # --sathub-username
     # --sathub-password
 
-    # opções para ignorar funções SAT específicas
-    parser.addoption('--skip-funcoes-sat',
-            action='store_true',
-            default=True,
-            help=(
-                    'Ignora testes de todas as funcoes SAT evitando qualquer '
-                    'acesso ao equipamento'
-                ))
+    # Opções para permitir, via linha de comando, a execução de testes
+    # marcados como testes que acessam à biblioteca SAT; por exemplo:
+    #
+    #     python setup.py test -a "--acessa-sat --invoca-ativarsat"
+    #
+    # Irá permitir que sejam executados os testes que indiquem acesso à
+    # biblioteca SAT e/ou que acessem a função AtivarSAT, por exemplo:
+    #
+    #     @pytest.mark.acessa_sat
+    #     @pytest.mark.invoca_ativarsat
+    #     def test_meu_teste_que_acessa_funcao_ativarsat(clientesatlocal):
+    #         assert 1 == 0, "Quem diria!"
+    #
+    for el in _MARKERS:
+        option_name = _to_cmd_line_option(el.name)
+        parser.addoption(
+                option_name,
+                action='store_true',
+                default=False,
+                help=el.option_help)
 
-    parser.addoption('--skip-ativarsat',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `AtivarSAT`')
 
-    parser.addoption('--skip-comunicarcertificadoicpbrasil',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `ComunicarCertificadoICPBRASIL`')
+def pytest_collection_modifyitems(config, items):
+    markers_set = {}
 
-    parser.addoption('--skip-enviardadosvenda',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `EnviarDadosVenda`')
+    for el in _MARKERS:
+        option_name = _to_cmd_line_option(el.name)
+        if not config.getoption(option_name):
+            markers_set[el.name] = pytest.mark.skip(reason=el.reason)
 
-    parser.addoption('--skip-cancelarultimavenda',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `CancelarUltimaVenda`')
-
-    parser.addoption('--skip-consultarsat',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `ConsultarSAT`')
-
-    parser.addoption('--skip-testefimafim',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `TesteFimAFim`')
-
-    parser.addoption('--skip-consultarstatusoperacional',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `ConsultarStatusOperacional`')
-
-    parser.addoption('--skip-consultarnumerosessao',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `ConsultarNumeroSessao`')
-
-    parser.addoption('--skip-configurarinterfacederede',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `ConfigurarInterfaceDeRede`')
-
-    parser.addoption('--skip-associarassinatura',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `AssociarAssinatura`')
-
-    parser.addoption('--skip-atualizarsoftwaresat',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `AtualizarSoftwareSAT`')
-
-    parser.addoption('--skip-extrairlogs',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `ExtrairLogs`')
-
-    parser.addoption('--skip-bloquearsat',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `BloquearSAT`')
-
-    parser.addoption('--skip-desbloquearsat',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `DesbloquearSAT`')
-
-    parser.addoption('--skip-trocarcodigodeativacao',
-            action='store_true',
-            default=True,
-            help='Ignora funcao `TrocarCodigoDeAtivacao`')
+    for item in items:
+        for key, marker in markers_set.items():
+            if key in item.keywords:
+                item.add_marker(marker)
 
 
 @pytest.fixture(scope='function')

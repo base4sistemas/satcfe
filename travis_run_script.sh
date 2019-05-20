@@ -3,7 +3,7 @@
 set -e
 
 if [ "${TEST}" != "0" ]; then
-    python setup.py test -a "-rs --skip-funcoes-sat"
+    python setup.py test -a "-rs"
     exit 0
 fi
 

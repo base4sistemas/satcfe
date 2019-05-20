@@ -30,7 +30,7 @@
 #      $ export SATCFE_TEST_LIB=/opt/fabricante/libsat.so
 #      $ export SATCFE_TEST_LIB_CONVENCAO=1
 #      $ export SATCFE_TEST_CODIGO_ATIVACAO=12345678
-#      $ export SATCFE_TEST_UF=SP
+#      $ export SATCFE_TEST_EMITENTE_UF=SP
 #
 #  A convenção de chamada é definida no projeto SATComum [1], no módulo
 #  `satcomum.contantes`. As convenções de chamada são:
@@ -44,7 +44,7 @@
 : ${SATCFE_TEST_LIB:?"Defina SATCFE_TEST_LIB apontando para a biblioteca SAT"}
 : ${SATCFE_TEST_LIB_CONVENCAO:?"Defina SATCFE_TEST_LIB_CONVENCAO conforme convenção de chamada para a biblioteca SAT"}
 : ${SATCFE_TEST_CODIGO_ATIVACAO:?"Defina SATCFE_TEST_CODIGO_ATIVACAO com o código de ativação do equipamento SAT"}
-: ${SATCFE_TEST_UF:?"Defina SATCFE_TEST_UF com a sigla do Estado do domicílio fiscal do equipamento SAT"}
+: ${SATCFE_TEST_EMITENTE_UF:?"Defina SATCFE_TEST_EMITENTE_UF com a sigla do Estado do domicílio fiscal do equipamento SAT"}
 
 if [ ! -f $SATCFE_TEST_LIB ]
 then
@@ -56,30 +56,30 @@ fi
 
 case "$1" in
     tanca)
-        CNPJ_AC=16716114000172
-        EMITENTE_CNPJ=08723218000186
-        EMITENTE_IE=149626224113
-        EMITENTE_IM=123123
-        EMITENTE_ISSQN_REGIME=3
-        EMITENTE_ISSQN_RATEIO=N
+        SATCFE_TEST_CNPJ_AC=16716114000172
+        SATCFE_TEST_EMITENTE_CNPJ=08723218000186
+        SATCFE_TEST_EMITENTE_IE=149626224113
+        SATCFE_TEST_EMITENTE_IM=123123
+        SATCFE_TEST_EMITENTE_ISSQN_REGIME=3
+        SATCFE_TEST_EMITENTE_ISSQN_RATEIO=N
     ;;
 
     dimep)
-        CNPJ_AC=08427847000169
-        EMITENTE_CNPJ=61099008000141
-        EMITENTE_IE=111111111111
-        EMITENTE_IM=12345
-        EMITENTE_ISSQN_REGIME=3
-        EMITENTE_ISSQN_RATEIO=N
+        SATCFE_TEST_CNPJ_AC=08427847000169
+        SATCFE_TEST_EMITENTE_CNPJ=61099008000141
+        SATCFE_TEST_EMITENTE_IE=111111111111
+        SATCFE_TEST_EMITENTE_IM=12345
+        SATCFE_TEST_EMITENTE_ISSQN_REGIME=3
+        SATCFE_TEST_EMITENTE_ISSQN_RATEIO=N
     ;;
 
     bema)
-        CNPJ_AC=16716114000172
-        EMITENTE_CNPJ=82373077000171
-        EMITENTE_IE=816000002213
-        EMITENTE_IM=123123
-        EMITENTE_ISSQN_REGIME=3
-        EMITENTE_ISSQN_RATEIO=N
+        SATCFE_TEST_CNPJ_AC=16716114000172
+        SATCFE_TEST_EMITENTE_CNPJ=82373077000171
+        SATCFE_TEST_EMITENTE_IE=816000002213
+        SATCFE_TEST_EMITENTE_IM=123123
+        SATCFE_TEST_EMITENTE_ISSQN_REGIME=3
+        SATCFE_TEST_EMITENTE_ISSQN_RATEIO=N
     ;;
 
     *)
@@ -99,13 +99,17 @@ case "$1" in
 esac
 
 python setup.py test -a "-rs "\
-"--cnpj-ac=$CNPJ_AC "\
-"--emitente-cnpj=$EMITENTE_CNPJ "\
-"--emitente-ie=$EMITENTE_IE "\
-"--emitente-im=$EMITENTE_IM "\
-"--emitente-uf=$SATCFE_TEST_UF "\
-"--emitente-issqn-regime=$EMITENTE_ISSQN_REGIME "\
-"--emitente-issqn-rateio=$EMITENTE_ISSQN_RATEIO "\
+"--cnpj-ac=$SATCFE_TEST_CNPJ_AC "\
+"--emitente-cnpj=$SATCFE_TEST_EMITENTE_CNPJ "\
+"--emitente-ie=$SATCFE_TEST_EMITENTE_IE "\
+"--emitente-im=$SATCFE_TEST_EMITENTE_IM "\
+"--emitente-uf=$SATCFE_TEST_EMITENTE_UF "\
+"--emitente-issqn-regime=$SATCFE_TEST_EMITENTE_ISSQN_REGIME "\
+"--emitente-issqn-rateio=$SATCFE_TEST_EMITENTE_ISSQN_RATEIO "\
 "--codigo-ativacao=$SATCFE_TEST_CODIGO_ATIVACAO "\
 "--lib-caminho=$SATCFE_TEST_LIB "\
-"--lib-convencao=$SATCFE_TEST_LIB_CONVENCAO "
+"--lib-convencao=$SATCFE_TEST_LIB_CONVENCAO "\
+"--acessa-sat "\
+"--invoca-consultarsat "\
+"--invoca-consultarstatusoperacional "
+# adicione ou remova funções da biblioteca SAT que invocar ou deixar de invocar

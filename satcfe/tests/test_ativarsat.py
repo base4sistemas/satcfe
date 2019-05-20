@@ -74,10 +74,8 @@ def test_respostas_invalidas(datadir):
             RespostaAtivarSAT.analisar(retorno)
 
 
-@pytest.mark.skipif(
-        pytest.config.getoption('--skip-ativarsat') or
-        pytest.config.getoption('--skip-funcoes-sat'),
-        reason='Funcao `AtivarSAT` explicitamente ignorada')
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_ativarsat
 def test_funcao_ativarsat(clientesatlocal):
     # nenhum equipamento SAT em desenvolvimento (kit desenvolvimento)
     # permite a ativação, pois já vem ativado pelo fabricante, por isso

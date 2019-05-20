@@ -52,11 +52,11 @@ long_description = read('README.rst')
 
 
 class PyTest(TestCommand):
-    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
+    user_options = [('pytest-args=', 'a', 'Arguments to pass to pytest')]
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
-        self.pytest_args = []
+        self.pytest_args = ''
 
     def finalize_options(self):
         TestCommand.finalize_options(self)
@@ -64,8 +64,9 @@ class PyTest(TestCommand):
         self.test_suite = True
 
     def run_tests(self):
-        import pytest # import here, cause outside the eggs aren't loaded
-        errno = pytest.main(self.pytest_args)
+        import shlex
+        import pytest  # import here, cause outside the eggs aren't loaded
+        errno = pytest.main(shlex.split(self.pytest_args))
         sys.exit(errno)
 
 
@@ -79,7 +80,7 @@ setup(
                 'satcfe.resposta',
             ],
         install_requires=read_install_requires(),
-        tests_require=['pytest==2.7.3'],
+        tests_require=['pytest==4.5.0'],
         cmdclass={
                 'test': PyTest
             },
@@ -90,7 +91,7 @@ setup(
         url='http://github.com/base4sistemas/satcfe/',
         author=u'Daniel Gonçalves',
         author_email='daniel@base4.com.br',
-        classifiers = [
+        classifiers=[
                 'Development Status :: 5 - Production/Stable',
                 'Environment :: Other Environment',
                 'Intended Audience :: Developers',
@@ -104,4 +105,3 @@ setup(
                 'Topic :: Utilities',
             ]
     )
-
