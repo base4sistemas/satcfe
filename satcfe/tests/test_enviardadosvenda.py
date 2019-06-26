@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/tests/resposta/test_enviardadosvenda.py
+# satcfe/tests/test_enviardadosvenda.py
 #
 # Copyright 2015 Base4 Sistemas Ltda ME
 #
@@ -54,6 +54,7 @@ def test_respostas_de_sucesso(datadir):
 def test_respostas_de_falha(datadir):
     with open(datadir.join('respostas-de-falha.txt'), 'r') as f:
         respostas = f.read().splitlines()
+
     for retorno in respostas:
         with pytest.raises(ExcecaoRespostaSAT):
             RespostaEnviarDadosVenda.analisar(retorno)
@@ -62,6 +63,7 @@ def test_respostas_de_falha(datadir):
 def test_respostas_invalidas(datadir):
     with open(datadir.join('respostas-invalidas.txt'), 'r') as f:
         respostas = f.read().splitlines()
+
     for retorno in respostas:
         with pytest.raises(ErroRespostaSATInvalida):
             RespostaEnviarDadosVenda.analisar(retorno)
@@ -72,6 +74,40 @@ def test_respostas_invalidas(datadir):
 def test_funcao_enviardadosvenda(clientesatlocal, cfevenda):
     resposta = clientesatlocal.enviar_dados_venda(cfevenda)
     assert resposta.EEEEE == '06000'
-    assert resposta.valorTotalCFe == Decimal('5.75')
+    assert resposta.valorTotalCFe == Decimal('4.73')
     assert len(resposta.chaveConsulta) == 47
     assert resposta.chaveConsulta.startswith('CFe')
+
+
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_enviardadosvenda
+def test_emite_warning_argumentos_extras_ignorados(
+        clientesatlocal,
+        cfevenda):
+    conteudo_cfe = cfevenda.documento()  # resolve o documento (obtendo str)
+    with pytest.warns(UserWarning) as rec:
+        resposta = clientesatlocal.enviar_dados_venda(
+                conteudo_cfe,
+                'argumentos',
+                'extras',
+                'informados',
+                argumentos=1,
+                extras=2,
+                informados=3)
+
+    assert len(rec) == 1
+    assert rec[0].message.args[0].startswith('O documento foi informado')
+    assert resposta.EEEEE == '06000'
+
+
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_enviardadosvenda
+def test_argumento_nao_str_sem_metodo_documento(clientesatlocal):
+    # se o argumento dados_venda não for str, então deverá ser um objeto
+    # que possua um método chamado "documento()" capaz de gerar o CF-e de
+    # venda que será enviado ao equipamento SAT
+    class _Quack(object):
+        pass
+
+    with pytest.raises(ValueError):
+        clientesatlocal.enviar_dados_venda(_Quack())

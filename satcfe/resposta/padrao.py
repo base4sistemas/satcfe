@@ -54,8 +54,20 @@ class RespostaSAT(object):
 
     """
 
-    class _Atributos(object):
-        pass
+    class Atributos(object):
+        __slots__ = ('_funcao', '_verbatim')
+
+        def __init__(self, funcao=None, verbatim=None):
+            self._funcao = funcao
+            self._verbatim = verbatim
+
+        @property
+        def funcao(self):
+            return self._funcao
+
+        @property
+        def verbatim(self):
+            return self._verbatim
 
     CAMPOS = (
             ('numeroSessao', int),
@@ -69,12 +81,14 @@ class RespostaSAT(object):
     """
 
     def __init__(self, **kwargs):
+        super().__init__()
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        self.atributos = RespostaSAT._Atributos()
-        self.atributos.funcao = None
-        self.atributos.verbatim = None
+        # self.atributos = RespostaSAT._Atributos()
+        # self.atributos.funcao = None
+        # self.atributos.verbatim = None
+        self.atributos = None
 
     @staticmethod
     def comunicar_certificado_icpbrasil(retorno):
@@ -107,16 +121,6 @@ class RespostaSAT(object):
                 retorno,
                 funcao='ConfigurarInterfaceDeRede')
         if resposta.EEEEE not in ('12000',):
-            raise ExcecaoRespostaSAT(resposta)
-        return resposta
-
-    @staticmethod
-    def associar_assinatura(retorno):
-        """Constrói uma :class:`RespostaSAT` para o retorno da função
-        :meth:`~satcfe.base.FuncoesSAT.associar_assinatura`.
-        """
-        resposta = analisar_retorno(retorno, funcao='AssociarAssinatura')
-        if resposta.EEEEE not in ('13000',):
             raise ExcecaoRespostaSAT(resposta)
         return resposta
 
@@ -235,8 +239,12 @@ def analisar_retorno(
     for indice, campo, conversor in _enumerate(relacao_campos):
         resultado[campo] = conversor(partes[indice])
 
+    verbatim = retorno if manter_verbatim else None
     resposta = classe_resposta(**resultado)
-    resposta.atributos.funcao = funcao
-    resposta.atributos.verbatim = retorno if manter_verbatim else None
+    resposta.atributos = RespostaSAT.Atributos(
+            funcao=funcao,
+            verbatim=verbatim)
+    # resposta.atributos.funcao = funcao
+    # resposta.atributos.verbatim = retorno if manter_verbatim else None
 
     return resposta

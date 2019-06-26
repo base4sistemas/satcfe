@@ -72,19 +72,56 @@ def test_respostas_invalidas(datadir):
 @pytest.mark.acessa_sat
 @pytest.mark.invoca_enviardadosvenda
 @pytest.mark.invoca_cancelarultimavenda
-def test_funcao_cancelarultimavenda(clientesatlocal, cfevenda):
+def test_funcao_cancelarultimavenda(
+        clientesatlocal,
+        cfevenda,
+        cfecancelamento):
     # realiza uma venda para cancelar em seguida
-    rvenda = clientesatlocal.enviar_dados_venda(cfevenda)
+    resp_venda = clientesatlocal.enviar_dados_venda(cfevenda)
+    cfecancelamento.chCanc = resp_venda.chaveConsulta
 
-    cfecanc = CFeCancelamento(
-            chCanc=rvenda.chaveConsulta,
-            CNPJ=pytest.config.getoption('--cnpj-ac'),
-            signAC=pytest.config.getoption('--assinatura-ac'),
-            numeroCaixa=pytest.config.getoption('--numero-caixa'),
-            destinatario=Destinatario(
-                    CPF='11122233396',
-                    xNome=u'João de Teste'))
+    resp_canc = clientesatlocal.cancelar_ultima_venda(
+            resp_venda.chaveConsulta,
+            cfecancelamento)
 
-    rcanc = clientesatlocal.cancelar_ultima_venda(cfecanc.chCanc, cfecanc)
-    assert rcanc.EEEEE == '07000'
-    assert rcanc.valorTotalCFe == Decimal('5.75')
+    assert resp_canc.EEEEE == '07000'
+    assert resp_canc.valorTotalCFe == Decimal('4.73')
+
+
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_enviardadosvenda
+@pytest.mark.invoca_cancelarultimavenda
+def test_emite_warning_argumentos_extras_ignorados(
+        clientesatlocal,
+        cfevenda,
+        cfecancelamento):
+    resp_venda = clientesatlocal.enviar_dados_venda(cfevenda)
+    cfecancelamento.chCanc = resp_venda.chaveConsulta
+    conteudo_cfecanc = cfecancelamento.documento()
+
+    with pytest.warns(UserWarning) as rec:
+        resp_canc = clientesatlocal.cancelar_ultima_venda(
+                conteudo_cfecanc,
+                'argumentos',
+                'extras',
+                'informados',
+                argumentos=1,
+                extras=2,
+                informados=3)
+
+        assert len(rec) == 1
+        assert rec[0].message.args[0].startswith('O documento foi informado')
+        assert resp_canc.EEEEE == '07000'
+
+
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_cancelarultimavenda
+def test_argumento_nao_str_sem_metodo_documento(clientesatlocal):
+    # se o argumento dados_cancelamento não for str, então deverá ser um objeto
+    # que possua um método chamado "documento()" capaz de gerar o CF-e de
+    # cancelamento que será enviado ao equipamento SAT
+    class _NoQuack(object):
+        pass
+
+    with pytest.raises(ValueError):
+        clientesatlocal.cancelar_ultima_venda('CFe35...', _NoQuack())

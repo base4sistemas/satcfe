@@ -1,0 +1,5 @@
+123456|05001|Código de ativação inválido||
+123456|05002|Erro de comunicação com a SEFAZ||
+123456|05003|Certificado inválido||
+123456|05098|SAT em processamento. Tente novamente.||
+123456|05099|Erro desconhecido||

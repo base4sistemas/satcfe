@@ -1,0 +1,5 @@
+123001|15001|Código de ativação inválido||
+123002|15002|Transferência em andamento||
+123003|15097|Número de sessão inválido||
+123004|15098|SAT em processamento. Tente novamente.||
+123005|15099|Erro desconhecido||

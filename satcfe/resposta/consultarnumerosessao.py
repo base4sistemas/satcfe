@@ -19,7 +19,9 @@
 
 from collections import namedtuple
 
+from ..excecoes import ErroRespostaSATInvalida
 from ..excecoes import ExcecaoRespostaSAT
+from .associarassinatura import RespostaAssociarAssinatura
 from .ativarsat import RespostaAtivarSAT
 from .cancelarultimavenda import RespostaCancelarUltimaVenda
 from .consultarstatusoperacional import RespostaConsultarStatusOperacional
@@ -40,7 +42,7 @@ _RESPOSTAS_POSSIVEIS = (
         (9000, RespostaTesteFimAFim.analisar),
         (10000, RespostaConsultarStatusOperacional.analisar),
         (12000, RespostaSAT.configurar_interface_de_rede),
-        (13000, RespostaSAT.associar_assinatura),
+        (13000, RespostaAssociarAssinatura),
         (14000, RespostaSAT.atualizar_software_sat),
         (15000, RespostaExtrairLogs.analisar),
         (16000, RespostaSAT.bloquear_sat),
@@ -72,9 +74,20 @@ class RespostaConsultarNumeroSessao(RespostaSAT):
 
         resposta = _RespostaParcial(*(retorno.split('|')[:2]))
 
-        for faixa, construtor in _RESPOSTAS_POSSIVEIS:
-            if int(resposta.EEEEE) in range(faixa, faixa+1000):
-                return construtor(retorno)
+        try:
+            eeeee = int(resposta.EEEEE)
+        except ValueError:
+            # não é possível converter 'EEEEE' para inteiro;
+            # deixa seguir com a pós-análise do retorno
+            pass
+        else:
+            if eeeee not in range(11001, 11999):
+                # não está na faixa de códigos específicos da própria
+                # função ConsultarNumeroSessao; testa por uma faixa de códigos
+                # entre as respostas possíveis...
+                for faixa, construtor in _RESPOSTAS_POSSIVEIS:
+                    if eeeee in range(faixa, faixa+1000):
+                        return construtor(retorno)
 
         return RespostaConsultarNumeroSessao._pos_analise(retorno)
 
@@ -83,15 +96,7 @@ class RespostaConsultarNumeroSessao(RespostaSAT):
     def _pos_analise(retorno):
         resposta = analisar_retorno(retorno,
                 funcao='ConsultarNumeroSessao',
-                classe_resposta=RespostaConsultarNumeroSessao,
-                campos=(
-                        ('numeroSessao', int),
-                        ('EEEEE', str),
-                        ('mensagem', str),
-                        ('cod', str),
-                        ('mensagemSEFAZ', str),
-                    ),
-            )
+                classe_resposta=RespostaConsultarNumeroSessao)
         if resposta.EEEEE not in ('11000',):
             raise ExcecaoRespostaSAT(resposta)
         return resposta

@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 
+from .associarassinatura import RespostaAssociarAssinatura
 from .ativarsat import RespostaAtivarSAT
 from .cancelarultimavenda import RespostaCancelarUltimaVenda
 from .consultarnumerosessao import RespostaConsultarNumeroSessao

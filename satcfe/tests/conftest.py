@@ -31,6 +31,7 @@ from satcomum import constantes
 
 from satcfe.base import BibliotecaSAT
 from satcfe.clientelocal import ClienteSATLocal
+from satcfe.entidades import CFeCancelamento
 from satcfe.entidades import CFeVenda
 from satcfe.entidades import Destinatario
 from satcfe.entidades import Emitente
@@ -42,6 +43,7 @@ from satcfe.entidades import ICMSSN102
 from satcfe.entidades import PISSN
 from satcfe.entidades import COFINSSN
 from satcfe.entidades import MeioPagamento
+from satcfe.rede import ConfiguracaoRede
 
 
 _SATCFE_TEST_LIB = 'SATCFE_TEST_LIB'
@@ -369,6 +371,53 @@ def cfevenda(request):
                             vMP=Decimal('10.00')),
                 ])
     return cfe
+
+
+@pytest.fixture(scope='module')
+def cfecancelamento(request):
+    _opcao = request.config.getoption
+    # (!) Talvez seja necessário atribuir valor ao atributo 'chCanc' nas
+    #     funcoes que utilizarem esta fixture.
+    cfe_canc = CFeCancelamento(
+            CNPJ=_opcao('--cnpj-ac'),
+            signAC=_opcao('--assinatura-ac'),
+            numeroCaixa=_opcao('--numero-caixa'),
+            destinatario=Destinatario(
+                    CPF='11122233396',
+                    xNome='João de Teste'))
+    return cfe_canc
+
+
+@pytest.fixture(scope='module')
+def rede_completo(request):
+    conf = ConfiguracaoRede(
+            tipoInter=constantes.REDE_TIPOINTER_WIFI,
+            SSID='Principal',
+            seg=constantes.REDE_SEG_WPA_ENTERPRISE,
+            codigo='s3cr370',
+            tipoLan=constantes.REDE_TIPOLAN_DHCP,
+            lanIP='192.168.5.101',
+            lanMask='255.255.255.0',
+            lanGW='192.168.5.1',
+            lanDNS1='192.168.5.201',
+            lanDNS2='192.168.5.202',
+            usuario='john',
+            senha='c0nn0r',
+            proxy=constantes.REDE_PROXY_CONFIGURACAO,
+            proxy_ip='192.168.5.101',
+            proxy_porta=8080,
+            proxy_user='anderson',
+            proxy_senha='7h0m45')
+    return conf
+
+
+@pytest.fixture(scope='module')
+def rede_minimo(request):
+    conf = ConfiguracaoRede(
+            tipoInter=constantes.REDE_TIPOINTER_ETHE,
+            tipoLan=constantes.REDE_TIPOLAN_DHCP,
+            proxy=constantes.REDE_PROXY_NONE)
+    return conf
 
 
 def _valores_possiveis(opcoes):

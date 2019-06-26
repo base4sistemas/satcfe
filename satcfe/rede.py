@@ -154,5 +154,7 @@ class ConfiguracaoRede(Entidade):
         for elemento in self._schema.keys():
             valor = getattr(self, elemento, None)
             if valor:
+                if isinstance(valor, int):
+                    valor = str(valor)
                 ET.SubElement(config, elemento).text = valor
         return config

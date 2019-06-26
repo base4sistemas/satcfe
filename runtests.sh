@@ -83,7 +83,7 @@ case "$1" in
     ;;
 
     *)
-        if test -n "$1"; then
+        if [ -n "$1" ]; then
             echo "Argumento \"$1\" desconhecido"
         else
             echo "Nenhum argumento informado"

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <tipoInter>ETHE</tipoInter>
+    <tipoLan>DHCP</tipoLan>
+    <proxy>0</proxy>
+</config>

@@ -23,7 +23,9 @@ from satcomum import constantes
 import satcfe
 
 from .base import FuncoesSAT
+from .base import resolver_documento
 
+from .resposta import RespostaAssociarAssinatura
 from .resposta import RespostaAtivarSAT
 from .resposta import RespostaCancelarUltimaVenda
 from .resposta import RespostaConsultarNumeroSessao
@@ -124,27 +126,34 @@ class ClienteSATHub(FuncoesSAT):
                 conteudo.get('retorno'))
 
 
-    def enviar_dados_venda(self, dados_venda):
+    def enviar_dados_venda(self, dados_venda, *args, **kwargs):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.enviar_dados_venda`.
 
         :return: Uma resposta SAT especializada em ``EnviarDadosVenda``.
         :rtype: satcfe.resposta.enviardadosvenda.RespostaEnviarDadosVenda
         """
-        resp = self._http_post('enviardadosvenda',
-                dados_venda=dados_venda.documento())
+        cfe = resolver_documento(dados_venda, *args, **kwargs)
+        resp = self._http_post('enviardadosvenda', dados_venda=cfe)
         conteudo = resp.json()
         return RespostaEnviarDadosVenda.analisar(conteudo.get('retorno'))
 
 
-    def cancelar_ultima_venda(self, chave_cfe, dados_cancelamento):
+    def cancelar_ultima_venda(
+            self,
+            chave_cfe,
+            dados_cancelamento,
+            *args,
+            **kwargs):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.cancelar_ultima_venda`.
 
         :return: Uma resposta SAT especializada em ``CancelarUltimaVenda``.
         :rtype: satcfe.resposta.cancelarultimavenda.RespostaCancelarUltimaVenda
         """
-        resp = self._http_post('cancelarultimavenda',
+        cfe_canc = resolver_documento(dados_cancelamento, *args, **kwargs)
+        resp = self._http_post(
+                'cancelarultimavenda',
                 chave_cfe=chave_cfe,
-                dados_cancelamento=dados_cancelamento.documento())
+                dados_cancelamento=cfe_canc)
         conteudo = resp.json()
         return RespostaCancelarUltimaVenda.analisar(conteudo.get('retorno'))
 
@@ -160,14 +169,14 @@ class ClienteSATHub(FuncoesSAT):
         return RespostaSAT.consultar_sat(conteudo.get('retorno'))
 
 
-    def teste_fim_a_fim(self, dados_venda):
+    def teste_fim_a_fim(self, dados_venda, *args, **kwargs):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.teste_fim_a_fim`.
 
         :return: Uma resposta SAT especializada em ``TesteFimAFim``.
         :rtype: satcfe.resposta.testefimafim.RespostaTesteFimAFim
         """
-        resp = self._http_post('testefimafim',
-                dados_venda=dados_venda.documento())
+        cfe = resolver_documento(dados_venda, *args, **kwargs)
+        resp = self._http_post('testefimafim', dados_venda=cfe)
         conteudo = resp.json()
         return RespostaTesteFimAFim.analisar(conteudo.get('retorno'))
 
@@ -196,14 +205,14 @@ class ClienteSATHub(FuncoesSAT):
         return RespostaConsultarNumeroSessao.analisar(conteudo.get('retorno'))
 
 
-    def configurar_interface_de_rede(self, configuracao):
+    def configurar_interface_de_rede(self, configuracao, *args, **kwargs):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.configurar_interface_de_rede`.
 
         :return: Uma resposta SAT padrão.
         :rtype: satcfe.resposta.padrao.RespostaSAT
         """
-        resp = self._http_post('configurarinterfacederede',
-                configuracao=configuracao.documento())
+        conf = resolver_documento(configuracao, *args, **kwargs)
+        resp = self._http_post('configurarinterfacederede', configuracao=conf)
         conteudo = resp.json()
         return RespostaSAT.configurar_interface_de_rede(conteudo.get('retorno'))
 
@@ -214,11 +223,12 @@ class ClienteSATHub(FuncoesSAT):
         :return: Uma resposta SAT padrão.
         :rtype: satcfe.resposta.padrao.RespostaSAT
         """
-        resp = self._http_post('associarassinatura',
-                sequencia_cnpj=sequencia_cnpj, assinatura_ac=assinatura_ac)
-        # (!) resposta baseada na redação com efeitos até 31-12-2016
+        resp = self._http_post(
+                'associarassinatura',
+                sequencia_cnpj=sequencia_cnpj,
+                assinatura_ac=assinatura_ac)
         conteudo = resp.json()
-        return RespostaSAT.associar_assinatura(conteudo.get('retorno'))
+        return RespostaAssociarAssinatura.analisar(conteudo.get('retorno'))
 
 
     def atualizar_software_sat(self):

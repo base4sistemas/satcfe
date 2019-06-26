@@ -27,4 +27,6 @@ from unidecode import unidecode
 def test_consultarsat(clientesatlocal):
     resposta = clientesatlocal.consultar_sat()
     assert resposta.EEEEE in ('08000',)
-    assert unidecode(resposta.mensagem) == 'SAT em operacao'
+    assert unidecode(resposta.mensagem).lower() == 'sat em operacao'
+    # Cada equipamento pode resultar a mensagem de um jeito, por exemplo,
+    # com "o" de "operação" em maiúsculo, com ou sem acentuação, etc;

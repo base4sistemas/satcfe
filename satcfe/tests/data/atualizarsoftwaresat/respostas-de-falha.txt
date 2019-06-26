@@ -1,0 +1,7 @@
+123001|14001|Código de ativação inválido||
+123002|14002|Atualização em andamento||
+123003|14003|Erro na atualização||
+123004|14004|Arquivo de atualização inválido||
+123005|14097|Número de sessão inválido||
+123006|14098|SAT em processamento. Tente novamente.||
+123007|14099|Erro desconhecido||

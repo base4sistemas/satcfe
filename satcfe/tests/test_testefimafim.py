@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/tests/resposta/test_testefimafim.py
+# satcfe/tests/test_testefimafim.py
 #
 # Copyright 2015 Base4 Sistemas Ltda ME
 #
@@ -67,6 +67,38 @@ def test_respostas_invalidas(datadir):
 def test_funcao_testefimafim(clientesatlocal, cfevenda):
     resposta = clientesatlocal.teste_fim_a_fim(cfevenda)
     assert resposta.EEEEE == '09000'
-    assert resposta.numDocFiscal == 0
+    assert resposta.numDocFiscal == 1
     assert len(resposta.chaveConsulta) == 47
     assert resposta.chaveConsulta.startswith('CFe')
+
+
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_testefimafim
+def test_emite_warning_argumentos_extras_ignorados(clientesatlocal, cfevenda):
+    conteudo_cfe = cfevenda.documento()
+    with pytest.warns(UserWarning) as rec:
+        resposta = clientesatlocal.teste_fim_a_fim(
+                conteudo_cfe,
+                'argumentos',
+                'extras',
+                'informados',
+                argumentos=1,
+                extras=2,
+                informados=3)
+
+    assert len(rec) == 1
+    assert rec[0].message.args[0].startswith('O documento foi informado')
+    assert resposta.EEEEE == '09000'
+
+
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_testefimafim
+def test_argumento_nao_str_sem_metodo_documento(clientesatlocal):
+    # se o argumento 'dados_venda' não for str, então deverá ser um objeto
+    # que possua um método chamado "documento()" capaz de gerar o CF-e de
+    # venda que será enviado ao equipamento SAT
+    class _Quack(object):
+        pass
+
+    with pytest.raises(ValueError):
+        clientesatlocal.teste_fim_a_fim(_Quack())

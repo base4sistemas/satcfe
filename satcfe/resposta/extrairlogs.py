@@ -47,19 +47,36 @@ class RespostaExtrairLogs(RespostaSAT):
         """Retorna o conteúdo do log decodificado."""
         return base64_to_str(self.arquivoLog)
 
-
-    def salvar(self, destino=None, prefix='tmp', suffix='-sat.log'):
+    def salvar(
+            self,
+            destino=None,
+            prefix='tmp', suffix='-sat.log', dir=None,
+            encoding='utf-8', encoding_errors='strict'):
         """Salva o arquivo de log decodificado.
 
-        :param str destino: (Opcional) Caminho completo para o arquivo onde os
+        :param str destino: Opcional. Caminho completo para o arquivo onde os
             dados dos logs deverão ser salvos. Se não informado, será criado
             um arquivo temporário via :func:`tempfile.mkstemp`.
 
-        :param str prefix: (Opcional) Prefixo para o nome do arquivo. Se não
+        :param str prefix: Opcional. Prefixo para o nome do arquivo. Se não
             informado será usado ``"tmp"``.
 
-        :param str suffix: (Opcional) Sufixo para o nome do arquivo. Se não
+        :param str suffix: Opcional. Sufixo para o nome do arquivo. Se não
             informado será usado ``"-sat.log"``.
+
+        :param dir: Opcional. Contém o caminho completo onde o arquivo
+            temporário deverá ser criado. Este argumento terá efeito apenas
+            quando o argumento ``destino`` não for informado.
+
+        :param str encoding: Opcional. Codificação de caracteres a ser usada
+            para codificar o conteúdo do log em bytes que serão efetivamente
+            escritos no arquivo de destino. Padrão é ``"utf-8"``. Veja o
+            método :meth:`str.encode` para detalhes.
+
+        :param str encoding_errors: Opcional. Como lidar com os erros de
+            codificação de caracteres. Padrão é ``"strict"``. Veja o método
+            :meth:`str.encode` para detalhes.
+
 
         :return: Retorna o caminho completo para o arquivo salvo.
         :rtype: str
@@ -69,16 +86,21 @@ class RespostaExtrairLogs(RespostaSAT):
         if destino:
             if os.path.exists(destino):
                 raise FileExistsError(destino)
-            fd = os.open(destino, 'w', encoding='utf-8')
+            fd = os.open(destino, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         else:
-            fd, destino = tempfile.mkstemp(prefix=prefix, suffix=suffix)
+            fd, destino = tempfile.mkstemp(
+                    dir=dir,
+                    prefix=prefix,
+                    suffix=suffix)
 
-        os.write(fd, self.conteudo())
+        # converte conteúdo str (unicode) para bytes antes de escrever
+        dados = self.conteudo().encode(encoding, errors=encoding_errors)
+
+        os.write(fd, dados)
         os.fsync(fd)
         os.close(fd)
 
         return destino
-
 
     @staticmethod
     def analisar(retorno):
@@ -87,7 +109,8 @@ class RespostaExtrairLogs(RespostaSAT):
 
         :param str retorno: Retorno da função ``ExtrairLogs``.
         """
-        resposta = analisar_retorno(retorno,
+        resposta = analisar_retorno(
+                retorno,
                 funcao='ExtrairLogs',
                 classe_resposta=RespostaExtrairLogs,
                 campos=RespostaSAT.CAMPOS + (

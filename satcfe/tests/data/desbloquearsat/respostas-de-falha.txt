@@ -1,0 +1,10 @@
+123001|17001|Código de ativação inválido||
+123002|17002|SAT bloqueado pelo contribuinte. Verifique configuracoes na SEFAZ.||
+123003|17003|SAT bloqueado pela SEFAZ||
+123004|17004|Erro de comunicação com a SEFAZ||
+123005|17005|SAT ja desbloqueado||
+123006|17006|SAT com bloqueio autônomo||
+123007|17007|SAT bloqueado para desativação||
+123008|17097|Número de sessão inválido||
+123009|17098|SAT em processamento. Tente novamente.||
+123010|17099|Erro desconhecido||

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/tests/test_comunicarcertificadoicpbrasil.py
+# satcfe/tests/test_desbloquearsat.py
 #
-# Copyright 2015 Base4 Sistemas Ltda ME
+# Copyright 2019 Base4 Sistemas Ltda ME
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@
 #
 import pytest
 
+from unidecode import unidecode
+
 from satcfe.excecoes import ErroRespostaSATInvalida
 from satcfe.excecoes import ExcecaoRespostaSAT
 from satcfe.resposta import RespostaSAT
@@ -25,11 +27,11 @@ from satcfe.resposta import RespostaSAT
 
 def test_respostas_de_sucesso(datadir):
     with open(datadir.join('respostas-de-sucesso.txt'), 'r') as f:
-        r_sucessos = f.read().splitlines()
+        respostas = f.read().splitlines()
 
-    resposta = RespostaSAT.comunicar_certificado_icpbrasil(r_sucessos[0])
-    assert resposta.numeroSessao == 123456
-    assert resposta.EEEEE == '05000'
+    for retorno in respostas:
+        resposta = RespostaSAT.desbloquear_sat(retorno)
+        assert resposta.EEEEE == '17000'  # único código de sucesso possível
 
 
 def test_respostas_de_falha(datadir):
@@ -38,7 +40,7 @@ def test_respostas_de_falha(datadir):
 
     for retorno in respostas:
         with pytest.raises(ExcecaoRespostaSAT):
-            RespostaSAT.comunicar_certificado_icpbrasil(retorno)
+            RespostaSAT.desbloquear_sat(retorno)
 
 
 def test_respostas_invalidas(datadir):
@@ -47,19 +49,18 @@ def test_respostas_invalidas(datadir):
 
     for retorno in respostas:
         with pytest.raises(ErroRespostaSATInvalida):
-            RespostaSAT.comunicar_certificado_icpbrasil(retorno)
+            RespostaSAT.desbloquear_sat(retorno)
 
 
 @pytest.mark.acessa_sat
-@pytest.mark.invoca_comunicarcertificadoicpbrasil
-def test_funcao_comunicarcertificadoicpbrasil(datadir, clientesatlocal):
+@pytest.mark.invoca_desbloquearsat
+def test_desbloquearsat(request, clientesatlocal):
     # Este teste baseia-se na resposta da biblioteca SAT de simulação (mockup)
     # que é usada nos testes do projeto SATHub:
     # https://github.com/base4sistemas/sathub
     #
-    with open(datadir.join('certificado.txt'), 'r') as f:
-        certificado = f.read()
-
-    resposta = clientesatlocal.comunicar_certificado_icpbrasil(certificado)
-    assert resposta.EEEEE == '05000'
-    assert resposta.mensagem.lower() == 'certificado transmitido com sucesso'
+    resposta = clientesatlocal.desbloquear_sat()
+    assert resposta.EEEEE == '17000'
+    assert unidecode(resposta.mensagem).lower() == (
+            'equipamento sat desbloqueado com sucesso'
+        )

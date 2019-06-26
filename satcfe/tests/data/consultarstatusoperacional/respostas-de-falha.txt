@@ -1,0 +1,3 @@
+123456|10001|Código de ativação inválido||
+123456|10098|SAT em processamento. Tente novamente.||
+123456|10099|Erro desconhecido||

@@ -1,0 +1,5 @@
+123001|18001|Código de ativação inválido||
+123002|18002|Código de ativação de emergência incorreto||
+123003|18097|Número de sessão inválido||
+123004|18098|SAT em processamento. Tente novamente.||
+123005|18099|Erro desconhecido||

@@ -1,4 +1,4 @@
-.PHONY: main clean test
+.PHONY: main clean test testfnall
 
 main:
 	@echo "Makefile do projeto SATCFe para Python"
@@ -12,3 +12,22 @@ clean:
 
 test: | clean
 	@python setup.py test
+
+testallfn: | clean
+	@python setup.py test -a "--acessa-sat \
+		--invoca-ativarsat \
+		--invoca-comunicarcertificadoicpbrasil \
+		--invoca-enviardadosvenda \
+		--invoca-cancelarultimavenda \
+		--invoca-consultarsat \
+		--invoca-testefimafim \
+		--invoca-consultarstatusoperacional \
+		--invoca-consultarnumerosessao \
+		--invoca-configurarinterfacederede \
+		--invoca-associarassinatura \
+		--invoca-atualizarsoftwaresat \
+		--invoca-extrairlogs \
+		--invoca-bloquearsat \
+		--invoca-desbloquearsat \
+		--invoca-trocarcodigodeativacao "
+

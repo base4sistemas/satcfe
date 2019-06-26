@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <tipoInter>WIFI</tipoInter>
+    <SSID>Principal</SSID>
+    <seg>WPA-ENTERPRISE</seg>
+    <codigo>s3cr370</codigo>
+    <tipoLan>DHCP</tipoLan>
+    <lanIP>192.168.5.101</lanIP>
+    <lanMask>255.255.255.0</lanMask>
+    <lanGW>192.168.5.1</lanGW>
+    <lanDNS1>192.168.5.201</lanDNS1>
+    <lanDNS2>192.168.5.202</lanDNS2>
+    <usuario>john</usuario>
+    <senha>c0nn0r</senha>
+    <proxy>1</proxy>
+    <proxy_ip>192.168.5.101</proxy_ip>
+    <proxy_porta>8080</proxy_porta>
+    <proxy_user>anderson</proxy_user>
+    <proxy_senha>7h0m45</proxy_senha>
+</config>

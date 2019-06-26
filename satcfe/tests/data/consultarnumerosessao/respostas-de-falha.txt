@@ -1,0 +1,5 @@
+123456|11001|Código de ativação inválido||
+123456|11002|SAT ainda não ativado||
+123456|11003|Sessão não existe||
+123456|11098|SAT em processamento. Tente novamente.||
+123456|11099|Erro desconhecido||

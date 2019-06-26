@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/tests/test_comunicarcertificadoicpbrasil.py
+# satcfe/tests/test_atualizarsoftwaresat.py
 #
-# Copyright 2015 Base4 Sistemas Ltda ME
+# Copyright 2019 Base4 Sistemas Ltda ME
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,11 +25,11 @@ from satcfe.resposta import RespostaSAT
 
 def test_respostas_de_sucesso(datadir):
     with open(datadir.join('respostas-de-sucesso.txt'), 'r') as f:
-        r_sucessos = f.read().splitlines()
+        respostas = f.read().splitlines()
 
-    resposta = RespostaSAT.comunicar_certificado_icpbrasil(r_sucessos[0])
-    assert resposta.numeroSessao == 123456
-    assert resposta.EEEEE == '05000'
+    for retorno in respostas:
+        resposta = RespostaSAT.atualizar_software_sat(retorno)
+        assert resposta.EEEEE == '14000'  # único código que representa sucesso
 
 
 def test_respostas_de_falha(datadir):
@@ -38,7 +38,7 @@ def test_respostas_de_falha(datadir):
 
     for retorno in respostas:
         with pytest.raises(ExcecaoRespostaSAT):
-            RespostaSAT.comunicar_certificado_icpbrasil(retorno)
+            RespostaSAT.atualizar_software_sat(retorno)
 
 
 def test_respostas_invalidas(datadir):
@@ -47,19 +47,16 @@ def test_respostas_invalidas(datadir):
 
     for retorno in respostas:
         with pytest.raises(ErroRespostaSATInvalida):
-            RespostaSAT.comunicar_certificado_icpbrasil(retorno)
+            RespostaSAT.atualizar_software_sat(retorno)
 
 
 @pytest.mark.acessa_sat
-@pytest.mark.invoca_comunicarcertificadoicpbrasil
-def test_funcao_comunicarcertificadoicpbrasil(datadir, clientesatlocal):
+@pytest.mark.invoca_atualizarsoftwaresat
+def test_funcao_ativarsat(request, clientesatlocal):
     # Este teste baseia-se na resposta da biblioteca SAT de simulação (mockup)
-    # que é usada nos testes do projeto SATHub:
-    # https://github.com/base4sistemas/sathub
+    # que é usada nos testes do projeto SATHub. Sempre atualiza com sucesso.
     #
-    with open(datadir.join('certificado.txt'), 'r') as f:
-        certificado = f.read()
-
-    resposta = clientesatlocal.comunicar_certificado_icpbrasil(certificado)
-    assert resposta.EEEEE == '05000'
-    assert resposta.mensagem.lower() == 'certificado transmitido com sucesso'
+    # Detalhes em: https://github.com/base4sistemas/sathub
+    #
+    resposta = clientesatlocal.atualizar_software_sat()
+    assert resposta.EEEEE == '14000'

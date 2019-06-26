@@ -1,0 +1,7 @@
+123001|16001|Código de ativação inválido||
+123002|16002|Equipamento SAT já está bloqueado||
+123003|16003|Erro de comunicação com a SEFAZ||
+123004|16004|Não existe parametrização de bloqueio disponível. Verifique configurações na SEFAZ.||
+123005|16097|Número de sessão inválido||
+123006|16098|SAT em processamento. Tente novamente.||
+123007|16099|Erro desconhecido||

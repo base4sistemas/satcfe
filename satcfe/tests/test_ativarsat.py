@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/tests/resposta/test_ativarsat.py
+# satcfe/tests/test_ativarsat.py
 #
 # Copyright 2015 Base4 Sistemas Ltda ME
 #
@@ -16,8 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import pytest
+
+from unidecode import unidecode
 
 from satcomum import br
 from satcomum import constantes
@@ -25,6 +26,8 @@ from satcomum import constantes
 from satcfe.excecoes import ErroRespostaSATInvalida
 from satcfe.excecoes import ExcecaoRespostaSAT
 from satcfe.resposta import RespostaAtivarSAT
+from satcfe.resposta.ativarsat import ATIVADO_CORRETAMENTE
+from satcfe.resposta.ativarsat import CSR_ICPBRASIL_CRIADO_SUCESSO
 from satcfe.util import str_to_base64
 
 
@@ -43,17 +46,17 @@ PdlrrliKNknFmHKIaCKTLRcU59ScA6ADEIWUzqmUzP5Cs6jrSRo3NKfg1bd09D1K
 
 def test_resposta_ativarsat(datadir):
     with open(datadir.join('respostas-de-sucesso.txt'), 'r') as f:
-        r_sucessos = f.read().splitlines()
+        respostas = f.read().splitlines()
 
-    resposta = RespostaAtivarSAT.analisar(r_sucessos[0])
+    resposta = RespostaAtivarSAT.analisar(respostas[0])
     assert resposta.numeroSessao == 123456
-    assert resposta.EEEEE == '04000'
+    assert resposta.EEEEE == ATIVADO_CORRETAMENTE
     assert resposta.CSR == str_to_base64(CSR_EXEMPLO)
     assert resposta.csr() == CSR_EXEMPLO
 
-    resposta = RespostaAtivarSAT.analisar(r_sucessos[1])
+    resposta = RespostaAtivarSAT.analisar(respostas[1])
     assert resposta.numeroSessao == 123456
-    assert resposta.EEEEE == '04006'
+    assert resposta.EEEEE == CSR_ICPBRASIL_CRIADO_SUCESSO
     assert resposta.CSR == str_to_base64(CSR_EXEMPLO)
     assert resposta.csr() == CSR_EXEMPLO
 
@@ -61,6 +64,7 @@ def test_resposta_ativarsat(datadir):
 def test_respostas_de_falha(datadir):
     with open(datadir.join('respostas-de-falha.txt'), 'r') as f:
         respostas = f.read().splitlines()
+
     for retorno in respostas:
         with pytest.raises(ExcecaoRespostaSAT):
             RespostaAtivarSAT.analisar(retorno)
@@ -69,6 +73,7 @@ def test_respostas_de_falha(datadir):
 def test_respostas_invalidas(datadir):
     with open(datadir.join('respostas-invalidas.txt'), 'r') as f:
         respostas = f.read().splitlines()
+
     for retorno in respostas:
         with pytest.raises(ErroRespostaSATInvalida):
             RespostaAtivarSAT.analisar(retorno)
@@ -76,12 +81,22 @@ def test_respostas_invalidas(datadir):
 
 @pytest.mark.acessa_sat
 @pytest.mark.invoca_ativarsat
-def test_funcao_ativarsat(clientesatlocal):
-    # nenhum equipamento SAT em desenvolvimento (kit desenvolvimento)
-    # permite a ativação, pois já vem ativado pelo fabricante, por isso
-    # não esperamos sucesso na execução da função
-    with pytest.raises(ExcecaoRespostaSAT):
-        clientesatlocal.ativar_sat(
-                constantes.CERTIFICADO_ACSAT_SEFAZ,
-                pytest.config.getoption('--emitente-cnpj'),
-                br.codigo_ibge_uf(pytest.config.getoption('--emitente-uf')))
+def test_funcao_ativarsat(request, clientesatlocal):
+    # Nenhum equipamento SAT de desenvolvimento (kit SAT) permite a ativação,
+    # pois já vem ativado pelo fabricante, por isso não esperamos sucesso na
+    # execução da função, a não ser contra uma biblioteca SAT de simulação.
+    #
+    # Este teste baseia-se na resposta da biblioteca SAT de simulação (mockup)
+    # que é usada nos testes do projeto SATHub:
+    # https://github.com/base4sistemas/sathub
+    #
+    emitente_cnpj = request.config.getoption('--emitente-cnpj')
+    emitente_uf = request.config.getoption('--emitente-uf')
+
+    resposta = clientesatlocal.ativar_sat(
+            constantes.CERTIFICADO_ACSAT_SEFAZ,
+            emitente_cnpj,
+            br.codigo_ibge_uf(emitente_uf))
+
+    assert resposta.CSR == str_to_base64(CSR_EXEMPLO)
+    assert unidecode(resposta.mensagem).lower() == 'ativado corretamente'

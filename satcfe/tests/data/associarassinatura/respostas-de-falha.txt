@@ -1,0 +1,9 @@
+123001|13001|Código de ativação inválido||
+123002|13002|Erro de comunicação com a SEFAZ||
+123003|13003|Assinatura fora do padrão especificado||
+123004|13004|Erro de validação do conteúdo||
+123005|13005|Assinatura não reconhecida pela SEFAZ||
+123006|13007|CNPJ do contribuinte difere daquele constante da parametrização de uso||
+123007|13097|Número de sessão inválido||
+123008|13098|SAT em processamento. Tente novamente.||
+123009|13099|Erro desconhecido||

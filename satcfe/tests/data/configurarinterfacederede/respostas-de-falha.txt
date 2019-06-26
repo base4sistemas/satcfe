@@ -1,0 +1,5 @@
+123001|12001|Código de ativação inválido||
+123002|12002|Dados fora do padrão a ser informado||
+123003|12097|Número de sessão inválido||
+123004|12098|SAT em processamento. Tente novamente||
+123005|12099|Erro desconhecido||
