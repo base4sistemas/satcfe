@@ -602,6 +602,15 @@ class FuncoesSAT(object):
                 novo_codigo_ativacao,
                 novo_codigo_ativacao)
 
+        # NOTA: Em tese o novo código de ativação deverá passar a ser utilizado
+        # pela implementação cliente. Este método em si não tem condições de
+        # avaliar o sucesso ou fracasso do resultado sem provocar uma exceção
+        # prematura, já que apenas retorna os dados brutos.
+        #
+        # A implementação especializada deverá alternar o código de ativação
+        # atual para o novo código de ativação em caso de sucesso ao analisar o
+        # retorno da função, para que as chamadas às funções SAT subsequentes
+        # tenham sucesso.
         return resposta
 
 

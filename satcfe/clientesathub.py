@@ -275,7 +275,9 @@ class ClienteSATHub(FuncoesSAT):
         return RespostaSAT.desbloquear_sat(conteudo.get('retorno'))
 
 
-    def trocar_codigo_de_ativacao(self, novo_codigo_ativacao,
+    def trocar_codigo_de_ativacao(
+            self,
+            novo_codigo_ativacao,
             opcao=constantes.CODIGO_ATIVACAO_REGULAR,
             codigo_emergencia=None):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.trocar_codigo_de_ativacao`.
@@ -283,9 +285,14 @@ class ClienteSATHub(FuncoesSAT):
         :return: Uma resposta SAT padrão.
         :rtype: satcfe.resposta.padrao.RespostaSAT
         """
-        resp = self._http_post('trocarcodigodeativacao',
+        resp = self._http_post(
+                'trocarcodigodeativacao',
                 novo_codigo_ativacao=novo_codigo_ativacao,
                 opcao=opcao,
                 codigo_emergencia=codigo_emergencia)
         conteudo = resp.json()
+        # NOTA: SATHub usa um ClienteSATLocal; o novo código de ativação deverá
+        # ter sido alterado naquele cliente. A implementação de ClienteSATLocal
+        # alterna o código de ativação para o novo código de ativação em caso
+        # de sucesso na troca.
         return RespostaSAT.trocar_codigo_de_ativacao(conteudo.get('retorno'))

@@ -209,4 +209,13 @@ class ClienteSATLocal(FuncoesSAT):
                 novo_codigo_ativacao,
                 opcao=opcao,
                 codigo_emergencia=codigo_emergencia)
-        return RespostaSAT.trocar_codigo_de_ativacao(retorno)
+
+        resposta = RespostaSAT.trocar_codigo_de_ativacao(retorno)
+
+        # NOTA: Se não foi lançada nenhuma exceção, assume que a troca do
+        # código de ativação foi bem sucedida. Alterna o código de ativação
+        # atual para o novo código de ativação para que as chamadas
+        # subsequentes tenham sucesso.
+        self._codigo_ativacao = novo_codigo_ativacao
+
+        return resposta

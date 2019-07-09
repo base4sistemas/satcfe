@@ -62,13 +62,24 @@ def test_trocarcodigodeativacao_regular(request, clientesatlocal):
     # https://github.com/base4sistemas/sathub
     #
     novo_codigo = 's3cr370'
+
+    if clientesatlocal.codigo_ativacao == novo_codigo:
+        # garante que o novo código de ativação não seja igual ao atual
+        novo_codigo = 'd15cr370'
+
     resposta = clientesatlocal.trocar_codigo_de_ativacao(
             novo_codigo,
             opcao=constantes.CODIGO_ATIVACAO_REGULAR)
+
     assert resposta.EEEEE == '18000'
     assert unidecode(resposta.mensagem).lower() == (
             'codigo de ativacao alterado com sucesso'
         )
+
+    # ao alterar o código de ativação, o novo código deve ter sido alterado
+    # também no cliente SAT, para que as chamadas subsequentes à funções SAT
+    # tenham sucesso...
+    assert clientesatlocal.codigo_ativacao == novo_codigo
 
 
 @pytest.mark.acessa_sat
