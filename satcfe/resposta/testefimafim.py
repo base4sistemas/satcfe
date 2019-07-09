@@ -47,7 +47,10 @@ class RespostaTesteFimAFim(RespostaSAT):
     """
 
     def xml(self):
-        """Retorna o XML do CF-e-SAT decodificado."""
+        """Retorna o XML do CF-e-SAT decodificado.
+
+        :rtype: str
+        """
         return base64_to_str(self.arquivoCFeBase64)
 
 

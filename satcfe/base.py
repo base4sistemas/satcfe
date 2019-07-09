@@ -527,7 +527,7 @@ class FuncoesSAT(object):
             opcao=constantes.CODIGO_ATIVACAO_REGULAR,
             codigo_emergencia=None):
         """Função ``TrocarCodigoDeAtivacao`` conforme ER SAT, item 6.1.15.
-        Troca do código de ativação do equipamento SAT.
+        Troca do código de ativação do equipamento SAT. YouX.
 
         :param str novo_codigo_ativacao: O novo código de ativação escolhido
             pelo contribuinte.
@@ -562,12 +562,14 @@ class FuncoesSAT(object):
 
         .. warning::
 
-            Os argumentos da função ``TrocarCodigoDeAtivacao`` requerem que o
-            novo código de ativação seja especificado duas vezes (dois
-            argumentos com o mesmo conteúdo, como confirmação). Este método irá
-            simplesmente informar duas vezes o argumento
-            ``novo_codigo_ativacao`` na função SAT, mantendo a confirmação do
-            código de ativação fora do escopo desta API.
+            De acordo com a :term:`ER SAT`, a função ``TrocarCodigoDeAtivacao``
+            requer que o novo código de ativação seja especificado duas vezes.
+
+            Este método ignora isso e apenas informa o mesmo código de ativação
+            duas vezes na chamada da função. O entendimento é de que a
+            confirmação do código de ativação é responsabilidade de outras
+            camadas da aplicação (eg. interface com o usuário) e, portanto,
+            fora do escopo desta biblioteca.
 
         """
         if not novo_codigo_ativacao:

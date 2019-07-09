@@ -65,6 +65,7 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
 
     def xml(self):
         """Retorna o XML do CF-e-SAT de cancelamento decodificado.
+
         :rtype: str
         """
         cfe_canc = getattr(self, 'arquivoCFeBase64', '')
@@ -82,7 +83,7 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
         """Constrói uma :class:`RespostaCancelarUltimaVenda` a partir do
         retorno informado.
 
-        :param unicode retorno: Retorno da função ``CancelarUltimaVenda``.
+        :param str retorno: Retorno da função ``CancelarUltimaVenda``.
         """
         resposta = analisar_retorno(retorno,
                 funcao='EnviarDadosVenda',

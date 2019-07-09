@@ -113,8 +113,8 @@ Criando um CF-e de Venda
 
 Criar um CF-e de venda é simples no que diz respeito à composição dos elementos.
 Obviamente, no contexto da aplicação comercial, inúmeras outras complexidades se
-apresentam. Mas este exemplo simples é capaz de produzir um XML que poderá ser
-enviado para o equipamento SAT.
+apresentam. Mas este exemplo é capaz de produzir um XML que poderá ser enviado
+para o equipamento SAT.
 
 .. note::
 
@@ -196,6 +196,15 @@ para geração do QRCode e outras informações:
 
     >>> resposta.valorTotalCFe
     Decimal('5.75')
+
+.. tip::
+
+    Em produção, o atributo ``signAC`` deverá ser uma sequência resultante da
+    codificação em Base64 do hash SHA256 gerado a partir do CNPJ da software
+    house e do CNPJ do estabelecimento emitente.
+
+    A documentação da função :ref:`funcao-associarassinatura` tem mais
+    detalhes sobre isto.
 
 
 .. _criando-um-cfe-de-cancelamento:

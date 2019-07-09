@@ -34,7 +34,8 @@ Projeto SATCFe
     class names, as well as documentation, are written in brazilian
     portuguese.
 
-    Refer to the `oficial web site <http://www.fazenda.sp.gov.br/sat/>`_ for
+    Refer to the
+    `oficial web site <https://portal.fazenda.sp.gov.br/servicos/sat/>`_ for
     more information (in brazilian portuguese only).
 
 -------
@@ -228,6 +229,6 @@ valores padrão):
 .. [4] Veja constante ``C16_INDRATISSQN_EMIT`` no projeto `SATComum`_ para
     conhecer os valores possíveis.
 
-.. _`SAT-CF-e`: http://www.fazenda.sp.gov.br/sat/
+.. _`SAT-CF-e`: https://portal.fazenda.sp.gov.br/servicos/sat/
 .. _`Projeto SATExtrato`: https://github.com/base4sistemas/satextrato
 .. _`SATComum`: https://github.com/base4sistemas/satcomum

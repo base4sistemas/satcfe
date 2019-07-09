@@ -158,7 +158,7 @@ cláusula ``except`` de *fallback*, por exemplo:
 
 .. warning::
 
-    Evite silenciar (ignorar) exceções. Se não sabe o porque, veja o tópico
+    Evite silenciar (ignorar) exceções. Se não sabe o porquê, veja o tópico
     sobre `Tratamento de Exceções`_ no tutorial de Python.
 
 
@@ -196,7 +196,7 @@ esperado.
 
     >>> resp = cliente.consultar_sat()
     >>> resp.mensagem
-    u'SAT em Opera\xe7\xe3o'
+    'SAT em Operação'
 
 
 ConsultarStatusOperacional
@@ -227,13 +227,13 @@ Por exemplo:
 
     >>> resp = cliente.consultar_status_operacional()
     >>> resp.mensagem
-    u'Resposta com Sucesso'
+    'Resposta com Sucesso'
 
     >>> resp.NSERIE
     320008889
 
     >>> resp.STATUS_LAN
-    u'CONECTADO'
+    'CONECTADO'
 
     >>> resp.DH_ATUAL
     datetime.datetime(2015, 6, 25, 15, 26, 37)
@@ -289,10 +289,10 @@ apenas de ``arquivoLog``.
 
     >>> resp = cliente.extrair_logs()
     >>> resp.mensagem
-    u'Transfer\xeancia completa'
+    'Transferência completa'
 
     >>> resp.arquivoLog
-    u'MjAxNTA2MTIxNTAzNTB...jaGF2ZXMgZW5jb250cmFkbyBubyB0b2tlbg=='
+    'MjAxNTA2MTIxNTAzNTB...jaGF2ZXMgZW5jb250cmFkbyBubyB0b2tlbg=='
 
     >>> print(resp.conteudo())
     20150612150350|SAT|info|nvl 2:token inicializado
@@ -329,6 +329,8 @@ por modificar certos registros de informações que ficam permanentemente gravad
 no equipamento.
 
 
+.. _funcao-ativarsat:
+
 AtivarSAT
 ~~~~~~~~~
 
@@ -346,11 +348,23 @@ cancelamentos. Para maiores detalhes consulte o item 2.1.1 da ER SAT.
     ...         cnpj_contribuinte, br.codigo_ibge_uf('SP'))
     ...
     >>> resp.csr()
-    u'-----BEGIN CERTIFICATE REQUEST-----
+    '-----BEGIN CERTIFICATE REQUEST-----
     MIIBnTCCAQYCAQAwXTELMAkGA1UEBhMCU0cxETAPBgNVBAoTCE0yQ3J5cHRvMRIw
      ...
     9rsQkRc9Urv9mRBIsredGnYECNeRaK5R1yzpOowninXC
     -----END CERTIFICATE REQUEST-----
+
+.. attention::
+
+    É nesta função que é definido o **Código de Ativação** do equipamento SAT.
+
+    Este código é uma senha que é enviada ao equipamento a cada função
+    executada. **Se o equipamento ainda não estiver ativo**, esta deverá ser a
+    primeira função a ser executada e o código de ativação
+    :ref:`informado ao instanciar o cliente SAT <configuracao-basica>` é o
+    código que será usado para definir o código de ativação do equipamento.
+
+    Veja :ref:`funcao-trocarcodigodeativacao` para outros detalhes.
 
 
 ComunicarCertificadoICPBRASIL
@@ -368,7 +382,7 @@ certificado emitido pela `ICP Brasil`_.
     ...
     >>> resp = cliente.comunicar_certificado_icpbrasil(certificado)
     >>> resp.mensagem
-    u'Certificado transmitido com sucesso'
+    'Certificado transmitido com sucesso'
 
 
 ConfigurarInterfaceDeRede
@@ -395,52 +409,137 @@ instância da classe :class:`~satcfe.rede.ConfiguracaoRede`.
     ...
     >>> resp = cliente.configurar_interface_de_rede(rede)
     >>> resp.mensagem
-    u'Rede configurada com sucesso'
+    'Rede configurada com sucesso'
 
+
+.. _funcao-associarassinatura:
 
 AssociarAssinatura
 ~~~~~~~~~~~~~~~~~~
 
-.. todo::
+A função ``AssociarAssinatura`` (ER item 6.1.10, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.associar_assinatura`) é usada para
+vincular a assinatura do aplicativo comercial ao equipamento SAT. Essa mesma
+assinatura é utilizada no atributo ``signAC`` ao realizar
+:ref:`vendas <criando-um-cfe-de-venda>` e
+`cancelamentos <criando-um-cfe-de-cancelamento>`_.
 
-    Escrever este tópico. Método
-    :meth:`~satcfe.clientelocal.ClienteSATLocal.associar_assinatura`.
+.. sourcecode:: python
+
+    >>> resp = cliente.associar_assinatura(
+    ...         '1111111111111122222222222222',
+    ...         'RVlHYkYzcytsZFdiekM4SExmNFVLaXlaZF...')
+    ...
+    >>> resp.mensagem
+    'Assinatura do AC registrada'
+
+O primeiro argumento, ``sequencia_cnpj``, deve ser uma string de 28 digitos
+contendo o CNPJ da software house e o CNPJ do estabelecimento contribuinte.
+
+O segundo argumento, ``assinatura_ac``, deve ser uma sequência de 344
+caracteres, contendo o `hash SHA256 <https://pt.wikipedia.org/wiki/SHA-2>`_
+codificado em `Base64 <https://pt.wikipedia.org/wiki/Base64>`_.
+
+.. admonition:: Gerando a Assinatura  AC
+
+    Este exemplo demonstra como gerar a assinatura em um terminal Linux,
+    usando `OpenSSL <https://www.openssl.org/>`_ e a parte privada da sua
+    chave RSA (assumindo que a chave privada tenha sido extraída do e-CNPJ ou
+    arquivo ``pfx`` do certificado digital da software house em um arquivo
+    chamado ``~/.keys/private.pem``):
+
+    .. sourcecode:: shell
+
+        $ echo -n 1111111111111122222222222222 | \
+            openssl dgst -sha256 -sign ~/.keys/private.pem | \
+            openssl enc -base64 -e
+
+    A saída desse comando é o valor que deverá ser informado no argumento
+    ``assinatura_ac``.
+
+.. tip::
+
+    Consulte o item 2.1.3 da ER SAT para conhecer a especificação.
 
 
 AtualizarSoftwareSAT
 ~~~~~~~~~~~~~~~~~~~~
 
-.. todo::
+A função ``AtualizarSoftwareSAT`` (ER item 6.1.11, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.atualizar_software_sat`) é usada
+para atualização do software básico do equipamento SAT.
 
-    Escrever este tópico. Método
-    :meth:`~satcfe.clientelocal.ClienteSATLocal.atualizar_software_sat`.
+.. sourcecode:: python
+
+    >>> resp = cliente.atualizar_software_sat()
+    >>> resp.mensagem
+    'Software atualizado com sucesso'
 
 
 BloquearSAT
 ~~~~~~~~~~~
 
-.. todo::
+A função ``BloquearSAT`` (ER item 6.1.13, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.bloquear_sat`) é usada para
+realizar o bloqueio operacional do equipamento SAT.
 
-    Escrever este tópico. Método
-    :meth:`~satcfe.clientelocal.ClienteSATLocal.bloquear_sat`.
+.. sourcecode:: python
+
+    >>> resp = cliente.bloquear_sat()
+    >>> resp.mensagem
+    'Equipamento SAT bloqueado com sucesso'
 
 
 DesbloquearSAT
 ~~~~~~~~~~~~~~
 
-.. todo::
+A função ``DesbloquearSAT`` (ER item 6.1.14, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.desbloquear_sat`) é usada para
+realizar o desbloqueio operacional do equipamento SAT.
 
-    Escrever este tópico. Método
-    :meth:`~satcfe.clientelocal.ClienteSATLocal.desbloquear_sat`.
+.. sourcecode:: python
 
+    >>> resp = cliente.desbloquear_sat()
+    >>> resp.mensagem
+    'Equipamento SAT desbloqueado com sucesso'
+
+
+.. _funcao-trocarcodigodeativacao:
 
 TrocarCodigoDeAtivacao
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo::
+A função ``TrocarCodigoDeAtivacao`` (ER item 6.1.15, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.trocar_codigo_de_ativacao`) é
+usada, como o nome sugere, para trocar o código de ativação do equipamento SAT
+que, na prática, é uma senha que é enviada ao equipamento SAT a cada comando.
 
-    Escrever este tópico. Método
-    :meth:`~satcfe.clientelocal.ClienteSATLocal.trocar_codigo_de_ativacao`.
+.. sourcecode:: python
+
+    >>> novo_codigo = 's3cr3t0'
+    >>> resp = cliente.trocar_codigo_de_ativacao(novo_codigo)
+    >>> resp.mensagem
+    'Código de ativação alterado com sucesso'
+
+Todo equipamento SAT possui um **código de ativação de emergência**, que
+acompanha o produto (pode estar escrito no manual do usuário ou em alguma
+etiqueta na embalagem ou no próprio equipamento). Caso o código de ativação seja
+perdido, é possível trocar o código de ativação usando o código de ativação de
+emergência:
+
+.. sourcecode:: python
+
+    >>> from satcomum import constantes
+    >>> novo_codigo = 's3cr3t0'
+    >>> resp = cliente.trocar_codigo_de_ativacao(
+    ...         novo_codigo,
+    ...         opcao=constantes.CODIGO_ATIVACAO_EMERGENCIA,
+    ...         codigo_emergencia='d35c0nh3c1d0')
+    ...
+    >>> resp.mensagem
+    'Código de ativação alterado com sucesso'
+
+Veja :ref:`funcao-ativarsat` para mais informações.
 
 
 .. include:: references.rst

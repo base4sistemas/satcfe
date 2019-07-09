@@ -66,7 +66,7 @@ class RespostaConsultarNumeroSessao(RespostaSAT):
         """Constrói uma :class:`RespostaSAT` ou especialização dependendo da
         função SAT encontrada na sessão consultada.
 
-        :param unicode retorno: Retorno da função ``ConsultarNumeroSessao``.
+        :param str retorno: Retorno da função ``ConsultarNumeroSessao``.
         """
         if '|' not in retorno:
             raise ErroRespostaSATInvalida('Resposta não possui pipes '

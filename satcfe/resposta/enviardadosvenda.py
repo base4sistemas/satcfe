@@ -65,6 +65,7 @@ class RespostaEnviarDadosVenda(RespostaSAT):
 
     def xml(self):
         """Retorna o XML do CF-e-SAT decodificado.
+
         :rtype: str
         """
         return base64_to_str(self.arquivoCFeSAT)
@@ -81,7 +82,7 @@ class RespostaEnviarDadosVenda(RespostaSAT):
         """Constrói uma :class:`RespostaEnviarDadosVenda` a partir do
         retorno informado.
 
-        :param unicode retorno: Retorno da função ``EnviarDadosVenda``.
+        :param str retorno: Retorno da função ``EnviarDadosVenda``.
         """
         resposta = analisar_retorno(retorno,
                 funcao='EnviarDadosVenda',

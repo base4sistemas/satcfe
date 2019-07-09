@@ -6,13 +6,13 @@ Projeto SATCFe
 ==============
 
 A Secretaria da Fazenda do Estado de São Paulo, `SEFAZ/SP`_, implantou através
-da `Portaria CAT 147`_ o `SAT-CF-e <http://www.fazenda.sp.gov.br/sat>`_ (Sistema
-de Autorização e Transmissão de Cupons Fiscais eletrônicos), em substituição às
-impressoras fiscais (ECF).
+da `Portaria CAT 147`_ o :term:`SAT-CF-e` (Sistema de Autorização e Transmissão
+de Cupons Fiscais eletrônicos), em substituição às impressoras fiscais
+(:term:`ECF-IF`).
 
-Esta documentação diz respeito ao projeto `SATCFe`_ desenvolvido pela Base4
-Sistemas Ltda com o objetivo de abstrair o acesso ao Equipamento SAT através da
-linguagem `Python`_, tornando trivial o acesso às funções da biblioteca SAT,
+Esta documentação diz respeito ao projeto `SATCFe`_ desenvolvido pela **Base4
+Sistemas Ltda** com o objetivo de abstrair o acesso ao Equipamento SAT através
+da linguagem `Python`_, tornando trivial o acesso às funções da biblioteca SAT,
 resultando em respostas prontas para serem utilizadas pela aplicação cliente,
 normalmente um software de ponto-de-venda (PDV).
 
@@ -46,30 +46,30 @@ disponíveis para integração nas aplicações de ponto-de-venda. São eles:
     Mantém o código que é compartilhado pelos outros projetos relacionados,
     tais como validação, formatação e valores constantes.
 
+* Projeto `SATExtrato`_
+    Impressão dos extratos do CF-e-SAT. Este projeto é capaz de imprimir
+    extratos de documentos de venda ou de cancelamento diretamente a partir dos
+    documentos XML que os representam. A impressão tem um alto grau de
+    compatibilidade com mini-impressoras (conhecidas como impressoras
+    não-fiscais) já que é baseada na tecnologia Epson |reg| ESC/POS |trade|
+    através do projeto **PyESCPOS**.
+
 * Projeto `SATHub`_
     Torna possível o compartilhamento de equipamentos SAT com múltiplos pontos-
     de-venda, além de tornar possível que aplicações heterogêneas, escritas em
     outras linguagens de programação ou de outras plataformas, acessem o
     equipamento SAT.
 
-* Projeto `SATExtrato`_
-    Impressão dos extratos do CF-e-SAT. Este projeto é capaz de imprimir
-    extratos de documentos de venda ou de cancelamento diretamente a partir dos
-    documentos XML que os representam. A impressão tem um alto grau de
-    compatibilidade com mini-impressoras (conhecidas como impressoras
-    não-fiscais) já que é baseada na tecnologia Epson |copy| ESC/POS |reg|
-    através do projeto **PyESCPOS**.
-
 * Projeto `PyESCPOS`_
-    Implementa o suporte à tecnologia Epson |copy| ESC/POS |reg| compatível com
-    a imensa maioria das mini-impressoras disponíveis no mercado.
+    Implementa o suporte à tecnologia Epson |reg| ESC/POS |trade| compatível
+    com a imensa maioria das mini-impressoras disponíveis no mercado.
 
 
 Participe
 ---------
 
-Participe deste projeto ou de qualquer um dos projetos relacionados. Se você for
-capaz de contribuir com código, excelente! Faça um clone do repositório,
+Participe deste projeto ou de qualquer um dos projetos relacionados. Se você
+puder contribuir com código, excelente! Faça um clone do repositório,
 modifique o que acha que deve e faça o *pull-request*. Teremos
 `prazer <https://www.python.org/dev/peps/pep-0008/>`_ em
 `aceitar <http://docs.python-guide.org/en/latest/writing/style/>`_ o seu
@@ -77,7 +77,8 @@ modifique o que acha que deve e faça o *pull-request*. Teremos
 
 Se você não quer (ou não pode) programar, também pode contribuir com
 documentação. Ou ainda, se você vir algo errado ou achar que algo não está
-certo, `conte pra gente <https://github.com/base4sistemas/satcfe/issues>`_.
+certo, `conte pra gente <https://github.com/base4sistemas/satcfe/issues>`_
+criando um incidente na página do projeto.
 
 Siga-nos no `Github <https://github.com/base4sistemas>`_ ou no
 `Twitter <https://twitter.com/base4sistemas>`_.
@@ -110,11 +111,21 @@ Glossário
 
 .. glossary::
 
-    SAT-CF-e
-        Diz respeito à tecnologia SAT-Fiscal e toda a infraestrutura, física e
-        lógica, usada na transmissão de documentos fiscais (CF-e) de venda e/ou
-        cancelamento. Visite a página da `Secretaria da Fazenda de São Paulo <http://www.fazenda.sp.gov.br/sat>`_
-        para outras informações.
+    AC
+    PDV
+    Ponto-de-Venda
+    Frente-de-Caixa
+        Software capaz de realizar vendas e cancelamentos, gerando os detalhes
+        da venda ou do cancelamento e cuidando de vários outros aspectos como
+        pagamentos, por exemplo, além de toda a lógica de negócios, conforme os
+        ramo de atividade do estabelecimento usuário. Este é o aplicativo
+        cliente típico deste projeto.
+
+    AC-SAT
+        Refere-se à **Autoridade Certificadora** que gerencia (emite e revoga)
+        certificados digitais, que contém a chave criptográfica necessária para
+        assinar digitalmente os documentos XML tornando-os documentos fiscais
+        juridicamente válidos.
 
     CF-e
     CF-e de Venda
@@ -134,6 +145,13 @@ Glossário
         e que o torna um documento único. Trata-se de um documento fiscal
         eletrônico autorizado pela SEFAZ.
 
+    ECF-IF
+        Emissor de Cupons Fiscais - Impressora Fiscal. Basicamente uma
+        mini-impressora acoplada à uma placa fiscal que emite cupons fiscais
+        com validade jurídica e outros documentos não fiscais. No Estado de
+        São Paulo, a tecnologia dos ECF-IF foi substituída, a partir de 2015,
+        pelo :term:`SAT-CF-e`.
+
     Equipamento SAT
         Hardware responsável por receber, validar, assinar e transmitir os
         documentos XML que representam vendas ou cancelamentos. O equipamento
@@ -149,21 +167,11 @@ Glossário
         legislação** que introduz o SAT-CF-e. A legislação é a `CAT 147`_ de
         05 de novembro de 2012.
 
-    AC-SAT
-        Refere-se à **Autoridade Certificadora** que gerencia (emite e revoga)
-        certificados digitais, que contém a chave criptográfica necessária para
-        assinar digitalmente os documentos XML tornando-os documentos fiscais
-        juridicamente válidos.
-
-    AC
-    PDV
-    Ponto-de-Venda
-    Frente-de-Caixa
-        Software capaz de realizar vendas e cancelamentos, gerando os detalhes
-        da venda ou do cancelamento e cuidando de vários outros aspectos como
-        pagamentos, por exemplo, além de toda a lógica de negócios, conforme os
-        ramo de atividade do estabelecimento usuário. Este é o aplicativo
-        cliente típico deste projeto.
+    SAT-CF-e
+        Diz respeito à tecnologia SAT-Fiscal e toda a infraestrutura, física e
+        lógica, usada na transmissão de documentos fiscais (CF-e) de venda e/ou
+        cancelamento. Visite a página da `Secretaria da Fazenda de São Paulo <http://www.fazenda.sp.gov.br/sat>`_
+        para outras informações.
 
 
 Créditos

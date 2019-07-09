@@ -1,6 +1,6 @@
 
 .. _`Python`: https://www.python.org/
-.. _`Tratamento de Exceções`: https://docs.python.org/2.7/tutorial/errors.html#handling-exceptions
+.. _`Tratamento de Exceções`: https://docs.python.org/3.6/tutorial/errors.html#handling-exceptions
 .. _`Flask`: http://flask.pocoo.org/
 
 .. _`SATComum`: https://github.com/base4sistemas/satcomum
@@ -10,7 +10,7 @@
 .. _`PyESCPOS`: https://github.com/base4sistemas/pyescpos
 
 .. _`SEFAZ/SP`: http://www.fazenda.sp.gov.br/
-.. _`Portaria CAT 147`: http://www.fazenda.sp.gov.br/sat/legislacao/vigentes.asp
+.. _`Portaria CAT 147`: https://portal.fazenda.sp.gov.br/servicos/sat/Paginas/Legislacao.aspx
 .. _`CAT 147`: `Portaria CAT 147`_
 .. _`ICP Brasil`: http://www.iti.gov.br/icp-brasil
 

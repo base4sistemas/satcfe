@@ -54,7 +54,7 @@ class RespostaAtivarSAT(RespostaSAT):
         """Constrói uma :class:`RespostaAtivarSAT` a partir do retorno
         informado.
 
-        :param unicode retorno: Retorno da função ``AtivarSAT``.
+        :param str retorno: Retorno da função ``AtivarSAT``.
         """
         resposta = analisar_retorno(retorno,
                 funcao='AtivarSAT',
