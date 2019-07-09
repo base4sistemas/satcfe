@@ -22,8 +22,6 @@ from decimal import Decimal
 
 import pytest
 
-from satcfe.entidades import CFeCancelamento
-from satcfe.entidades import Destinatario
 from satcfe.excecoes import ErroRespostaSATInvalida
 from satcfe.excecoes import ExcecaoRespostaSAT
 from satcfe.resposta import RespostaCancelarUltimaVenda
@@ -52,13 +50,33 @@ def test_respostas_de_sucesso(datadir):
     assert resposta.valorTotalCFe == Decimal('2.00')
     assert resposta.assinaturaQRCODE == assinatura_qrcode
 
+    # Evidente que esta não é a melhor maneira de comparar strings XML, mas é
+    # tudo o que é necessário, ou seja, o conteúdo XML apenas precisa ser
+    # retornado pelo método xml() para que esteja tudo OK;
+    assert resposta.xml()[:32] == '<?xml version="1.0"?>\n<CFeCanc>\n'
+
+    # Aqui a mesma coisa, o método qrcode() só precisa resultar algo, já que o
+    # foco não é testar a produção da messa de dados do QRCode;
+    assert resposta.qrcode()[:9] == '351509087'
+
 
 def test_respostas_de_falha(datadir):
     with open(datadir.join('respostas-de-falha.txt'), 'r') as f:
         respostas = f.read().splitlines()
     for retorno in respostas:
-        with pytest.raises(ExcecaoRespostaSAT):
+        with pytest.raises(ExcecaoRespostaSAT) as exsat:
             RespostaCancelarUltimaVenda.analisar(retorno)
+
+        assert hasattr(exsat.value, 'resposta')
+        resposta = exsat.value.resposta
+
+        with pytest.raises(ExcecaoRespostaSAT):
+            # quando a resposta não for sucesso, xml() deve falhar
+            resposta.xml()
+
+        with pytest.raises(ExcecaoRespostaSAT):
+            # quando a resposta não for sucesso, qrcode() deve falhar
+            resposta.qrcode()
 
 
 def test_respostas_invalidas(datadir):

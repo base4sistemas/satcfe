@@ -16,7 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import xml.etree.ElementTree as ET
+
 from decimal import Decimal
+from io import StringIO
 
 from satcomum.ersat import dados_qrcode
 
@@ -25,6 +28,9 @@ from ..util import as_datetime
 from ..util import base64_to_str
 from .padrao import RespostaSAT
 from .padrao import analisar_retorno
+
+
+CANCELADO_COM_SUCESSO = '07000'
 
 
 class RespostaCancelarUltimaVenda(RespostaSAT):
@@ -68,15 +74,24 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
 
         :rtype: str
         """
-        cfe_canc = getattr(self, 'arquivoCFeBase64', '')
-        return base64_to_str(self.arquivoCFeBase64)
-
+        if self._sucesso():
+            return base64_to_str(self.arquivoCFeBase64)
+        else:
+            raise ExcecaoRespostaSAT(self)
 
     def qrcode(self):
-        """Resulta nos dados que compõem o QRCode."""
-        # FIXME: dados_qrcode() espera um argumento xml.etree.ElementTree, mas note que self.xml() resulta str!
-        return dados_qrcode(self.xml())
+        """Resulta nos dados que compõem o QRCode.
 
+        :rtype: str
+        """
+        if self._sucesso():
+            tree = ET.parse(StringIO(self.xml()))
+            return dados_qrcode(tree)
+        else:
+            raise ExcecaoRespostaSAT(self)
+
+    def _sucesso(self):
+        return self.EEEEE == CANCELADO_COM_SUCESSO
 
     @staticmethod
     def analisar(retorno):
@@ -85,7 +100,8 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
 
         :param str retorno: Retorno da função ``CancelarUltimaVenda``.
         """
-        resposta = analisar_retorno(retorno,
+        resposta = analisar_retorno(
+                retorno,
                 funcao='EnviarDadosVenda',
                 classe_resposta=RespostaCancelarUltimaVenda,
                 campos=(
@@ -118,6 +134,6 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
                         RespostaSAT.CAMPOS,
                     ]
             )
-        if resposta.EEEEE not in ('07000',):
+        if resposta.EEEEE not in (CANCELADO_COM_SUCESSO,):
             raise ExcecaoRespostaSAT(resposta)
         return resposta
