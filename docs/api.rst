@@ -54,11 +54,14 @@ Veja como lidar com algumas das respostas mais básicas em
 .. include:: references.rst
 
 
-Infraestrutura de Alertas
--------------------------
+.. _api-infraestrutura-alertas:
+
+API da Infraestrutura de Alertas
+--------------------------------
 
 Fornece um mecanismo simples e robusto para checagem de potenciais problemas de
-operação com base no status operacional do equipamento SAT.
+operação com base no status operacional do equipamento SAT. Veja também a
+documentação de introdução da :ref:`infraestrutura-alertas`.
 
 .. toctree::
     :maxdepth: 1

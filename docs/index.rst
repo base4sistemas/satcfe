@@ -94,6 +94,7 @@ Conteúdo
    cliente
    funcoes
    venda_cancelamento
+   alertas
    exemplos
    api
 
