@@ -14,3 +14,6 @@ __pycache__/
 *.pyo
 *.pyd
 *.sublime-workspace
+
+satcfe/tests/mockup/libmockupsat.so
+satcfe/tests/mockup/mockupsat.o

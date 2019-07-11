@@ -1,23 +1,37 @@
+#
+# .travis.yml
+#
+# Copyright 2019 Base4 Sistemas Ltda ME
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Travis-CI References
+# https://docs.travis-ci.com/user/languages/python/
+# https://docs.travis-ci.com/user/reference/xenial/
+#
+
 language: python
-dist: trusty
+dist: xenial
 
 python:
-  - "2.7"
-
-sudo: required
-
-cache:
-  pip: true
+  - "3.6"
+  - "3.7"
 
 env:
-  - LINT="1" FLAKE="0" TEST="0"
-  - LINT="0" FLAKE="1" TEST="0"
-  - LINT="0" FLAKE="0" TEST="1"
+  - SATCFE_TEST_LIB="satcfe/tests/mockup/libmockupsat.so"
 
 install:
-  - virtualenv .
-  - bin/pip install -r requirements/base.txt
+  - pip install -r requirements/base.txt
 
 script:
-  - sh travis_run_script.sh
-
+  - make testall

@@ -183,6 +183,31 @@ uma). Por exemplo, para executar o teste da função ``ConsultarSAT`` faça:
     $ python setup.py test -a "--acessa-sat --invoca-consultarsat"
 
 
+Executando Testes usando GNU Make
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Também é possível executar os testes (e outras tarefas) usando o ``Makefile``
+que acompanha o projeto. Por exemplo para executar os testes que **não**
+acessam as funções da biblioteca SAT, faça:
+
+.. sourcecode:: shell
+
+    $ make test
+
+Para executar todos os testes, **inclusive os testes contra a biblioteca SAT**,
+use o alvo ``testall``. Esse alvo irá também compilar a biblioteca SAT *mockup*
+que acompanha o projeto justamente para execução completa dos testes, sem o
+risco de acessar um equipamento SAT. De qualquer maneira, mesmo utilizando a
+biblioteca *mockup* ou qualquer outra biblioteca SAT, é preciso definir a
+variável de ambiente ``SATCFE_TEST_LIB`` que deve apontar para a biblioteca SAT
+que será utilizada nos testes, por exemplo:
+
+.. sourcecode:: shell
+
+    $ export SATCFE_TEST_LIB=satcfe/tests/mockup/libmockupsat.so
+    $ make testall
+
+
 Variáveis de Ambiente para os Testes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
