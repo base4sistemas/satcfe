@@ -6,25 +6,25 @@ Projeto SATCFe
     :target: https://pypi.python.org/pypi/satcfe/
     :alt: Development status
 
-.. image:: https://img.shields.io/badge/python%20version-2.7-blue.svg
+.. image:: https://img.shields.io/pypi/pyversions/satcfe.svg
     :target: https://pypi.python.org/pypi/satcfe/
-    :alt: Supported Python versions
+    :alt: PyPI - Python version
 
 .. image:: https://img.shields.io/pypi/l/satcfe.svg
     :target: https://pypi.python.org/pypi/satcfe/
-    :alt: License
+    :alt: PyPI - License
 
 .. image:: https://img.shields.io/pypi/v/satcfe.svg
     :target: https://pypi.python.org/pypi/satcfe/
-    :alt: Latest version
+    :alt: PyPI - Latest version
 
 .. image:: https://img.shields.io/badge/docs-latest-green.svg
     :target: http://satcfe.readthedocs.org/
-    :alt: Latest Documentation
+    :alt: Latest documentation
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/base4sistemas/satcfe
    :target: https://gitter.im/base4sistemas/satcfe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+   :alt: Join chat on Gitter
 
 -------
 
@@ -42,6 +42,7 @@ Projeto SATCFe
 
 .. image:: https://travis-ci.org/base4sistemas/satcfe.svg?branch=master
     :target: https://travis-ci.org/base4sistemas/satcfe
+    :alt: Travis-CI - Build status
 
 -------
 
