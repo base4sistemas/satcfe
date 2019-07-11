@@ -100,6 +100,8 @@ setup(
                 'Natural Language :: Portuguese (Brazilian)',
                 'Operating System :: OS Independent',
                 'Programming Language :: Python',
+                'Programming Language :: Python :: 3.6',
+                'Programming Language :: Python :: 3.7',
                 'Topic :: Office/Business :: Financial :: Point-Of-Sale',
                 'Topic :: Software Development :: Libraries :: Python Modules',
                 'Topic :: Utilities',
