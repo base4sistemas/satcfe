@@ -40,9 +40,8 @@ Projeto SATCFe
 
 -------
 
-.. image:: https://drone.io/github.com/base4sistemas/satcfe/status.png
-    :target: https://drone.io/github.com/base4sistemas/satcfe/latest
-    :alt: Build status
+.. image:: https://travis-ci.org/base4sistemas/satcfe.svg?branch=master
+    :target: https://travis-ci.org/base4sistemas/satcfe
 
 -------
 
