@@ -19,7 +19,7 @@ foi demonstrada.
 .. note::
 
     Instalar um servidor `SATHub`_ está fora do escopo desta documentação.
-    Consulte a `documentação do projeto SATHub <http://sathub.readthedocs.org/>`_
+    Consulte a `documentação do projeto SATHub <http://sathub.readthedocs.io/>`_
     para saber como instalar e configurar um servidor SATHub em desenvolvimento
     ou em produção.
 

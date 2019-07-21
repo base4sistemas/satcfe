@@ -19,7 +19,7 @@ Projeto SATCFe
     :alt: PyPI - Latest version
 
 .. image:: https://img.shields.io/badge/docs-latest-green.svg
-    :target: http://satcfe.readthedocs.org/
+    :target: http://satcfe.readthedocs.io/
     :alt: Latest documentation
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
@@ -53,7 +53,7 @@ resolvem problemas específicos, mas relacionados.
 Especificamente, este projeto é uma abstração que fornece acesso às funções da
 biblioteca SAT, que é fornecida pelos fabricantes de equipamentos SAT. Para
 maiores informações, consulte a `documentação do projeto
-<http://satcfe.readthedocs.org/>`_.
+<http://satcfe.readthedocs.io/>`_.
 
 Se estiver procurando meios para emitir um extrato do CF-e-SAT, o
 `Projeto SATExtrato`_ pode ajudar.
