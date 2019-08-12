@@ -1,4 +1,0 @@
-cerberus==1.2
-requests==2.21.0
-unidecode==0.4.19
-satcomum==1.1
