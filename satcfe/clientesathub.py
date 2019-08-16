@@ -16,7 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import requests
+try:
+    import requests
+    _requests_disponivel = True
+except ImportError:
+    # biblioteca requests é opcional
+    _requests_disponivel = False
 
 from satcomum import constantes
 
@@ -91,6 +96,12 @@ class ClienteSATHub(FuncoesSAT):
 
 
     def _http_post(self, metodo, **payload):
+        if not _requests_disponivel:
+            raise RuntimeError(
+                    'Biblioteca \'requests\' [1] necessaria para invocar '
+                    'funcoes do equipamento SAT atraves de um cliente SATHub. '
+                    '[1] https://python-requests.org/'
+                )
         if 'numero_caixa' not in payload:
             payload.update({'numero_caixa': self._numero_caixa})
         headers = self._request_headers()

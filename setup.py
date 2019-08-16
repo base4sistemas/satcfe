@@ -36,19 +36,10 @@ def read(*filenames, **kwargs):
     return sep.join(buf)
 
 
-def read_install_requires():
-    content = read(os.path.join(
-            os.path.dirname(__file__), 'requirements', 'base.txt'))
-    return content.strip().split(os.linesep)
-
-
 def read_version():
     content = read(os.path.join(
             os.path.dirname(__file__), 'satcfe', '__init__.py'))
     return re.search(r"__version__ = '([^']+)'", content).group(1)
-
-
-long_description = read('README.rst')
 
 
 class PyTest(TestCommand):
@@ -70,17 +61,33 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
+long_description = read('README.rst')
+
+install_requires = [
+        'cerberus',  # 1.2
+        'unidecode',  # 0.4.19
+        'satcomum>=2',
+    ]
+
+extras_require = {
+        'sathub': [
+            'requests',  # 2.21.0
+        ]
+    }
+
 setup(
         name='satcfe',
         version=read_version(),
         description=u'Abstração do acesso ao equipamento SAT (SAT-CF-e)',
         long_description=long_description,
+        long_description_content_type='text/x-rst',
         packages=[
                 'satcfe',
                 'satcfe.resposta',
             ],
-        install_requires=read_install_requires(),
-        tests_require=['pytest==4.5.0'],
+        install_requires=install_requires,
+        extras_require=extras_require,
+        tests_require=['pytest>4,<5'],
         cmdclass={
                 'test': PyTest
             },
@@ -88,7 +95,7 @@ setup(
         include_package_data=True,
         license='Apache Software License',
         platforms='any',
-        url='http://github.com/base4sistemas/satcfe/',
+        url='https://github.com/base4sistemas/satcfe',
         author=u'Daniel Gonçalves',
         author_email='daniel@base4.com.br',
         classifiers=[
@@ -101,7 +108,6 @@ setup(
                 'Operating System :: OS Independent',
                 'Programming Language :: Python',
                 'Programming Language :: Python :: 3.6',
-                'Programming Language :: Python :: 3.7',
                 'Topic :: Office/Business :: Financial :: Point-Of-Sale',
                 'Topic :: Software Development :: Libraries :: Python Modules',
                 'Topic :: Utilities',
