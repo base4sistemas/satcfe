@@ -23,7 +23,7 @@ __version__ = '1.1'
 
 logging.getLogger('satcfe').addHandler(logging.NullHandler())
 
-from satcomum.constantes import VERSAO_ER
-from .base import BibliotecaSAT
-from .clientelocal import ClienteSATLocal
-from .clientesathub import ClienteSATHub
+from satcomum.constantes import VERSAO_ER  # noqa: E402, F401
+from .base import BibliotecaSAT  # noqa: E402, F401
+from .clientelocal import ClienteSATLocal  # noqa: E402, F401
+from .clientesathub import ClienteSATHub  # noqa: E402, F401

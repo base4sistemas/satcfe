@@ -25,9 +25,9 @@ referenciam, estão na Especificação Técnica de Requisitos (ER) do SAT, item
 oficial <http://www.fazenda.sp.gov.br/sat/>`_.
 
 Nem todas as classes que representam os grupos de informações do CF-e possuem o
-mesmo nome usado no item 4.2.2 do layout do arquivo de venda ou no item 4.2.3 do
-layout do arquivo de cancelamento. **Entretanto, todos os elementos e atributos,
-possuem exatamente o mesmo nome usado na ER SAT**.
+mesmo nome usado no item 4.2.2 do layout do arquivo de venda ou no item 4.2.3
+do layout do arquivo de cancelamento. **Entretanto, todos os elementos e
+atributos, possuem exatamente o mesmo nome usado na ER SAT**.
 
 A tabela abaixo, relaciona as classes de entidades com os grupos que elas
 representam:
@@ -280,8 +280,9 @@ class Entidade(object):
         # nomeados, desde que coincidam com as chaves no schema
         for key, value in kwargs.items():
             if key not in self._schema.keys():
-                raise AttributeError('{!r} object has no attribute {!r}'.format(
-                        self.__class__.__name__, key))
+                raise AttributeError((
+                        '{!r} object has no attribute {!r}'
+                    ).format(self.__class__.__name__, key))
             setattr(self, key, value)
 
     @property
@@ -302,7 +303,8 @@ class Entidade(object):
         """
         forcar_unicode = kwargs.pop('forcar_unicode', False)
         incluir_xml_decl = kwargs.pop('incluir_xml_decl', True)
-        doc = ET.tostring(self._xml(*args, **kwargs),
+        doc = ET.tostring(
+                self._xml(*args, **kwargs),
                 encoding='utf-8').decode('utf-8')
         if forcar_unicode:
             if incluir_xml_decl:
@@ -338,8 +340,8 @@ class Emitente(Entidade):
         Municipal quando o CF-e possuir itens com prestação de serviços
         sujeitos ao ISSQN, por exemplo.
 
-    :param str cRegTribISSQN: *Opcional*. Indica o regime especial de tributação
-        do ISSQN. Veja as constantes em
+    :param str cRegTribISSQN: *Opcional*. Indica o regime especial de
+        tributação do ISSQN. Veja as constantes em
         :attr:`~satcomum.constantes.C15_CREGTRIBISSQN_EMIT`.
 
     :param str indRatISSQN: *Opcional*. Indicador de rateio do desconto sobre o
@@ -364,11 +366,15 @@ class Emitente(Entidade):
                 'cRegTribISSQN': {
                         'type': 'string',
                         'required': False,
-                        'allowed': [v for v, s in constantes.C15_CREGTRIBISSQN_EMIT]},
+                        'allowed': [
+                                v for v, s in constantes.C15_CREGTRIBISSQN_EMIT
+                            ]},
                 'indRatISSQN': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.C16_INDRATISSQN_EMIT]},
+                        'allowed': [
+                                v for v, s in constantes.C16_INDRATISSQN_EMIT
+                            ]},
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -416,9 +422,9 @@ class Destinatario(Entidade):
 
     def __init__(self, **kwargs):
         super(Destinatario, self).__init__(schema={
-                'CNPJ': {'type': 'CNPJ_E02'}, # E02
-                'CPF': {'type': 'CPF_E03'}, # E03
-                'xNome': { # E04
+                'CNPJ': {'type': 'CNPJ_E02'},  # E02
+                'CPF': {'type': 'CPF_E03'},  # E03
+                'xNome': {  # E04
                         'type': 'string',
                         'required': False,
                         'minlength': 2, 'maxlength': 60}
@@ -467,27 +473,27 @@ class LocalEntrega(Entidade):
 
     def __init__(self, **kwargs):
         super(LocalEntrega, self).__init__(schema={
-                'xLgr': { # G02
+                'xLgr': {  # G02
                         'type': 'string',
                         'required': True,
                         'minlength': 2, 'maxlength': 60},
-                'nro': { # G03
+                'nro': {  # G03
                         'type': 'string',
                         'required': True,
                         'minlength': 1, 'maxlength': 60},
-                'xCpl': { # G04
+                'xCpl': {  # G04
                         'type': 'string',
                         'required': False,
                         'minlength': 1, 'maxlength': 60},
-                'xBairro': { # G05
+                'xBairro': {  # G05
                         'type': 'string',
                         'required': True,
                         'minlength': 1, 'maxlength': 60},
-                'xMun': { # G06
+                'xMun': {  # G06
                         'type': 'string',
                         'required': True,
                         'minlength': 2, 'maxlength': 60},
-                'UF': { # G07
+                'UF': {  # G07
                         'type': 'UF_G07',
                         'required': True},
             }, validator_class=LocalEntrega._Validator, **kwargs)
@@ -768,7 +774,9 @@ class ICMSSN102(Entidade):
                 'CSOSN': {  # N10
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.N10_CSOSN_ICMSSN102]},
+                        'allowed': [
+                                v for v, s in constantes.N10_CSOSN_ICMSSN102
+                            ]},
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -789,14 +797,16 @@ class ICMSSN900(Entidade):
 
     def __init__(self, **kwargs):
         super(ICMSSN900, self).__init__(schema={
-                'Orig': { # N06
+                'Orig': {  # N06
                         'type': 'string',
                         'required': True,
                         'allowed': [v for v, s in constantes.N06_ORIG]},
                 'CSOSN': {  # N10
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.N10_CSOSN_ICMSSN900]},
+                        'allowed': [
+                                v for v, s in constantes.N10_CSOSN_ICMSSN900
+                            ]},
                 'pICMS': {
                         'type': 'decimal',
                         'required': True},
@@ -1071,7 +1081,9 @@ class COFINSAliq(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.S07_CST_COFINSALIQ]},
+                        'allowed': [
+                                v for v, s in constantes.S07_CST_COFINSALIQ
+                            ]},
                 'vBC': {
                         'type': 'decimal',
                         'required': True},
@@ -1102,7 +1114,9 @@ class COFINSQtde(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.S07_CST_COFINSQTDE]},
+                        'allowed': [
+                                v for v, s in constantes.S07_CST_COFINSQTDE
+                            ]},
                 'qBCProd': {
                         'type': 'decimal',
                         'required': True},
@@ -1131,7 +1145,9 @@ class COFINSNT(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.S07_CST_COFINSNT]},
+                        'allowed': [
+                                v for v, s in constantes.S07_CST_COFINSNT
+                            ]},
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1152,7 +1168,9 @@ class COFINSSN(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.S07_CST_COFINSSN]},
+                        'allowed': [
+                                v for v, s in constantes.S07_CST_COFINSSN
+                            ]},
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1191,7 +1209,9 @@ class COFINSOutr(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.S07_CST_COFINSOUTR]},
+                        'allowed': [
+                                v for v, s in constantes.S07_CST_COFINSOUTR
+                            ]},
                 'vBC': {
                         'type': 'decimal',
                         'required': False,
@@ -1340,11 +1360,15 @@ class ISSQN(Entidade):
                 'cNatOp': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.U09_CNATOP_ISSQN]},
+                        'allowed': [
+                                v for v, s in constantes.U09_CNATOP_ISSQN
+                            ]},
                 'indIncFisc': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.U10_INDINCFISC_ISSQN]},
+                        'allowed': [
+                                v for v, s in constantes.U10_INDINCFISC_ISSQN
+                            ]},
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1397,7 +1421,8 @@ class Imposto(Entidade):
 
     """
 
-    def __init__(self,
+    def __init__(
+            self,
             icms=None,
             pis=None,
             pisst=None,
@@ -1560,7 +1585,11 @@ class MeioPagamento(Entidade):
                 'cAdmC': {
                         'type': 'string',
                         'required': False,
-                        'allowed': [a for a, b, c in constantes.CREDENCIADORAS_CARTAO]},
+                        'allowed': [
+                                codigo
+                                for codigo, cnpj, nome
+                                in constantes.CREDENCIADORAS_CARTAO
+                            ]},
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1598,7 +1627,8 @@ class CFeVenda(Entidade):
 
     :param Emitente emitente: Identificação do emitente do CF-e.
 
-    :param Destinatario destinatario: *Opcional*. Identificação do destinatário.
+    :param Destinatario destinatario: *Opcional*. Identificação do
+        destinatário.
 
     :param LocalEntrega entrega: *Opcional*. Informações do local de entrega.
 
@@ -1617,7 +1647,8 @@ class CFeVenda(Entidade):
     :param str versaoDadosEnt: *Opcional*. String contendo a versão do layout
         do arquivo de dados do aplicativo comercial. Se não informado será
         utilizado o valor da constante ``VERSAO_LAYOUT_ARQUIVO_DADOS_AC`` do
-        módulo ``constantes`` do `projeto ``satcomum`` <https://github.com/base4sistemas/satcomum/>`_
+        módulo ``constantes`` do
+        `projeto ``satcomum`` <https://github.com/base4sistemas/satcomum/>`_
 
     :param str CNPJ:  CNPJ da software house, desenvolvedora do aplicativo
         comercial, contendo apenas os dígitos do número e incluindo zeros não
@@ -1641,7 +1672,8 @@ class CFeVenda(Entidade):
 
     """
 
-    def __init__(self,
+    def __init__(
+            self,
             emitente=None,
             destinatario=None,
             entrega=None,
@@ -1736,8 +1768,8 @@ class CFeVenda(Entidade):
         ide = ET.SubElement(infCFe, 'ide')
         ET.SubElement(ide, 'CNPJ').text = self.CNPJ
         ET.SubElement(ide, 'signAC').text = self.signAC
-        ET.SubElement(ide, 'numeroCaixa').text = \
-                '{:03d}'.format(self.numeroCaixa)
+        ET.SubElement(ide, 'numeroCaixa').text = '{:03d}'.format(
+                self.numeroCaixa)
 
         infCFe.append(self.emitente._xml())
 
@@ -1830,8 +1862,8 @@ class CFeCancelamento(Entidade):
         ide = ET.SubElement(infCFe, 'ide')
         ET.SubElement(ide, 'CNPJ').text = self.CNPJ
         ET.SubElement(ide, 'signAC').text = self.signAC
-        ET.SubElement(ide, 'numeroCaixa').text = \
-                '{:03d}'.format(self.numeroCaixa)
+        ET.SubElement(ide, 'numeroCaixa').text = '{:03d}'.format(
+                self.numeroCaixa)
 
         ET.SubElement(infCFe, 'emit')
 

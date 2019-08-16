@@ -48,7 +48,6 @@ class RespostaAtivarSAT(RespostaSAT):
         """Retorna o CSR (**Certificate Signing Request**) decodificado."""
         return base64_to_str(self.CSR)
 
-
     @staticmethod
     def analisar(retorno):
         """Constrói uma :class:`RespostaAtivarSAT` a partir do retorno
@@ -56,7 +55,8 @@ class RespostaAtivarSAT(RespostaSAT):
 
         :param str retorno: Retorno da função ``AtivarSAT``.
         """
-        resposta = analisar_retorno(retorno,
+        resposta = analisar_retorno(
+                retorno,
                 funcao='AtivarSAT',
                 classe_resposta=RespostaAtivarSAT,
                 campos=(

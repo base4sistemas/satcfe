@@ -60,8 +60,9 @@ class ClienteSATHub(FuncoesSAT):
         Na verdade, prefira deixar o número de caixa ``999`` livre, para uso
         pelo próprio SATHub.
 
-    :param string baseurl: Opcional. Prefixo base da URL para os serviços da API
-        RESTful. Se não for informado será utilizado o padrão ``"/hub/v1"``.
+    :param string baseurl: Opcional. Prefixo base da URL para os serviços
+        da API RESTful. Se não for informado será utilizado o padrão
+        ``"/hub/v1"``.
 
     .. note::
 
@@ -79,7 +80,6 @@ class ClienteSATHub(FuncoesSAT):
         self._numero_caixa = numero_caixa
         self._baseurl = baseurl
 
-
     def _request_headers(self):
         headers = {
                 'user-agent': 'satcfe/{}/ER-{}'.format(
@@ -87,13 +87,11 @@ class ClienteSATHub(FuncoesSAT):
             }
         return headers
 
-
     def _url(self, metodo):
         return 'http://{}:{}/{}/{}'.format(
                 self._host,
                 self._port,
                 self._baseurl.strip('/'), metodo)
-
 
     def _http_post(self, metodo, **payload):
         if not _requests_disponivel:
@@ -109,20 +107,19 @@ class ClienteSATHub(FuncoesSAT):
         resp.raise_for_status()
         return resp
 
-
     def ativar_sat(self, tipo_certificado, cnpj, codigo_uf):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.ativar_sat`.
 
         :return: Uma resposta SAT especializada em ``AtivarSAT``.
         :rtype: satcfe.resposta.ativarsat.RespostaAtivarSAT
         """
-        resp = self._http_post('ativarsat',
+        resp = self._http_post(
+                'ativarsat',
                 tipo_certificado=tipo_certificado,
                 cnpj=cnpj,
                 codigo_uf=codigo_uf)
         conteudo = resp.json()
         return RespostaAtivarSAT.analisar(conteudo.get('retorno'))
-
 
     def comunicar_certificado_icpbrasil(self, certificado):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.comunicar_certificado_icpbrasil`.
@@ -130,12 +127,12 @@ class ClienteSATHub(FuncoesSAT):
         :return: Uma resposta SAT padrão.
         :rtype: satcfe.resposta.padrao.RespostaSAT
         """
-        resp = self._http_post('comunicarcertificadoicpbrasil',
+        resp = self._http_post(
+                'comunicarcertificadoicpbrasil',
                 certificado=certificado)
         conteudo = resp.json()
         return RespostaSAT.comunicar_certificado_icpbrasil(
                 conteudo.get('retorno'))
-
 
     def enviar_dados_venda(self, dados_venda, *args, **kwargs):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.enviar_dados_venda`.
@@ -147,7 +144,6 @@ class ClienteSATHub(FuncoesSAT):
         resp = self._http_post('enviardadosvenda', dados_venda=cfe)
         conteudo = resp.json()
         return RespostaEnviarDadosVenda.analisar(conteudo.get('retorno'))
-
 
     def cancelar_ultima_venda(
             self,
@@ -168,7 +164,6 @@ class ClienteSATHub(FuncoesSAT):
         conteudo = resp.json()
         return RespostaCancelarUltimaVenda.analisar(conteudo.get('retorno'))
 
-
     def consultar_sat(self):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.consultar_sat`.
 
@@ -178,7 +173,6 @@ class ClienteSATHub(FuncoesSAT):
         resp = self._http_post('consultarsat')
         conteudo = resp.json()
         return RespostaSAT.consultar_sat(conteudo.get('retorno'))
-
 
     def teste_fim_a_fim(self, dados_venda, *args, **kwargs):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.teste_fim_a_fim`.
@@ -191,18 +185,17 @@ class ClienteSATHub(FuncoesSAT):
         conteudo = resp.json()
         return RespostaTesteFimAFim.analisar(conteudo.get('retorno'))
 
-
     def consultar_status_operacional(self):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.consultar_status_operacional`.
 
-        :return: Uma resposta SAT especializada em ``ConsultarStatusOperacional``.
+        :return: Uma resposta SAT especializada em
+            ``ConsultarStatusOperacional``.
         :rtype: satcfe.resposta.consultarstatusoperacional.RespostaConsultarStatusOperacional
-        """
+        """  # noqa: E501
         resp = self._http_post('consultarstatusoperacional')
         conteudo = resp.json()
         return RespostaConsultarStatusOperacional.analisar(
                 conteudo.get('retorno'))
-
 
     def consultar_numero_sessao(self, numero_sessao):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.consultar_numero_sessao`.
@@ -210,11 +203,11 @@ class ClienteSATHub(FuncoesSAT):
         :return: Uma resposta SAT que irá depender da sessão consultada.
         :rtype: satcfe.resposta.padrao.RespostaSAT
         """
-        resp = self._http_post('consultarnumerosessao',
+        resp = self._http_post(
+                'consultarnumerosessao',
                 numero_sessao=numero_sessao)
         conteudo = resp.json()
         return RespostaConsultarNumeroSessao.analisar(conteudo.get('retorno'))
-
 
     def configurar_interface_de_rede(self, configuracao, *args, **kwargs):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.configurar_interface_de_rede`.
@@ -225,8 +218,8 @@ class ClienteSATHub(FuncoesSAT):
         conf = resolver_documento(configuracao, *args, **kwargs)
         resp = self._http_post('configurarinterfacederede', configuracao=conf)
         conteudo = resp.json()
-        return RespostaSAT.configurar_interface_de_rede(conteudo.get('retorno'))
-
+        return RespostaSAT.configurar_interface_de_rede(
+                conteudo.get('retorno'))
 
     def associar_assinatura(self, sequencia_cnpj, assinatura_ac):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.associar_assinatura`.
@@ -241,7 +234,6 @@ class ClienteSATHub(FuncoesSAT):
         conteudo = resp.json()
         return RespostaAssociarAssinatura.analisar(conteudo.get('retorno'))
 
-
     def atualizar_software_sat(self):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.atualizar_software_sat`.
 
@@ -251,7 +243,6 @@ class ClienteSATHub(FuncoesSAT):
         resp = self._http_post('atualizarsoftwaresat')
         conteudo = resp.json()
         return RespostaSAT.atualizar_software_sat(conteudo.get('retorno'))
-
 
     def extrair_logs(self):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.extrair_logs`.
@@ -263,7 +254,6 @@ class ClienteSATHub(FuncoesSAT):
         conteudo = resp.json()
         return RespostaExtrairLogs.analisar(conteudo.get('retorno'))
 
-
     def bloquear_sat(self):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.bloquear_sat`.
 
@@ -274,7 +264,6 @@ class ClienteSATHub(FuncoesSAT):
         conteudo = resp.json()
         return RespostaSAT.bloquear_sat(conteudo.get('retorno'))
 
-
     def desbloquear_sat(self):
         """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.desbloquear_sat`.
 
@@ -284,7 +273,6 @@ class ClienteSATHub(FuncoesSAT):
         resp = self._http_post('desbloquearsat')
         conteudo = resp.json()
         return RespostaSAT.desbloquear_sat(conteudo.get('retorno'))
-
 
     def trocar_codigo_de_ativacao(
             self,

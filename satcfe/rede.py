@@ -30,7 +30,7 @@ from .entidades import Entidade
 class ConfiguracaoRede(Entidade):
     """Uma entidade que contém os parâmetros de configurações da interface de
     rede do equipamento SAT. Uma instância desta classe é usada como argumento
-    para o método :meth:`~satcfe.base._FuncoesSAT.configurar_interface_de_rede`.
+    para :meth:`~satcfe.base._FuncoesSAT.configurar_interface_de_rede`.
 
     :param str tipoInter: Tipo de interface de rede que o equipamento SAT
         deverá utilizar. As opções de tipos de rede estão disponíveis na
@@ -58,8 +58,8 @@ class ConfiguracaoRede(Entidade):
 
     :param str lanDNS2: *Opcional* Endereço IP do DNS secundário.
 
-    :param str usuario: *Opcional* Nome do usuário para obtenção do endereço IP,
-        se necessário, contendo até 64 caracteres.
+    :param str usuario: *Opcional* Nome do usuário para obtenção do endereço
+        IP, se necessário, contendo até 64 caracteres.
 
     :param str senha: *Opcional* Senha do usuário para obtenção do endereço IP,
         relacionado ao parâmetro ``usuario``, se necessário, contendo até 32

@@ -17,12 +17,12 @@
 # limitations under the License.
 #
 
-from .associarassinatura import RespostaAssociarAssinatura
-from .ativarsat import RespostaAtivarSAT
-from .cancelarultimavenda import RespostaCancelarUltimaVenda
-from .consultarnumerosessao import RespostaConsultarNumeroSessao
-from .consultarstatusoperacional import RespostaConsultarStatusOperacional
-from .enviardadosvenda import RespostaEnviarDadosVenda
-from .extrairlogs import RespostaExtrairLogs
-from .padrao import RespostaSAT
-from .testefimafim import RespostaTesteFimAFim
+from .associarassinatura import RespostaAssociarAssinatura  # noqa: F401
+from .ativarsat import RespostaAtivarSAT  # noqa: F401
+from .cancelarultimavenda import RespostaCancelarUltimaVenda  # noqa: F401
+from .consultarnumerosessao import RespostaConsultarNumeroSessao  # noqa: F401
+from .consultarstatusoperacional import RespostaConsultarStatusOperacional  # noqa: F401, E501
+from .enviardadosvenda import RespostaEnviarDadosVenda  # noqa: F401
+from .extrairlogs import RespostaExtrairLogs  # noqa: F401
+from .padrao import RespostaSAT  # noqa: F401
+from .testefimafim import RespostaTesteFimAFim  # noqa: F401

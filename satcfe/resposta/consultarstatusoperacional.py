@@ -124,7 +124,6 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
                 return rotulo
         return u'(desconhecido: {})'.format(self.ESTADO_OPERACAO)
 
-
     @staticmethod
     def analisar(retorno):
         """Constrói uma :class:`RespostaConsultarStatusOperacional` a partir do
@@ -132,7 +131,8 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
 
         :param str retorno: Retorno da função ``ConsultarStatusOperacional``.
         """
-        resposta = analisar_retorno(retorno,
+        resposta = analisar_retorno(
+                retorno,
                 funcao='ConsultarStatusOperacional',
                 classe_resposta=RespostaConsultarStatusOperacional,
                 campos=RespostaSAT.CAMPOS + (

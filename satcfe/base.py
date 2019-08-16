@@ -208,7 +208,7 @@ class FuncoesSAT(object):
         Equipamento SAT", da ER SAT. Se não for especificado, será utilizado
         um :class:`NumeroSessaoMemoria`.
 
-    """
+    """  # noqa: E501
 
     def __init__(
             self,
@@ -387,8 +387,8 @@ class FuncoesSAT(object):
         """Função ``TesteFimAFim`` conforme ER SAT, item 6.1.6. Teste de
         comunicação entre a AC, o equipamento SAT e a SEFAZ.
 
-        :param dados_venda: Uma instância de :class:`~satcfe.entidades.CFeVenda`
-            ou uma string contendo o XML do CF-e de venda de teste.
+        :param dados_venda: Instância de :class:`~satcfe.entidades.CFeVenda` ou
+            uma string contendo o XML do CF-e de venda de teste.
 
         :return: Retorna *verbatim* a resposta da função SAT.
         :rtype: string

@@ -69,7 +69,8 @@ class RespostaConsultarNumeroSessao(RespostaSAT):
         :param str retorno: Retorno da função ``ConsultarNumeroSessao``.
         """
         if '|' not in retorno:
-            raise ErroRespostaSATInvalida('Resposta não possui pipes '
+            raise ErroRespostaSATInvalida(
+                    'Resposta não possui pipes '
                     'separando os campos: {!r}'.format(retorno))
 
         resposta = _RespostaParcial(*(retorno.split('|')[:2]))
@@ -91,10 +92,10 @@ class RespostaConsultarNumeroSessao(RespostaSAT):
 
         return RespostaConsultarNumeroSessao._pos_analise(retorno)
 
-
     @staticmethod
     def _pos_analise(retorno):
-        resposta = analisar_retorno(retorno,
+        resposta = analisar_retorno(
+                retorno,
                 funcao='ConsultarNumeroSessao',
                 classe_resposta=RespostaConsultarNumeroSessao)
         if resposta.EEEEE not in ('11000',):
