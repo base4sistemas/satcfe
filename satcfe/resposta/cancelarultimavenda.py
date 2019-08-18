@@ -16,10 +16,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import xml.etree.ElementTree as ET
 
 from decimal import Decimal
 from io import StringIO
+
+from builtins import str as text
 
 from satcomum.ersat import dados_qrcode
 
@@ -41,32 +47,38 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
     .. sourcecode:: text
 
         numeroSessao (int)
-        EEEEE (str)
-        CCCC (str)
-        mensagem (str)
-        cod (str)
-        mensagemSEFAZ (str)
-        arquivoCFeBase64 (str)
+        EEEEE (text)
+        CCCC (text)
+        mensagem (text)
+        cod (text)
+        mensagemSEFAZ (text)
+        arquivoCFeBase64 (text)
         timeStamp (datetime.datetime)
-        chaveConsulta (str)
+        chaveConsulta (text)
         valorTotalCFe (decimal.Decimal)
-        CPFCNPJValue (str)
-        assinaturaQRCODE (str)
+        CPFCNPJValue (text)
+        assinaturaQRCODE (text)
 
     Em caso de falha, são esperados apenas os atributos:
 
     .. sourcecode:: text
 
         numeroSessao (int)
-        EEEEE (str)
-        CCCC (str)
-        mensagem (str)
-        cod (str)
-        mensagemSEFAZ (str)
+        EEEEE (text)
+        CCCC (text)
+        mensagem (text)
+        cod (text)
+        mensagemSEFAZ (text)
 
     Finalmente, como último recurso, a resposta poderá incluir apenas os
     atributos padrão, conforme descrito na constante
     :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
+
+    .. note::
+
+        Aqui, ``text`` diz respeito à um objeto ``unicode`` (Python 2) ou
+        ``str`` (Python 3). Veja ``builtins.str`` da biblioteca ``future``.
+
     """
 
     def xml(self):
@@ -102,32 +114,32 @@ class RespostaCancelarUltimaVenda(RespostaSAT):
         """
         resposta = analisar_retorno(
                 retorno,
-                funcao='EnviarDadosVenda',
+                funcao='CancelarUltimaVenda',
                 classe_resposta=RespostaCancelarUltimaVenda,
                 campos=(
                         ('numeroSessao', int),
-                        ('EEEEE', str),
-                        ('CCCC', str),
-                        ('mensagem', str),
-                        ('cod', str),
-                        ('mensagemSEFAZ', str),
-                        ('arquivoCFeBase64', str),
+                        ('EEEEE', text),
+                        ('CCCC', text),
+                        ('mensagem', text),
+                        ('cod', text),
+                        ('mensagemSEFAZ', text),
+                        ('arquivoCFeBase64', text),
                         ('timeStamp', as_datetime),
-                        ('chaveConsulta', str),
+                        ('chaveConsulta', text),
                         ('valorTotalCFe', Decimal),
-                        ('CPFCNPJValue', str),
-                        ('assinaturaQRCODE', str),
+                        ('CPFCNPJValue', text),
+                        ('assinaturaQRCODE', text),
                     ),
                 campos_alternativos=[
                         # se a venda falhar apenas os primeiros seis campos
                         # especificados na ER deverão ser retornados...
                         (
                                 ('numeroSessao', int),
-                                ('EEEEE', str),
-                                ('CCCC', str),
-                                ('mensagem', str),
-                                ('cod', str),
-                                ('mensagemSEFAZ', str),
+                                ('EEEEE', text),
+                                ('CCCC', text),
+                                ('mensagem', text),
+                                ('cod', text),
+                                ('mensagemSEFAZ', text),
                         ),
                         # por via das dúvidas, considera o padrão de campos,
                         # caso não haja nenhuma coincidência...

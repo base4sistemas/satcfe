@@ -16,6 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
+from builtins import str as text
+
 from ..excecoes import ExcecaoRespostaSAT
 from ..util import base64_to_str
 from .padrao import RespostaSAT
@@ -34,14 +40,20 @@ class RespostaAtivarSAT(RespostaSAT):
     .. sourcecode:: text
 
         numeroSessao (int)
-        EEEEE (str)
-        mensagem (str)
-        cod (str)
-        mensagemSEFAZ (str)
-        CSR (str)
+        EEEEE (text)
+        mensagem (text)
+        cod (text)
+        mensagemSEFAZ (text)
+        CSR (text)
 
     Em caso de falha, são esperados apenas os atributos padrão, conforme
     descrito na constante :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
+
+    .. note::
+
+        Aqui, ``text`` diz respeito à um objeto ``unicode`` (Python 2) ou
+        ``str`` (Python 3). Veja ``builtins.str`` da biblioteca ``future``.
+
     """
 
     def csr(self):
@@ -61,11 +73,11 @@ class RespostaAtivarSAT(RespostaSAT):
                 classe_resposta=RespostaAtivarSAT,
                 campos=(
                         ('numeroSessao', int),
-                        ('EEEEE', str),
-                        ('mensagem', str),
-                        ('cod', str),
-                        ('mensagemSEFAZ', str),
-                        ('CSR', str),
+                        ('EEEEE', text),
+                        ('mensagem', text),
+                        ('cod', text),
+                        ('mensagemSEFAZ', text),
+                        ('CSR', text),
                     ),
                 campos_alternativos=[
                         # se a ativação falhar espera-se o padrão de campos

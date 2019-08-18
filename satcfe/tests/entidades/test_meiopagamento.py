@@ -16,31 +16,54 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import xml.etree.ElementTree as ET
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from decimal import Decimal
+
+from satcomum import constantes
 
 from satcfe.entidades import MeioPagamento
 
 
 def test_simples():
-    xml_esperado = (
-            '<MP>'
-            '<cMP>01</cMP>'
-            '<vMP>10.00</vMP>'
-            '</MP>'
-        )
-    mp = MeioPagamento(cMP='01', vMP=Decimal('10.00'))
-    assert ET.tostring(mp._xml(), encoding='unicode') == xml_esperado
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <MP>
+            <cMP>01</cMP>
+            <vMP>10.00</vMP>
+        </MP>
+
+    """
+    mp = MeioPagamento(cMP=constantes.WA03_DINHEIRO, vMP=Decimal('10.00'))
+    el = mp._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'MP'
+    assert el.find('cMP').text == constantes.WA03_DINHEIRO
+    assert el.find('vMP').text == '10.00'
 
 
 def test_simples_com_adm_cartao():
-    xml_esperado = (
-            '<MP>'
-            '<cMP>01</cMP>'
-            '<vMP>10.00</vMP>'
-            '<cAdmC>999</cAdmC>'
-            '</MP>'
-        )
-    mp = MeioPagamento(cMP='01', vMP=Decimal('10.00'), cAdmC='999')
-    assert ET.tostring(mp._xml(), encoding='unicode') == xml_esperado
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <MP>
+            <cMP>01</cMP>
+            <vMP>10.00</vMP>
+            <cAdmC>999</cAdmC>
+        </MP>
+
+    """
+    mp = MeioPagamento(
+            cMP=constantes.WA03_CARTAO_CREDITO,
+            vMP=Decimal('10.00'),
+            cAdmC='999')
+
+    el = mp._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'MP'
+    assert el.find('cMP').text == constantes.WA03_CARTAO_CREDITO
+    assert el.find('vMP').text == '10.00'
+    assert el.find('cAdmC').text == '999'

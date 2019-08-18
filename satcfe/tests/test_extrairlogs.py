@@ -16,6 +16,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
+from io import open
+
+from builtins import str as text
+
 import pytest
 
 from satcfe.excecoes import ErroRespostaSATInvalida
@@ -24,7 +32,8 @@ from satcfe.resposta import RespostaExtrairLogs
 
 
 def test_respostas_de_sucesso(datadir):
-    with open(datadir.join('respostas-de-sucesso.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-de-sucesso.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         respostas = f.read().splitlines()
 
     for retorno in respostas:
@@ -34,7 +43,8 @@ def test_respostas_de_sucesso(datadir):
 
 
 def test_respostas_de_falha(datadir):
-    with open(datadir.join('respostas-de-falha.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-de-falha.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         respostas = f.read().splitlines()
 
     for retorno in respostas:
@@ -43,7 +53,8 @@ def test_respostas_de_falha(datadir):
 
 
 def test_respostas_invalidas(datadir):
-    with open(datadir.join('respostas-invalidas.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-invalidas.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         respostas = f.read().splitlines()
 
     for retorno in respostas:
@@ -68,7 +79,12 @@ def test_salvar_com_destino_especifico(request, tmpdir, clientesatlocal):
 
     destino = tmpdir.join('arquivo-log.txt')
     resposta.salvar(destino=destino.strpath)
-    assert destino.read() == resposta.conteudo()
+
+    arquivo_salvo = destino.strpath
+    with open(arquivo_salvo, 'r', encoding='utf-8') as f:
+        conteudo_salvo = f.read()
+
+    assert conteudo_salvo == resposta.conteudo()
 
 
 @pytest.mark.acessa_sat
@@ -79,7 +95,7 @@ def test_salvar_sem_destino_especifico(request, tmpdir, clientesatlocal):
     assert len(resposta.arquivoLog) > 0
 
     destino = resposta.salvar(dir=tmpdir.strpath)
-    with open(destino, 'r') as f:
+    with open(destino, 'r', encoding='utf-8') as f:
         conteudo = f.read()
 
     assert conteudo == resposta.conteudo()

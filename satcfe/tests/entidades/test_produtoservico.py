@@ -16,30 +16,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import xml.etree.ElementTree as ET
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from decimal import Decimal
 
 import pytest
 import cerberus
 
+from satcomum import constantes
+
 from satcfe.entidades import ProdutoServico
 
 
 def test_simples():
-    # apenas os atributos requeridos; note que, diferente da NF-e/NFC-e a
-    # ER SAT indica que o atributo NCM não é obrigatório no CF-e;
-    xml_esperado = (
-            '<prod>'
-            '<cProd>123456</cProd>'
-            '<xProd>BORRACHA STAEDTLER</xProd>'
-            '<CFOP>5102</CFOP>'
-            '<uCom>UN</uCom>'
-            '<qCom>1.0000</qCom>'
-            '<vUnCom>5.75</vUnCom>'
-            '<indRegra>A</indRegra>'
-            '</prod>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <prod>
+            <cProd>123456</cProd>
+            <xProd>BORRACHA STAEDTLER</xProd>
+            <CFOP>5102</CFOP>
+            <uCom>UN</uCom>
+            <qCom>1.0000</qCom>
+            <vUnCom>5.75</vUnCom>
+            <indRegra>A</indRegra>
+        </prod>
+
+    """
     prod = ProdutoServico(
             cProd='123456',
             xProd='BORRACHA STAEDTLER',
@@ -47,43 +53,73 @@ def test_simples():
             uCom='UN',
             qCom=Decimal('1.0000'),
             vUnCom=Decimal('5.75'),
-            indRegra='A')
-    assert ET.tostring(prod._xml(), encoding='unicode') == xml_esperado
+            indRegra=constantes.I11_ARREDONDAMENTO)
+    # apenas os atributos requeridos; note que, diferente da NF-e/NFC-e a
+    # ER SAT indica que o atributo NCM não é obrigatório no CF-e;
+
+    el = prod._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'prod'
+    assert el.find('cProd').text == '123456'
+    assert el.find('xProd').text == 'BORRACHA STAEDTLER'
+    assert el.find('CFOP').text == '5102'
+    assert el.find('uCom').text == 'UN'
+    assert el.find('qCom').text == '1.0000'
+    assert el.find('vUnCom').text == '5.75'
+    assert el.find('indRegra').text == constantes.I11_ARREDONDAMENTO
 
 
-def test_todos_os_atributos():
-    # todos os atributos (se vDesc for informado, então não informa vOutro)
-    xml_esperado = (
-            '<prod>'
-            '<cProd>123456</cProd>'
-            '<cEAN>4007817525074</cEAN>'
-            '<xProd>BORRACHA STAEDTLER</xProd>'
-            '<NCM>40169200</NCM>'
-            '<CFOP>5102</CFOP>'
-            '<uCom>UN</uCom>'
-            '<qCom>1.0000</qCom>'
-            '<vUnCom>5.75</vUnCom>'
-            '<indRegra>A</indRegra>'
-            '<vDesc>0.25</vDesc>'
-            '</prod>'
-        )
+def test_todos_os_atributos_informando_vDesc():
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <prod>
+            <cProd>123456</cProd>
+            <cEAN>4007817525074</cEAN>
+            <xProd>BORRACHA STAEDTLER</xProd>
+            <NCM>40169200</NCM>
+            <CFOP>5102</CFOP>
+            <uCom>UN</uCom>
+            <qCom>1.0000</qCom>
+            <vUnCom>5.75</vUnCom>
+            <indRegra>A</indRegra>
+            <vDesc>0.25</vDesc>
+        </prod>
+
+    """
     prod = ProdutoServico(
             cProd='123456',
-            cEAN='4007817525074',
             xProd='BORRACHA STAEDTLER',
+            cEAN='4007817525074',
             NCM='40169200',
             CFOP='5102',
             uCom='UN',
             qCom=Decimal('1.0000'),
             vUnCom=Decimal('5.75'),
-            indRegra='A',
+            indRegra=constantes.I11_ARREDONDAMENTO,
             vDesc=Decimal('0.25'))
-    assert ET.tostring(prod._xml(), encoding='unicode') == xml_esperado
+
+    # todos os atributos (se vDesc for informado, então não informa vOutro)
+    el = prod._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'prod'
+    assert el.find('cProd').text == '123456'
+    assert el.find('xProd').text == 'BORRACHA STAEDTLER'
+    assert el.find('cEAN').text == '4007817525074'
+    assert el.find('NCM').text == '40169200'
+    assert el.find('CFOP').text == '5102'
+    assert el.find('uCom').text == 'UN'
+    assert el.find('qCom').text == '1.0000'
+    assert el.find('vUnCom').text == '5.75'
+    assert el.find('indRegra').text == constantes.I11_ARREDONDAMENTO
+    assert el.find('vDesc').text == '0.25'
+    assert el.find('vOutro') is None
 
 
 def test_todos_os_atributos_informando_vOutro():
-    # todos os atributos (informando vOutro)
-    xml_esperado = (
+    """XML esperado:
+
+    .. sourcecode:: xml
+
             '<prod>'
             '<cProd>123456</cProd>'
             '<cEAN>4007817525074</cEAN>'
@@ -96,7 +132,7 @@ def test_todos_os_atributos_informando_vOutro():
             '<indRegra>A</indRegra>'
             '<vOutro>0.25</vOutro>'
             '</prod>'
-        )
+    """
     prod = ProdutoServico(
             cProd='123456',
             cEAN='4007817525074',
@@ -106,9 +142,23 @@ def test_todos_os_atributos_informando_vOutro():
             uCom='UN',
             qCom=Decimal('1.0000'),
             vUnCom=Decimal('5.75'),
-            indRegra='A',
+            indRegra=constantes.I11_ARREDONDAMENTO,
             vOutro=Decimal('0.25'))
-    assert ET.tostring(prod._xml(), encoding='unicode') == xml_esperado
+
+    # todos os atributos (se vOutro for informado, então não informa vDesc)
+    el = prod._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'prod'
+    assert el.find('cProd').text == '123456'
+    assert el.find('xProd').text == 'BORRACHA STAEDTLER'
+    assert el.find('cEAN').text == '4007817525074'
+    assert el.find('NCM').text == '40169200'
+    assert el.find('CFOP').text == '5102'
+    assert el.find('uCom').text == 'UN'
+    assert el.find('qCom').text == '1.0000'
+    assert el.find('vUnCom').text == '5.75'
+    assert el.find('indRegra').text == constantes.I11_ARREDONDAMENTO
+    assert el.find('vDesc') is None
+    assert el.find('vOutro').text == '0.25'
 
 
 def test_informando_vDesc_e_vOutro():

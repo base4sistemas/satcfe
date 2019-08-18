@@ -16,8 +16,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import os
 import tempfile
+
+from builtins import str as text
 
 from ..excecoes import ExcecaoRespostaSAT
 from ..util import base64_to_str
@@ -33,14 +39,20 @@ class RespostaExtrairLogs(RespostaSAT):
     .. sourcecode:: text
 
         numeroSessao (int)
-        EEEEE (str)
-        mensagem (str)
-        cod (str)
-        mensagemSEFAZ (str)
-        arquivoLog (str)
+        EEEEE (text)
+        mensagem (text)
+        cod (text)
+        mensagemSEFAZ (text)
+        arquivoLog (text)
 
     Em caso de falha, são esperados apenas os atributos padrão, conforme
     descrito na constante :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
+
+    .. note::
+
+        Aqui, ``text`` diz respeito à um objeto ``unicode`` (Python 2) ou
+        ``str`` (Python 3). Veja ``builtins.str`` da biblioteca ``future``.
+
     """
 
     def conteudo(self):
@@ -114,7 +126,7 @@ class RespostaExtrairLogs(RespostaSAT):
                 funcao='ExtrairLogs',
                 classe_resposta=RespostaExtrairLogs,
                 campos=RespostaSAT.CAMPOS + (
-                        ('arquivoLog', str),
+                        ('arquivoLog', text),
                     ),
                 campos_alternativos=[
                         # se a extração dos logs falhar espera-se o padrão de

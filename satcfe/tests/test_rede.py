@@ -16,16 +16,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import xml.etree.ElementTree as ET
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from satcomum import constantes
 from satcfe.rede import ConfiguracaoRede
 
 
 def test_configuracao_rede():
-    xml = '<config><tipoInter>ETHE</tipoInter><tipoLan>DHCP</tipoLan></config>'
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <config>
+            <tipoInter>ETHE</tipoInter>
+            <tipoLan>DHCP</tipoLan>
+        </config>
+
+    """
     conf = ConfiguracaoRede(
             tipoInter=constantes.REDE_TIPOINTER_ETHE,
             tipoLan=constantes.REDE_TIPOLAN_DHCP)
-    # NOTA: conf._xml() resulta em um <xml.etree.ElementTree.Element>
-    assert ET.tostring(conf._xml(), encoding='unicode') == xml
+
+    el = conf._xml()  # xml.etree.ElementTree.Element
+    assert el.find('tipoInter').text == constantes.REDE_TIPOINTER_ETHE
+    assert el.find('tipoLan').text == constantes.REDE_TIPOLAN_DHCP

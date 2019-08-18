@@ -16,6 +16,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
+from builtins import str as text
 
 from ..excecoes import ExcecaoRespostaSAT
 from ..excecoes import ErroRespostaSATInvalida
@@ -29,10 +34,10 @@ class RespostaSAT(object):
     .. sourcecode:: text
 
         numeroSessao (int)
-        EEEEE (str)
-        mensagem (str)
-        cod (str)
-        mensagemSEFAZ (str)
+        EEEEE (text)
+        mensagem (text)
+        cod (text)
+        mensagemSEFAZ (text)
 
     Além dos atributos padrão, a resposta deverá conter uma referência para o
     nome da função SAT a que a resposta se refere e ao conteúdo original da
@@ -51,6 +56,11 @@ class RespostaSAT(object):
 
         Espera-se que a resposta original, devolvida pela biblioteca do
         fabricante do equipamento SAT, será sempre um dado Unicode.
+
+    .. note::
+
+        Aqui, ``text`` diz respeito à um objeto ``unicode`` (Python 2) ou
+        ``str`` (Python 3). Veja ``builtins.str`` da biblioteca ``future``.
 
     """
 
@@ -71,17 +81,17 @@ class RespostaSAT(object):
 
     CAMPOS = (
             ('numeroSessao', int),
-            ('EEEEE', str),
-            ('mensagem', str),
-            ('cod', str),
-            ('mensagemSEFAZ', str),
+            ('EEEEE', text),
+            ('mensagem', text),
+            ('cod', text),
+            ('mensagemSEFAZ', text),
         )
     """Campos padrão esperados em uma resposta e a sua função de conversão para
     o tipo Python, a partir da resposta original.
     """
 
     def __init__(self, **kwargs):
-        super().__init__()
+        super(RespostaSAT, self).__init__()
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -208,7 +218,6 @@ def analisar_retorno(
     :rtype: satcfe.resposta.padrao.RespostaSAT
 
     """
-
     if '|' not in retorno:
         raise ErroRespostaSATInvalida((
                 'Resposta não possui pipes separando os campos: {!r}'
@@ -244,7 +253,5 @@ def analisar_retorno(
     resposta.atributos = RespostaSAT.Atributos(
             funcao=funcao,
             verbatim=verbatim)
-    # resposta.atributos.funcao = funcao
-    # resposta.atributos.verbatim = retorno if manter_verbatim else None
 
     return resposta

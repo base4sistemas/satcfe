@@ -16,7 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import xml.etree.ElementTree as ET
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from decimal import Decimal
 
@@ -32,69 +34,122 @@ from satcfe.entidades import PISST
 
 
 def test_PISAliq():
-    xml_esperado = (
-            '<PISAliq>'
-            '<CST>01</CST>'
-            '<vBC>1.00</vBC>'
-            '<pPIS>0.0065</pPIS>'
-            '</PISAliq>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <PISAliq>
+            <CST>01</CST>
+            <vBC>1.00</vBC>
+            <pPIS>0.0065</pPIS>
+        </PISAliq>
+
+    """
     pis = PISAliq(CST='01', vBC=Decimal('1.00'), pPIS=Decimal('0.0065'))
-    assert ET.tostring(pis._xml(), encoding='unicode') == xml_esperado
+    el = pis._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'PISAliq'
+    assert el.find('CST').text == '01'
+    assert el.find('vBC').text == '1.00'
+    assert el.find('pPIS').text == '0.0065'
 
 
 def test_PISQtde():
-    xml_esperado = (
-            '<PISQtde>'
-            '<CST>03</CST>'
-            '<qBCProd>100.0000</qBCProd>'
-            '<vAliqProd>0.6500</vAliqProd>'
-            '</PISQtde>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <PISQtde>
+            <CST>03</CST>
+            <qBCProd>100.0000</qBCProd>
+            <vAliqProd>0.6500</vAliqProd>
+        </PISQtde>
+
+    """
     pis = PISQtde(
             CST='03',
             qBCProd=Decimal('100.0000'),
             vAliqProd=Decimal('0.6500'))
-    assert ET.tostring(pis._xml(), encoding='unicode') == xml_esperado
+    el = pis._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'PISQtde'
+    assert el.find('CST').text == '03'
+    assert el.find('qBCProd').text == '100.0000'
+    assert el.find('vAliqProd').text == '0.6500'
 
 
 def test_PISNT():
-    xml_esperado = '<PISNT><CST>04</CST></PISNT>'
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <PISNT>
+            <CST>04</CST>
+        </PISNT>
+
+    """
     pis = PISNT(CST='04')
-    assert ET.tostring(pis._xml(), encoding='unicode') == xml_esperado
+    el = pis._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'PISNT'
+    assert el.find('CST').text == '04'
 
 
 def test_PISSN():
-    xml_esperado = '<PISSN><CST>49</CST></PISSN>'
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <PISSN>
+            <CST>49</CST>
+        </PISSN>
+
+    """
     pis = PISSN(CST='49')
-    assert ET.tostring(pis._xml(), encoding='unicode') == xml_esperado
+    el = pis._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'PISSN'
+    assert el.find('CST').text == '49'
 
 
 def test_PISOutr_simples_vBC():
-    xml_esperado = (
-            '<PISOutr>'
-            '<CST>99</CST>'
-            '<vBC>1.00</vBC>'
-            '<pPIS>0.0065</pPIS>'
-            '</PISOutr>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <PISOutr>
+            <CST>99</CST>
+            <vBC>1.00</vBC>
+            <pPIS>0.0065</pPIS>
+        </PISOutr>
+
+    """
     pis = PISOutr(CST='99', vBC=Decimal('1.00'), pPIS=Decimal('0.0065'))
-    assert ET.tostring(pis._xml(), encoding='unicode') == xml_esperado
+    el = pis._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'PISOutr'
+    assert el.find('CST').text == '99'
+    assert el.find('vBC').text == '1.00'
+    assert el.find('pPIS').text == '0.0065'
 
 
 def test_PISOutr_simples_qBCProd():
-    xml_esperado = (
-            '<PISOutr>'
-            '<CST>99</CST>'
-            '<qBCProd>100.0000</qBCProd>'
-            '<vAliqProd>0.6500</vAliqProd>'
-            '</PISOutr>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <PISOutr>
+            <CST>99</CST>
+            <qBCProd>100.0000</qBCProd>
+            <vAliqProd>0.6500</vAliqProd>
+        </PISOutr>
+
+    """
     pis = PISOutr(
             CST='99',
             qBCProd=Decimal('100.0000'),
             vAliqProd=Decimal('0.6500'))
-    assert ET.tostring(pis._xml(), encoding='unicode') == xml_esperado
+
+    el = pis._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'PISOutr'
+    assert el.find('CST').text == '99'
+    assert el.find('qBCProd').text == '100.0000'
+    assert el.find('vAliqProd').text == '0.6500'
 
 
 def test_PISOutr_vBC_sem_pPIS():
@@ -146,27 +201,41 @@ def test_PISOutr_vAliqProd_sem_qBCProd():
 
 
 def test_PISST_simples_vBC():
-    xml_esperado = (
-            '<PISST>'
-            '<vBC>1.00</vBC>'
-            '<pPIS>0.0065</pPIS>'
-            '</PISST>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <PISST>
+            <vBC>1.00</vBC>
+            <pPIS>0.0065</pPIS>
+        </PISST>
+
+    """
     pis = PISST(vBC=Decimal('1.00'), pPIS=Decimal('0.0065'))
-    assert ET.tostring(pis._xml(), encoding='unicode') == xml_esperado
+    el = pis._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'PISST'
+    assert el.find('vBC').text == '1.00'
+    assert el.find('pPIS').text == '0.0065'
 
 
 def test_PISST_simples_qBCProd():
-    xml_esperado = (
-            '<PISST>'
-            '<qBCProd>100.0000</qBCProd>'
-            '<vAliqProd>0.6500</vAliqProd>'
-            '</PISST>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <PISST>
+            <qBCProd>100.0000</qBCProd>
+            <vAliqProd>0.6500</vAliqProd>
+        </PISST>
+
+    """
     pis = PISST(
             qBCProd=Decimal('100.0000'),
             vAliqProd=Decimal('0.6500'))
-    assert ET.tostring(pis._xml(), encoding='unicode') == xml_esperado
+    el = pis._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'PISST'
+    assert el.find('qBCProd').text == '100.0000'
+    assert el.find('vAliqProd').text == '0.6500'
 
 
 def test_PISST_vBC_sem_pPIS():

@@ -16,7 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import xml.etree.ElementTree as ET
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from decimal import Decimal
 
@@ -27,28 +29,50 @@ from satcfe.entidades import DescAcrEntr
 
 
 def test_simples_minimo():
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <DescAcrEntr />
+
+    """
     grupo = DescAcrEntr()
-    assert ET.tostring(grupo._xml(), encoding='unicode') == '<DescAcrEntr />'
+    el = grupo._xml()  # xml.etree.ElementTree.Element
+    assert el is not None
+    assert el.tag == 'DescAcrEntr'
+    assert len(list(el)) == 0
 
 
 def test_acrescimo_no_subtotal():
-    xml_esperado = (
-            '<DescAcrEntr>'
-            '<vAcresSubtot>0.02</vAcresSubtot>'
-            '</DescAcrEntr>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <DescAcrEntr>
+            <vAcresSubtot>0.02</vAcresSubtot>
+        </DescAcrEntr>
+
+    """
     grupo = DescAcrEntr(vAcresSubtot=Decimal('0.02'))
-    assert ET.tostring(grupo._xml(), encoding='unicode') == xml_esperado
+    el = grupo._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'DescAcrEntr'
+    assert el.find('vAcresSubtot').text == '0.02'
 
 
 def test_desconto_no_subtotal():
-    xml_esperado = (
-            '<DescAcrEntr>'
-            '<vDescSubtot>0.01</vDescSubtot>'
-            '</DescAcrEntr>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <DescAcrEntr>
+            <vDescSubtot>0.01</vDescSubtot>
+        </DescAcrEntr>
+
+    """
     grupo = DescAcrEntr(vDescSubtot=Decimal('0.01'))
-    assert ET.tostring(grupo._xml(), encoding='unicode') == xml_esperado
+    el = grupo._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'DescAcrEntr'
+    assert el.find('vDescSubtot').text == '0.01'
 
 
 def test_atributos_mutuamente_exclusivos():

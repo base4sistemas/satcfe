@@ -16,9 +16,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import pytest
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
-from unidecode import unidecode
+from io import open
+
+from builtins import str as text
+
+import pytest
 
 from satcomum import constantes
 
@@ -28,7 +34,8 @@ from satcfe.resposta import RespostaSAT
 
 
 def test_respostas_de_sucesso(datadir):
-    with open(datadir.join('respostas-de-sucesso.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-de-sucesso.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         respostas = f.read().splitlines()
 
     for retorno in respostas:
@@ -37,7 +44,8 @@ def test_respostas_de_sucesso(datadir):
 
 
 def test_respostas_de_falha(datadir):
-    with open(datadir.join('respostas-de-falha.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-de-falha.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         respostas = f.read().splitlines()
 
     for retorno in respostas:
@@ -46,7 +54,8 @@ def test_respostas_de_falha(datadir):
 
 
 def test_respostas_invalidas(datadir):
-    with open(datadir.join('respostas-invalidas.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-invalidas.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         respostas = f.read().splitlines()
 
     for retorno in respostas:
@@ -72,9 +81,7 @@ def test_trocarcodigodeativacao_regular(request, clientesatlocal):
             opcao=constantes.CODIGO_ATIVACAO_REGULAR)
 
     assert resposta.EEEEE == '18000'
-    assert unidecode(resposta.mensagem).lower() == (
-            'codigo de ativacao alterado com sucesso'
-        )
+    assert resposta.mensagem == 'Código de ativação alterado com sucesso'
 
     # ao alterar o código de ativação, o novo código deve ter sido alterado
     # também no cliente SAT, para que as chamadas subsequentes à funções SAT
@@ -95,9 +102,7 @@ def test_trocarcodigodeativacao_emergencia(request, clientesatlocal):
             opcao=constantes.CODIGO_ATIVACAO_EMERGENCIA,
             codigo_emergencia='35c0nd1d0')
     assert resposta.EEEEE == '18000'
-    assert unidecode(resposta.mensagem).lower() == (
-            'codigo de ativacao alterado com sucesso'
-        )
+    assert resposta.mensagem == 'Código de ativação alterado com sucesso'
 
 
 @pytest.mark.acessa_sat

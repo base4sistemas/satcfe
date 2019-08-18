@@ -16,43 +16,71 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import xml.etree.ElementTree as ET
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import pytest
 import cerberus
+
+from satcomum import constantes
 
 from satcfe.entidades import Emitente
 
 
 def test_simples_minimo():
-    xml_esperado = (
-            '<emit>'
-            '<CNPJ>08427847000169</CNPJ>'
-            '<IE>111222333444</IE>'
-            '<indRatISSQN>S</indRatISSQN>'
-            '</emit>'
-        )
-    emit = Emitente(CNPJ='08427847000169', IE='111222333444', indRatISSQN='S')
-    assert ET.tostring(emit._xml(), encoding='unicode') == xml_esperado
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <emit>
+            <CNPJ>08427847000169</CNPJ>
+            <IE>111222333444</IE>
+            <indRatISSQN>S</indRatISSQN>
+        </emit>
+
+    """
+    emit = Emitente(
+            CNPJ='08427847000169',
+            IE='111222333444',
+            indRatISSQN=constantes.C16_RATEADO)
+
+    el = emit._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'emit'
+    assert el.find('CNPJ').text == '08427847000169'
+    assert el.find('IE').text == '111222333444'
+    assert el.find('indRatISSQN').text == constantes.C16_RATEADO
 
 
 def test_simples():
-    xml_esperado = (
-            '<emit>'
-            '<CNPJ>08427847000169</CNPJ>'
-            '<IE>111222333444</IE>'
-            '<IM>123456789012345</IM>'
-            '<cRegTribISSQN>1</cRegTribISSQN>'
-            '<indRatISSQN>S</indRatISSQN>'
-            '</emit>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <emit>
+            <CNPJ>08427847000169</CNPJ>
+            <IE>111222333444</IE>
+            <IM>123456789012345</IM>
+            <cRegTribISSQN>1</cRegTribISSQN>
+            <indRatISSQN>S</indRatISSQN>
+        </emit>
+
+    """
     emit = Emitente(
             CNPJ='08427847000169',
             IE='111222333444',
             IM='123456789012345',
-            cRegTribISSQN='1',
-            indRatISSQN='S')
-    assert ET.tostring(emit._xml(), encoding='unicode') == xml_esperado
+            cRegTribISSQN=constantes.C15_MICROEMPRESA_MUNICIPAL,
+            indRatISSQN=constantes.C16_RATEADO)
+    el = emit._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'emit'
+    assert el.find('CNPJ').text == '08427847000169'
+    assert el.find('IE').text == '111222333444'
+    assert el.find('IM').text == '123456789012345'
+    assert el.find('indRatISSQN').text == constantes.C16_RATEADO
+    assert el.find('cRegTribISSQN').text == (
+            constantes.C15_MICROEMPRESA_MUNICIPAL
+        )
 
 
 def test_emitente_todos_atributos_invalidos():

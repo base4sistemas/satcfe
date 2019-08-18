@@ -16,6 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
 from datetime import date
 from datetime import datetime
 
@@ -81,7 +85,7 @@ class AlertaCFePendentes(AlertaOperacao):
     """
 
     def __init__(self, resposta):
-        super().__init__(resposta)
+        super(AlertaCFePendentes, self).__init__(resposta)
         self._pendentes = 0
 
     @property
@@ -163,7 +167,7 @@ class AlertaVencimentoCertificado(AlertaOperacao):
     """
 
     def __init__(self, resposta):
-        super().__init__(resposta)
+        super(AlertaVencimentoCertificado, self).__init__(resposta)
         self._delta = None  # datetime.timedelta
 
     @property
@@ -224,7 +228,7 @@ class AlertaDivergenciaHorarios(AlertaOperacao):
     """Limite de tolerância, em segundos, para ativar o alerta."""
 
     def __init__(self, resposta):
-        super().__init__(resposta)
+        super(AlertaDivergenciaHorarios, self).__init__(resposta)
         self._dataref = _get_now()
         self._delta = None  # datetime.timedelta
 

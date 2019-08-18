@@ -16,6 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
+from builtins import str as text
+
 from ..excecoes import ExcecaoRespostaSAT
 from ..util import as_date
 from ..util import as_datetime
@@ -42,7 +48,7 @@ ESTADOS_OPERACAO = (
 
 
 def _stripped_str(s):
-    return s.strip()
+    return text(s).strip()
 
 
 class RespostaConsultarStatusOperacional(RespostaSAT):
@@ -55,49 +61,49 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
     +=====================+==================================+
     | ``numeroSessao``    | ``int``                          |
     +---------------------+----------------------------------+
-    | ``EEEEE``           | ``str``                          |
+    | ``EEEEE``           | ``text``                         |
     +---------------------+----------------------------------+
-    | ``mensagem``        | ``str``                          |
+    | ``mensagem``        | ``text``                         |
     +---------------------+----------------------------------+
-    | ``cod``             | ``str``                          |
+    | ``cod``             | ``text``                         |
     +---------------------+----------------------------------+
-    | ``mensagemSEFAZ``   | ``str``                          |
+    | ``mensagemSEFAZ``   | ``text``                         |
     +---------------------+----------------------------------+
-    | ``NSERIE``          | ``str``                          |
+    | ``NSERIE``          | ``text``                         |
     +---------------------+----------------------------------+
-    | ``TIPO_LAN``        | ``str``                          |
+    | ``TIPO_LAN``        | ``text``                         |
     +---------------------+----------------------------------+
-    | ``LAN_IP``          | ``str``                          |
+    | ``LAN_IP``          | ``text``                         |
     +---------------------+----------------------------------+
-    | ``LAN_MAC``         | ``str``                          |
+    | ``LAN_MAC``         | ``text``                         |
     +---------------------+----------------------------------+
-    | ``LAN_MASK``        | ``str``                          |
+    | ``LAN_MASK``        | ``text``                         |
     +---------------------+----------------------------------+
-    | ``LAN_GW``          | ``str``                          |
+    | ``LAN_GW``          | ``text``                         |
     +---------------------+----------------------------------+
-    | ``LAN_DNS_1``       | ``str``                          |
+    | ``LAN_DNS_1``       | ``text``                         |
     +---------------------+----------------------------------+
-    | ``LAN_DNS_2``       | ``str``                          |
+    | ``LAN_DNS_2``       | ``text``                         |
     +---------------------+----------------------------------+
-    | ``STATUS_LAN``      | ``str``                          |
+    | ``STATUS_LAN``      | ``text``                         |
     +---------------------+----------------------------------+
-    | ``NIVEL_BATERIA``   | ``str``                          |
+    | ``NIVEL_BATERIA``   | ``text``                         |
     +---------------------+----------------------------------+
-    | ``MT_TOTAL``        | ``str``                          |
+    | ``MT_TOTAL``        | ``text``                         |
     +---------------------+----------------------------------+
-    | ``MT_USADA``        | ``str``                          |
+    | ``MT_USADA``        | ``text``                         |
     +---------------------+----------------------------------+
     | ``DH_ATUAL``        | ``datetime.datetime``            |
     +---------------------+----------------------------------+
-    | ``VER_SB``          | ``str``                          |
+    | ``VER_SB``          | ``text``                         |
     +---------------------+----------------------------------+
-    | ``VER_LAYOUT``      | ``str``                          |
+    | ``VER_LAYOUT``      | ``text``                         |
     +---------------------+----------------------------------+
-    | ``ULTIMO_CF_E_SAT`` | ``str``                          |
+    | ``ULTIMO_CF_E_SAT`` | ``text``                         |
     +---------------------+----------------------------------+
-    | ``LISTA_INICIAL``   | ``str``                          |
+    | ``LISTA_INICIAL``   | ``text``                         |
     +---------------------+----------------------------------+
-    | ``LISTA_FINAL``     | ``str``                          |
+    | ``LISTA_FINAL``     | ``text``                         |
     +---------------------+----------------------------------+
     | ``DH_CFE``          | ``datetime.datetime``|``None``   |
     +---------------------+----------------------------------+
@@ -112,6 +118,12 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
 
     Em caso de falha, são esperados apenas os atributos padrão, conforme
     descrito na constante :attr:`~satcfe.resposta.padrao.RespostaSAT.CAMPOS`.
+
+    .. note::
+
+        Aqui, ``text`` diz respeito à um objeto ``unicode`` (Python 2) ou
+        ``str`` (Python 3). Veja ``builtins.str`` da biblioteca ``future``.
+
     """
 
     @property
@@ -139,7 +151,7 @@ class RespostaConsultarStatusOperacional(RespostaSAT):
                         ('NSERIE', _stripped_str),
                         ('TIPO_LAN', _stripped_str),
                         ('LAN_IP', normalizar_ip),
-                        ('LAN_MAC', str),
+                        ('LAN_MAC', text),
                         ('LAN_MASK', normalizar_ip),
                         ('LAN_GW', normalizar_ip),
                         ('LAN_DNS_1', normalizar_ip),

@@ -16,6 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import collections
 import ctypes
@@ -24,6 +27,8 @@ import warnings
 
 from ctypes import c_int
 from ctypes import c_char_p
+
+import six
 
 from satcomum import constantes
 
@@ -615,7 +620,7 @@ class FuncoesSAT(object):
 
 
 def resolver_documento(dados, *args, **kwargs):
-    if isinstance(dados, str):
+    if isinstance(dados, six.string_types):
         conteudo = dados
         if args or kwargs:
             warnings.warn(

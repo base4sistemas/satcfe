@@ -16,7 +16,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import xml.etree.ElementTree as ET
+
+from io import open
+
+from builtins import str as text
 
 from decimal import Decimal
 
@@ -30,8 +38,10 @@ from satcfe.util import str_to_base64
 
 
 def test_respostas_de_sucesso(datadir):
-    with open(datadir.join('respostas-de-sucesso.txt'), 'r') as f, \
-         open(datadir.join('cfecanc-autorizado.xml'), 'r') as fxml:
+    arquivo_sucesso = text(datadir.join('respostas-de-sucesso.txt'))
+    arquivo_cfecanc = text(datadir.join('cfecanc-autorizado.xml'))
+    with open(arquivo_sucesso, 'r', encoding='utf-8') as f, \
+            open(arquivo_cfecanc, 'r', encoding='utf-8') as fxml:
         r_sucessos = f.read().splitlines()
         cfecanc_autorizado = fxml.read()
 
@@ -61,7 +71,8 @@ def test_respostas_de_sucesso(datadir):
 
 
 def test_respostas_de_falha(datadir):
-    with open(datadir.join('respostas-de-falha.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-de-falha.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         respostas = f.read().splitlines()
     for retorno in respostas:
         with pytest.raises(ExcecaoRespostaSAT) as exsat:
@@ -80,7 +91,8 @@ def test_respostas_de_falha(datadir):
 
 
 def test_respostas_invalidas(datadir):
-    with open(datadir.join('respostas-invalidas.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-invalidas.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         r_invalidas = f.read().splitlines()
     for retorno in r_invalidas:
         with pytest.raises(ErroRespostaSATInvalida):

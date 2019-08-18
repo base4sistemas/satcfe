@@ -16,21 +16,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import xml.etree.ElementTree as ET
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from satcfe.entidades import InformacoesAdicionais
 
 
 def test_simples_minimo():
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <infAdic />
+
+    """
     inf = InformacoesAdicionais()
-    assert ET.tostring(inf._xml(), encoding='unicode') == '<infAdic />'
+    el = inf._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'infAdic'
+    assert len(list(el)) == 0
 
 
 def test_simples():
-    xml_esperado = (
-            '<infAdic>'
-            '<infCpl>Teste</infCpl>'
-            '</infAdic>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <infAdic>
+            <infCpl>Teste</infCpl>
+        </infAdic>
+
+    """
     inf = InformacoesAdicionais(infCpl='Teste')
-    assert ET.tostring(inf._xml(), encoding='unicode') == xml_esperado
+    el = inf._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'infAdic'
+    assert el.find('infCpl').text == 'Teste'

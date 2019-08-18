@@ -16,9 +16,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import xml.etree.ElementTree as ET
 
 from decimal import Decimal
+from io import open
+
+from builtins import str as text
 
 import pytest
 
@@ -30,8 +37,10 @@ from satcfe.util import str_to_base64
 
 
 def test_respostas_de_sucesso(datadir):
-    with open(datadir.join('respostas-de-sucesso.txt'), 'r') as fresp, \
-         open(datadir.join('cfe-autorizado.xml'), 'r') as fxml:
+    arquivo_sucesso = text(datadir.join('respostas-de-sucesso.txt'))
+    arquivo_cfesat = text(datadir.join('cfe-autorizado.xml'))
+    with open(arquivo_sucesso, 'r', encoding='utf-8') as fresp, \
+            open(arquivo_cfesat, 'r', encoding='utf-8') as fxml:
         r_sucessos = fresp.read().splitlines()
         cfe_autorizado = fxml.read()
 
@@ -61,7 +70,8 @@ def test_respostas_de_sucesso(datadir):
 
 
 def test_respostas_de_falha(datadir):
-    with open(datadir.join('respostas-de-falha.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-de-falha.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         respostas = f.read().splitlines()
 
     for retorno in respostas:
@@ -81,7 +91,8 @@ def test_respostas_de_falha(datadir):
 
 
 def test_respostas_invalidas(datadir):
-    with open(datadir.join('respostas-invalidas.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-invalidas.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         respostas = f.read().splitlines()
 
     for retorno in respostas:

@@ -16,7 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import xml.etree.ElementTree as ET
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import pytest
 import cerberus
@@ -25,22 +27,33 @@ from satcfe.entidades import LocalEntrega
 
 
 def test_simples_minimo():
-    xml_esperado = (
-            '<entrega>'
-            '<xLgr>Rua Armando Gulim</xLgr>'
-            '<nro>65</nro>'
-            '<xBairro>Parque Glória III</xBairro>'
-            '<xMun>Catanduva</xMun>'
-            '<UF>SP</UF>'
-            '</entrega>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <entrega>
+            <xLgr>Rua Armando Gulim</xLgr>
+            <nro>65</nro>
+            <xBairro>Parque Glória III</xBairro>
+            <xMun>Catanduva</xMun>
+            <UF>SP</UF>
+        </entrega>
+
+    """
     local = LocalEntrega(
             xLgr='Rua Armando Gulim',
             nro='65',
             xBairro='Parque Glória III',
             xMun='Catanduva',
             UF='SP')
-    assert ET.tostring(local._xml(), encoding='unicode') == xml_esperado
+
+    el = local._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'entrega'
+    assert el.find('xLgr').text == 'Rua Armando Gulim'
+    assert el.find('nro').text == '65'
+    assert el.find('xBairro').text == 'Parque Glória III'
+    assert el.find('xMun').text == 'Catanduva'
+    assert el.find('UF').text == 'SP'
 
 
 def test_uf_invalida():

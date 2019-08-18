@@ -16,30 +16,63 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import xml.etree.ElementTree as ET
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from satcomum import constantes
 from satcfe.entidades import CFeCancelamento
 
 
 def test_simples_minimo():
-    xml_esperado = (
-            '<CFeCanc>'
-            '<infCFe chCanc="CFe01234567890123456789012345678901234567890123">'
-            '<ide>'
-            '<CNPJ>08427847000169</CNPJ>'
-            '<signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC>'
-            '<numeroCaixa>001</numeroCaixa>'
-            '</ide>'
-            '<emit />'
-            '<dest />'
-            '<total />'
-            '</infCFe>'
-            '</CFeCanc>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <CFeCanc>
+            <infCFe chCanc="CFe01234567890123456789012345678901234567890123">
+                <ide>
+                    <CNPJ>08427847000169</CNPJ>
+                    <signAC>SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT</signAC>
+                    <numeroCaixa>001</numeroCaixa>
+                </ide>
+                <emit />
+                <dest />
+                <total />
+            </infCFe>
+        </CFeCanc>
+
+    """  # noqa: E501
+
     cfecanc = CFeCancelamento(
             chCanc='CFe01234567890123456789012345678901234567890123',
             CNPJ='08427847000169',
             signAC=constantes.ASSINATURA_AC_TESTE,
             numeroCaixa=1)
-    assert ET.tostring(cfecanc._xml(), encoding='unicode') == xml_esperado
+
+    el = cfecanc._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'CFeCanc'
+
+    infCFe = el.find('infCFe')
+    assert infCFe.attrib['chCanc'] == (
+            'CFe01234567890123456789012345678901234567890123'
+        )
+
+    ide = infCFe.find('ide')
+    assert ide.find('CNPJ').text == '08427847000169'
+    assert ide.find('numeroCaixa').text == '001'
+    assert ide.find('signAC').text == (
+            'SGR-SAT SISTEMA DE GESTAO E RETAGUARDA DO SAT'
+        )
+
+    emit = infCFe.find('emit')
+    assert emit is not None
+    assert len(list(emit)) == 0
+
+    dest = infCFe.find('dest')
+    assert dest is not None
+    assert len(list(dest)) == 0
+
+    total = infCFe.find('total')
+    assert total is not None
+    assert len(list(total)) == 0

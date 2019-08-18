@@ -16,7 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import xml.etree.ElementTree as ET
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from decimal import Decimal
 
@@ -32,75 +34,129 @@ from satcfe.entidades import COFINSST
 
 
 def test_COFINSAliq():
-    xml_esperado = (
-            '<COFINSAliq>'
-            '<CST>01</CST>'
-            '<vBC>1.00</vBC>'
-            '<pCOFINS>0.0065</pCOFINS>'
-            '</COFINSAliq>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <COFINSAliq>
+            <CST>01</CST>
+            <vBC>1.00</vBC>
+            <pCOFINS>0.0065</pCOFINS>
+        </COFINSAliq>
+
+    """
     cofins = COFINSAliq(
             CST='01',
             vBC=Decimal('1.00'),
             pCOFINS=Decimal('0.0065'))
-    assert ET.tostring(cofins._xml(), encoding='unicode') == xml_esperado
+
+    el = cofins._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'COFINSAliq'
+    assert el.find('CST').text == '01'
+    assert el.find('vBC').text == '1.00'
+    assert el.find('pCOFINS').text == '0.0065'
 
 
 def test_COFINSQtde():
-    xml_esperado = (
-            '<COFINSQtde>'
-            '<CST>03</CST>'
-            '<qBCProd>100.0000</qBCProd>'
-            '<vAliqProd>0.6500</vAliqProd>'
-            '</COFINSQtde>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <COFINSQtde>
+            <CST>03</CST>
+            <qBCProd>100.0000</qBCProd>
+            <vAliqProd>0.6500</vAliqProd>
+        </COFINSQtde>
+
+    """
     cofins = COFINSQtde(
             CST='03',
             qBCProd=Decimal('100.0000'),
             vAliqProd=Decimal('0.6500'))
-    assert ET.tostring(cofins._xml(), encoding='unicode') == xml_esperado
+
+    el = cofins._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'COFINSQtde'
+    assert el.find('CST').text == '03'
+    assert el.find('qBCProd').text == '100.0000'
+    assert el.find('vAliqProd').text == '0.6500'
 
 
 def test_COFINSNT():
-    xml_esperado = '<COFINSNT><CST>04</CST></COFINSNT>'
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <COFINSNT>
+            <CST>04</CST>
+        </COFINSNT>
+
+    """
     cofins = COFINSNT(CST='04')
-    assert ET.tostring(cofins._xml(), encoding='unicode') == xml_esperado
+    el = cofins._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'COFINSNT'
+    assert el.find('CST').text == '04'
 
 
 def test_COFINSSN():
-    xml_esperado = '<COFINSSN><CST>49</CST></COFINSSN>'
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <COFINSSN>
+            <CST>49</CST>
+        </COFINSSN>
+
+    """
     cofins = COFINSSN(CST='49')
-    assert ET.tostring(cofins._xml(), encoding='unicode') == xml_esperado
+    el = cofins._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'COFINSSN'
+    assert el.find('CST').text == '49'
 
 
 def test_COFINSOutr_simples_vBC():
-    xml_esperado = (
-            '<COFINSOutr>'
-            '<CST>99</CST>'
-            '<vBC>1.00</vBC>'
-            '<pCOFINS>0.0065</pCOFINS>'
-            '</COFINSOutr>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <COFINSOutr>
+            <CST>99</CST>
+            <vBC>1.00</vBC>
+            <pCOFINS>0.0065</pCOFINS>
+        </COFINSOutr>
+
+    """
     cofins = COFINSOutr(
             CST='99',
             vBC=Decimal('1.00'),
             pCOFINS=Decimal('0.0065'))
-    assert ET.tostring(cofins._xml(), encoding='unicode') == xml_esperado
+    el = cofins._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'COFINSOutr'
+    assert el.find('CST').text == '99'
+    assert el.find('vBC').text == '1.00'
+    assert el.find('pCOFINS').text == '0.0065'
 
 
 def test_COFINSOutr_simples_qBCProd():
-    xml_esperado = (
-            '<COFINSOutr>'
-            '<CST>99</CST>'
-            '<qBCProd>100.0000</qBCProd>'
-            '<vAliqProd>0.6500</vAliqProd>'
-            '</COFINSOutr>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <COFINSOutr>
+            <CST>99</CST>
+            <qBCProd>100.0000</qBCProd>
+            <vAliqProd>0.6500</vAliqProd>
+        </COFINSOutr>
+
+    """
     cofins = COFINSOutr(
             CST='99',
             qBCProd=Decimal('100.0000'),
             vAliqProd=Decimal('0.6500'))
-    assert ET.tostring(cofins._xml(), encoding='unicode') == xml_esperado
+    el = cofins._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'COFINSOutr'
+    assert el.find('CST').text == '99'
+    assert el.find('qBCProd').text == '100.0000'
+    assert el.find('vAliqProd').text == '0.6500'
 
 
 def test_COFINSOutr_vBC_sem_pCOFINS():
@@ -152,27 +208,43 @@ def test_COFINSOutr_vAliqProd_sem_qBCProd():
 
 
 def test_COFINSST_simples_vBC():
-    xml_esperado = (
-            '<COFINSST>'
-            '<vBC>1.00</vBC>'
-            '<pCOFINS>0.0065</pCOFINS>'
-            '</COFINSST>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <COFINSST>
+            <vBC>1.00</vBC>
+            <pCOFINS>0.0065</pCOFINS>
+        </COFINSST>
+
+    """
     cofins = COFINSST(vBC=Decimal('1.00'), pCOFINS=Decimal('0.0065'))
-    assert ET.tostring(cofins._xml(), encoding='unicode') == xml_esperado
+    el = cofins._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'COFINSST'
+    assert el.find('CST') is None
+    assert el.find('vBC').text == '1.00'
+    assert el.find('pCOFINS').text == '0.0065'
 
 
 def test_COFINSST_simples_qBCProd():
-    xml_esperado = (
-            '<COFINSST>'
-            '<qBCProd>100.0000</qBCProd>'
-            '<vAliqProd>0.6500</vAliqProd>'
-            '</COFINSST>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <COFINSST>
+            <qBCProd>100.0000</qBCProd>
+            <vAliqProd>0.6500</vAliqProd>
+        </COFINSST>
+
+    """
     cofins = COFINSST(
             qBCProd=Decimal('100.0000'),
             vAliqProd=Decimal('0.6500'))
-    assert ET.tostring(cofins._xml(), encoding='unicode') == xml_esperado
+    el = cofins._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'COFINSST'
+    assert el.find('CST') is None
+    assert el.find('qBCProd').text == '100.0000'
+    assert el.find('vAliqProd').text == '0.6500'
 
 
 def test_COFINSST_vBC_sem_pCOFINS():

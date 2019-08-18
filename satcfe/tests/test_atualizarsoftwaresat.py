@@ -16,6 +16,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
+from io import open
+
+from builtins import str as text
+
 import pytest
 
 from satcfe.excecoes import ErroRespostaSATInvalida
@@ -24,7 +32,8 @@ from satcfe.resposta import RespostaSAT
 
 
 def test_respostas_de_sucesso(datadir):
-    with open(datadir.join('respostas-de-sucesso.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-de-sucesso.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         respostas = f.read().splitlines()
 
     for retorno in respostas:
@@ -33,7 +42,8 @@ def test_respostas_de_sucesso(datadir):
 
 
 def test_respostas_de_falha(datadir):
-    with open(datadir.join('respostas-de-falha.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-de-falha.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         respostas = f.read().splitlines()
 
     for retorno in respostas:
@@ -42,7 +52,8 @@ def test_respostas_de_falha(datadir):
 
 
 def test_respostas_invalidas(datadir):
-    with open(datadir.join('respostas-invalidas.txt'), 'r') as f:
+    arquivo = text(datadir.join('respostas-invalidas.txt'))
+    with open(arquivo, 'r', encoding='utf-8') as f:
         respostas = f.read().splitlines()
 
     for retorno in respostas:

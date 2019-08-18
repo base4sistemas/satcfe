@@ -16,16 +16,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import xml.etree.ElementTree as ET
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from satcfe.entidades import ObsFiscoDet
 
 
 def test_simples():
-    xml_esperado = (
-            '<obsFiscoDet xCampoDet="Cod. Produto ANP">'
-            '<xTextoDet>320101001</xTextoDet>'
-            '</obsFiscoDet>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <obsFiscoDet xCampoDet="Cod. Produto ANP">
+            <xTextoDet>320101001</xTextoDet>
+        </obsFiscoDet>
+
+    """
     obs = ObsFiscoDet(xCampoDet='Cod. Produto ANP', xTextoDet='320101001')
-    assert ET.tostring(obs._xml(), encoding='unicode') == xml_esperado
+    el = obs._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'obsFiscoDet'
+    assert el.attrib['xCampoDet'] == 'Cod. Produto ANP'
+    assert el.find('xTextoDet').text == '320101001'

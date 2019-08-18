@@ -16,7 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import xml.etree.ElementTree as ET
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import pytest
 import cerberus
@@ -25,29 +27,52 @@ from satcfe.entidades import Destinatario
 
 
 def test_sem_destinario():
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <dest />
+
+    """
     dest = Destinatario()
-    assert ET.tostring(dest._xml(), encoding='unicode') == '<dest />'
+    el = dest._xml()  # xml.etree.ElementTree.Element
+    assert el is not None
+    assert el.tag == 'dest'
+    assert len(list(el)) == 0
 
 
 def test_simples_minimo():
-    xml_esperado = (
-            '<dest>'
-            '<CNPJ>08427847000169</CNPJ>'
-            '</dest>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <dest>
+            <CNPJ>08427847000169</CNPJ>
+        </dest>
+
+    """
     dest = Destinatario(CNPJ='08427847000169')
-    assert ET.tostring(dest._xml(), encoding='unicode') == xml_esperado
+    el = dest._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'dest'
+    assert el.find('CNPJ').text == '08427847000169'
 
 
 def test_simples():
-    xml_esperado = (
-            '<dest>'
-            '<CPF>11122233396</CPF>'
-            '<xNome>Fulano Beltrano</xNome>'
-            '</dest>'
-        )
+    """XML esperado:
+
+    .. sourcecode:: xml
+
+        <dest>
+            <CPF>11122233396</CPF>
+            <xNome>Fulano Beltrano</xNome>
+        </dest>
+
+    """
     dest = Destinatario(CPF='11122233396', xNome='Fulano Beltrano')
-    assert ET.tostring(dest._xml(), encoding='unicode') == xml_esperado
+    el = dest._xml()  # xml.etree.ElementTree.Element
+    assert el.tag == 'dest'
+    assert el.find('CPF').text == '11122233396'
+    assert el.find('xNome').text == 'Fulano Beltrano'
 
 
 def test_cnpj_e_cpf_sao_mutuamente_exclusivos():
@@ -79,8 +104,17 @@ def test_cpf_invalido():
 
 
 def test_destinatario_para_cancelamento():
-    # no XML de cancelamento, o nome deverá ser ignorado
-    dest = Destinatario(CPF='11122233396', xNome=u'Fulano Beltrano')
-    assert ET.tostring(dest._xml(cancelamento=True), encoding='unicode') == (
-            '<dest><CPF>11122233396</CPF></dest>'
-        )
+    """No XML de cancelamento, o nome deverá ser ignorado. XML esperado:
+
+    .. sourcecode:: xml
+
+        <dest>
+            <CPF>11122233396</CPF>
+        </dest>
+
+    """
+    dest = Destinatario(CPF='11122233396', xNome='Fulano Beltrano')
+    el = dest._xml(cancelamento=True)  # xml.etree.ElementTree.Element
+    assert el.tag == 'dest'
+    assert el.find('xNome') is None
+    assert el.find('CPF').text == '11122233396'

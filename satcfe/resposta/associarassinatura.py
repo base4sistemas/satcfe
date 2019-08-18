@@ -16,6 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
+from builtins import str as text
+
 from ..excecoes import ExcecaoRespostaSAT
 from .padrao import RespostaSAT
 from .padrao import analisar_retorno
@@ -29,11 +35,16 @@ class RespostaAssociarAssinatura(RespostaSAT):
     .. sourcecode:: text
 
         numeroSessao (int)
-        EEEEE (str)
-        CCCC (str)
-        mensagem (str)
-        cod (str)
-        mensagemSEFAZ (str)
+        EEEEE (text)
+        CCCC (text)
+        mensagem (text)
+        cod (text)
+        mensagemSEFAZ (text)
+
+    .. note::
+
+        Aqui, ``text`` diz respeito à um objeto ``unicode`` (Python 2) ou
+        ``str`` (Python 3). Veja ``builtins.str`` da biblioteca ``future``.
 
     """
 
@@ -49,11 +60,11 @@ class RespostaAssociarAssinatura(RespostaSAT):
                 classe_resposta=RespostaAssociarAssinatura,
                 campos=(
                         ('numeroSessao', int),
-                        ('EEEEE', str),
-                        ('CCCC', str),
-                        ('mensagem', str),
-                        ('cod', str),
-                        ('mensagemSEFAZ', str),
+                        ('EEEEE', text),
+                        ('CCCC', text),
+                        ('mensagem', text),
+                        ('cod', text),
+                        ('mensagemSEFAZ', text),
                     ),
                 campos_alternativos=[
                         # se a ativação falhar espera-se o padrão de campos

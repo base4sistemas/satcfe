@@ -16,12 +16,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import os
 import re
 import shutil
 
 from collections import namedtuple
 from decimal import Decimal
+
+from builtins import str as text
 
 import pytest
 
@@ -313,7 +319,8 @@ def datadir(tmpdir, request):
             filename = os.path.join(dirname, name)
             if os.path.isfile(filename):
                 # copia apenas arquivos regulares (os.path.isfile)
-                shutil.copy(filename, tmpdir)
+                dst = text(tmpdir)
+                shutil.copy(filename, dst)
 
     return tmpdir
 
