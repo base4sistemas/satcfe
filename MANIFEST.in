@@ -1,3 +1,4 @@
 include LICENSE
 include README.rst
-graft requirements
+graft docs
+prune docs/_build

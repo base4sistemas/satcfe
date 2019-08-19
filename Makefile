@@ -16,7 +16,7 @@
 #  limitations under the License.
 #
 
-.PHONY: main clean mockuplib test testall
+.PHONY: main clean fullclean mockuplib test testall docs
 .ONESHELL:
 
 main:
@@ -28,8 +28,14 @@ clean:
 	find . -type d -name '.pytest_cache' -exec rm -rv {} +
 	find . -type d -name 'satcfe.egg-info' -exec rm -rv {} +
 	find . -name '*.pyc' -delete -print
+
+fullclean: clean
 	find . -name 'mockupsat.o' -delete -print
 	find . -name 'libmockupsat.so' -delete -print
+	find . -type d -path './dist' -exec rm -rv {} +
+	find . -type d -path './build' -exec rm -rv {} +
+	find . -type d -path './docs/_build' -exec rm -rv {} +
+	find . -type d -path './.eggs' -exec rm -rv {} +
 
 mockuplib: clean
 	cd satcfe/tests/mockup/
@@ -56,3 +62,6 @@ testall: clean mockuplib
 		--invoca-bloquearsat \
 		--invoca-desbloquearsat \
 		--invoca-trocarcodigodeativacao "
+
+docs: clean
+	cd docs && pipenv run make html

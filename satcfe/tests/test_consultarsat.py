@@ -22,14 +22,10 @@ from __future__ import unicode_literals
 
 import pytest
 
-from unidecode import unidecode
-
 
 @pytest.mark.acessa_sat
 @pytest.mark.invoca_consultarsat
 def test_consultarsat(clientesatlocal):
     resposta = clientesatlocal.consultar_sat()
     assert resposta.EEEEE in ('08000',)
-    assert unidecode(resposta.mensagem).lower() == 'sat em operacao'
-    # Cada equipamento pode resultar a mensagem de um jeito, por exemplo,
-    # com "o" de "operação" em maiúsculo, com ou sem acentuação, etc;
+    assert resposta.mensagem == 'SAT em Operação'

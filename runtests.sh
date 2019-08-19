@@ -98,7 +98,7 @@ case "$1" in
 
 esac
 
-python setup.py test -a "-rs "\
+pipenv run python setup.py test -a "-rs "\
 "--cnpj-ac=$SATCFE_TEST_CNPJ_AC "\
 "--emitente-cnpj=$SATCFE_TEST_EMITENTE_CNPJ "\
 "--emitente-ie=$SATCFE_TEST_EMITENTE_IE "\

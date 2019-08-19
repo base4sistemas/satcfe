@@ -6,6 +6,10 @@ Projeto SATCFe
     :target: https://pypi.python.org/pypi/satcfe/
     :alt: Development status
 
+.. image:: https://img.shields.io/pypi/v/satcfe.svg
+    :target: https://pypi.python.org/pypi/satcfe/
+    :alt: PyPI - Latest version
+
 .. image:: https://img.shields.io/pypi/pyversions/satcfe.svg
     :target: https://pypi.python.org/pypi/satcfe/
     :alt: PyPI - Python version
@@ -13,14 +17,6 @@ Projeto SATCFe
 .. image:: https://img.shields.io/pypi/l/satcfe.svg
     :target: https://pypi.python.org/pypi/satcfe/
     :alt: PyPI - License
-
-.. image:: https://img.shields.io/pypi/v/satcfe.svg
-    :target: https://pypi.python.org/pypi/satcfe/
-    :alt: PyPI - Latest version
-
-.. image:: https://img.shields.io/badge/docs-latest-green.svg
-    :target: http://satcfe.readthedocs.io/
-    :alt: Latest documentation
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
    :target: https://gitter.im/base4sistemas/satcfe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
@@ -43,6 +39,10 @@ Projeto SATCFe
 .. image:: https://travis-ci.org/base4sistemas/satcfe.svg?branch=master
     :target: https://travis-ci.org/base4sistemas/satcfe
     :alt: Travis-CI - Build status
+
+.. image:: https://img.shields.io/badge/docs-latest-green.svg
+    :target: http://satcfe.readthedocs.io/
+    :alt: Latest documentation
 
 -------
 
@@ -73,8 +73,8 @@ Este é um exemplo básico de uso, para consultar o equipamento SAT:
     ...         codigo_ativacao='12345678')
     ...
     >>> resposta = cliente.consultar_sat()
-    >>> resposta.mensagem
-    u'SAT em Opera\xe7\xe3o'
+    >>> print(resposta.mensagem)
+    'SAT em Operação'
 
 
 Executando os Testes
@@ -171,7 +171,11 @@ biblioteca SAT, faça:
 
 .. sourcecode:: shell
 
-    $ python setup.py test
+    $ git clone git@github.com:base4sistemas/satcfe.git
+    $ cd satcfe
+    $ make mockuplib
+    $ pipenv install --dev --clear
+    $ pipenv run tox
 
 Se não quiser (ou não puder) usar o script ``runtests.sh`` por alguma razão,
 você poderá comandar a execução dos testes unitários e dos testes que acessam a
@@ -180,7 +184,7 @@ uma). Por exemplo, para executar o teste da função ``ConsultarSAT`` faça:
 
 .. sourcecode:: shell
 
-    $ python setup.py test -a "--acessa-sat --invoca-consultarsat"
+    $ pipenv run python setup.py test -a "--acessa-sat --invoca-consultarsat"
 
 
 Executando Testes usando GNU Make
@@ -192,6 +196,7 @@ acessam as funções da biblioteca SAT, faça:
 
 .. sourcecode:: shell
 
+    $ pipenv shell
     $ make test
 
 Para executar todos os testes, **inclusive os testes contra a biblioteca SAT**,
