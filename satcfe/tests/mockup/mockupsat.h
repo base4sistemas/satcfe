@@ -101,4 +101,9 @@ extern char *TrocarCodigoDeAtivacao(
                     char    *novo_codigo,
                     char    *novo_codigo_confirmacao);
 
+
+extern char *ConsultarUltimaSessaoFiscal(
+                    int     sessao,
+                    char    *codigo_ativacao);
+
 #endif // mockupsat_h__

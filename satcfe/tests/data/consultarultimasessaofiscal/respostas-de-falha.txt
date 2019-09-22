@@ -1,0 +1,5 @@
+123456|19001|Código de ativação inválido||
+123456|19002|SAT ainda não ativado||
+123456|19003|Não existe sessão fiscal||
+123456|19098|SAT em processamento. Tente novamente.||
+123456|19099|Erro desconhecido||

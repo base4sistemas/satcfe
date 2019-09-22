@@ -61,7 +61,8 @@ FUNCTION_PROTOTYPES = dict(
                 c_char_p,
                 c_int,
                 c_char_p,
-                c_char_p])
+                c_char_p]),
+        ConsultarUltimaSessaoFiscal=_Prototype([c_int, c_char_p]),
     )
 
 
@@ -201,6 +202,8 @@ class FuncoesSAT(object):
     | 6.1.14  | ``DesbloquearSAT``                | :meth:`desbloquear_sat`                 |
     +---------+-----------------------------------+-----------------------------------------+
     | 6.1.15  | ``TrocarCodigoDeAtivacao``        | :meth:`trocar_codigo_de_ativacao`       |
+    +---------+-----------------------------------+-----------------------------------------+
+    | 6.1.16  | ``ConsultarUltimaSessaoFiscal``   | :meth:`consultar_ultima_sessao_fiscal`  |
     +---------+-----------------------------------+-----------------------------------------+
 
     :param biblioteca: Uma instância de :class:`BibliotecaSAT`.
@@ -616,6 +619,21 @@ class FuncoesSAT(object):
         # atual para o novo código de ativação em caso de sucesso ao analisar o
         # retorno da função, para que as chamadas às funções SAT subsequentes
         # tenham sucesso.
+        return resposta
+
+    def consultar_ultima_sessao_fiscal(self):
+        """Função ``ConsultarUltimaSessaoFiscal`` conforme ER SAT, item 6.1.16.
+        Retorna a resposta da última sessão fiscal, isto é, do último comando
+        fiscal (``EnviarDadosVenda`` ou ``CancelarUltimaVenda``) executado pelo
+        equipamento SAT.
+
+        :return: Retorna *verbatim* a resposta da função SAT.
+        :rtype: string
+        """
+        resposta = self._invocar(
+                'ConsultarUltimaSessaoFiscal',
+                self.gerar_numero_sessao(),
+                self._codigo_ativacao)
         return resposta
 
 

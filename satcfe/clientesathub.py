@@ -39,6 +39,7 @@ from .resposta import RespostaAtivarSAT
 from .resposta import RespostaCancelarUltimaVenda
 from .resposta import RespostaConsultarNumeroSessao
 from .resposta import RespostaConsultarStatusOperacional
+from .resposta import RespostaConsultarUltimaSessaoFiscal
 from .resposta import RespostaEnviarDadosVenda
 from .resposta import RespostaExtrairLogs
 from .resposta import RespostaSAT
@@ -299,3 +300,20 @@ class ClienteSATHub(FuncoesSAT):
         # alterna o código de ativação para o novo código de ativação em caso
         # de sucesso na troca.
         return RespostaSAT.trocar_codigo_de_ativacao(conteudo.get('retorno'))
+
+    def consultar_ultima_sessao_fiscal(self):
+        """Sobrepõe :meth:`~satcfe.base.FuncoesSAT.consultar_ultima_sessao_fiscal`.
+
+        :return: Uma resposta SAT que irá depender do último comando "fiscal"
+            executado pelo equipmamento SAT, que poderá ser uma venda ou um
+            cancelamento de venda.
+
+        :rtype: satcfe.resposta.consultarultimasessaofiscal.RespostaConsultarUltimaSessaoFiscal |
+            satcfe.resposta.enviardadosvenda.RespostaEnviarDadosVenda |
+            satcfe.resposta.cancelarultimavenda.RespostaCancelarUltimaVenda
+
+        """  # noqa: E501
+        resp = self._http_post('consultarultimasessaofiscal')
+        conteudo = resp.json()
+        retorno = conteudo.get('retorno')
+        return RespostaConsultarUltimaSessaoFiscal.analisar(retorno)

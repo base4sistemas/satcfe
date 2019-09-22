@@ -131,6 +131,7 @@ _MARKERS = [
         _marker_data('BloquearSAT'),
         _marker_data('DesbloquearSAT'),
         _marker_data('TrocarCodigoDeAtivacao'),
+        _marker_data('ConsultarUltimaSessaoFiscal'),
     ]
 
 

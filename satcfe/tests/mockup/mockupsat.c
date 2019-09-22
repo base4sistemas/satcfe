@@ -414,3 +414,13 @@ char *TrocarCodigoDeAtivacao(
                      "ativa" "\xc3\xa7\xc3\xa3" "o alterado com sucesso";
     return _resposta_padrao(sessao, 18000, mensagem);
 }
+
+
+char *ConsultarUltimaSessaoFiscal(
+            int     sessao,
+            char    *codigo_ativacao)
+{
+    // sempre indica que não existe sessão fiscal (EEEEE 19003).
+    char *mensagem = "N\xc3\xa3o existe sess\xc3\xa3o fiscal";
+    return _resposta_padrao(sessao, 19003, mensagem);
+}

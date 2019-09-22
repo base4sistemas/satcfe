@@ -25,6 +25,7 @@ from .ativarsat import RespostaAtivarSAT  # noqa: F401
 from .cancelarultimavenda import RespostaCancelarUltimaVenda  # noqa: F401
 from .consultarnumerosessao import RespostaConsultarNumeroSessao  # noqa: F401
 from .consultarstatusoperacional import RespostaConsultarStatusOperacional  # noqa: F401, E501
+from .consultarultimasessaofiscal import RespostaConsultarUltimaSessaoFiscal  # noqa: F401, E501
 from .enviardadosvenda import RespostaEnviarDadosVenda  # noqa: F401
 from .extrairlogs import RespostaExtrairLogs  # noqa: F401
 from .padrao import RespostaSAT  # noqa: F401
