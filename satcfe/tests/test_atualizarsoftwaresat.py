@@ -63,7 +63,7 @@ def test_respostas_invalidas(datadir):
 
 @pytest.mark.acessa_sat
 @pytest.mark.invoca_atualizarsoftwaresat
-def test_funcao_ativarsat(request, clientesatlocal):
+def test_funcao_atualizarsoftwaresat(request, clientesatlocal):
     # Este teste baseia-se na resposta da biblioteca SAT de simulação (mockup)
     # que é usada nos testes do projeto SATHub. Sempre atualiza com sucesso.
     #

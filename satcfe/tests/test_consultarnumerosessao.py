@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/tests/consultarnumerosessao.py
+# satcfe/tests/test_consultarnumerosessao.py
 #
 # Copyright 2019 Base4 Sistemas Ltda ME
 #
@@ -74,7 +74,7 @@ def test_respostas_invalidas(datadir):
 
 @pytest.mark.acessa_sat
 @pytest.mark.invoca_consultarnumerosessao
-def test_funcao_enviardadosvenda(clientesatlocal):
+def test_funcao_consultarnumerosessao(clientesatlocal):
     # Este teste baseia-se na resposta da biblioteca SAT de simulação (mockup)
     # que é usada nos testes do projeto SATHub. Nesta biblioteca, a função
     # ConsultarNumeroSessao sempre indica que o número de sessão consultado

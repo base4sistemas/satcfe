@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# satcfe/tests/test_testefimafim.py
+# satcfe/tests/test_configurarinterfacederede.py
 #
 # Copyright 2019 Base4 Sistemas Ltda ME
 #
