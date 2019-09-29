@@ -97,6 +97,7 @@ Conteúdo
    alertas
    exemplos
    api
+   testes
 
 
 Tabelas e Índices
