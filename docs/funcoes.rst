@@ -273,6 +273,54 @@ será a resposta de um cancelamento, resultando em uma instância de
       sessão (algo como uma *meta consulta*), a função também irá falhar.
 
 
+ConsultarUltimaSessaoFiscal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A função ``ConsultarUltimaSessaoFiscal`` (ER item 6.1.16, método
+:meth:`~satcfe.clientelocal.ClienteSATLocal.consultar_ultima_sessao_fiscal`),
+como o nome sugere, resulta na resposta da última sessão fiscal executada pelo
+equipamento SAT. É considerada uma "sessão fiscal" um comando de venda ou de
+cancelamento de venda, respectivamente
+:meth:`~satcfe.clientelocal.ClienteSATLocal.enviar_dados_venda` ou
+:meth:`~satcfe.clientelocal.ClienteSATLocal.cancelar_ultima_venda`, e suas
+respostas,
+:class:`~satcfe.resposta.enviardadosvenda.RespostaEnviarDadosVenda` ou
+:class:`~satcfe.resposta.cancelarultimavenda.RespostaCancelarUltimaVenda`.
+
+Por exemplo, suponha que a última sessão fiscal executada pelo equipamento SAT
+tenha sido um comando de venda:
+
+.. sourcecode:: python
+
+    >>> resp = cliente.consultar_ultima_sessao_fiscal()
+    >>> resp
+    <satcfe.resposta.enviardadosvenda.RespostaEnviarDadosVenda at 0x7f1817971950>
+
+Conforme descrito na especificação de requisitos do SAT, se o equipamento ainda
+não tiver executado nenhum comando fiscal (venda ou cancelamento), a resposta
+deverá indicar o código de retorno ``EEEEE`` igual a ``19003`` que significa
+"Não existe sessão fiscal".
+
+.. sourcecode:: python
+
+    >>> try:
+    ...     # suponha que o equipamento nunca tenha executado um comando fiscal
+    ...     resp = cliente.consultar_ultima_sessao_fiscal()
+    ... except ExcecaoRespostaSAT as err:
+    ...     pass
+    ...
+
+    >>> err.resposta.EEEEE
+    '19003'
+
+    >>> err.resposta.mensagem
+    'Não existe sessão fiscal'
+
+Veja mais detalhes em :ref:`venda-e-cancelamento`.
+
+.. versionadded:: 2.0
+
+
 ExtrairLogs
 ~~~~~~~~~~~
 
