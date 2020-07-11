@@ -22,7 +22,7 @@ from __future__ import unicode_literals
 
 import logging
 
-__version__ = '2.0'
+__version__ = '2.1'
 
 logging.getLogger('satcfe').addHandler(logging.NullHandler())
 
