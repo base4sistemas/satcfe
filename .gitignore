@@ -1,12 +1,14 @@
 __pycache__/
 .cache/
-.pytest_cache/
 .tox/
+.idea/
+.env/
+.env_satcfe/
+.pytest_cache/
 
 /build/
 /dist/
-/satcfe.egg-info/
-/*.egg/
+/*.egg-info/
 /*.eggs/
 /docs/_build/
 
@@ -17,5 +19,5 @@ __pycache__/
 *.pyd
 *.sublime-workspace
 
-satcfe/tests/mockup/libmockupsat.so
-satcfe/tests/mockup/mockupsat.o
+tests/mockup/libmockupsat.so
+tests/mockup/mockupsat.o

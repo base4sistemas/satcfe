@@ -30,23 +30,24 @@ clean:
 	find . -name '*.pyc' -delete -print
 
 fullclean: clean
-	find . -name 'mockupsat.o' -delete -print
-	find . -name 'libmockupsat.so' -delete -print
-	find . -type d -path './dist' -exec rm -rv {} +
-	find . -type d -path './build' -exec rm -rv {} +
-	find . -type d -path './docs/_build' -exec rm -rv {} +
-	find . -type d -path './.eggs' -exec rm -rv {} +
+	find . -type d -path 'dist' -exec rm -rv {} +
+	find . -type d -path 'build' -exec rm -rv {} +
+	find . -type d -path '.eggs' -exec rm -rv {} +
+	find . -type d -path '.tox' -exec rm -rv {} +
+	find . -type d -path 'docs/_build' -exec rm -rv {} +
+	cd tests/mockup && $(MAKE) clean
 
-mockuplib: clean
-	cd satcfe/tests/mockup/
-	gcc -c -Wall -Werror -fpic mockupsat.c
-	gcc -shared -o libmockupsat.so mockupsat.o
+mockuplib:
+	cd tests/mockup && $(MAKE)
 
 test: clean
-	pipenv run python setup.py test
+	pytest
 
-testall: clean mockuplib
-	pipenv run python setup.py test -a "--acessa-sat \
+testall: mockuplib
+	pytest \
+		--lib-caminho tests/mockup/libmockupsat.so \
+		--lib-convencao 1 \
+		--acessa-sat \
 		--invoca-ativarsat \
 		--invoca-comunicarcertificadoicpbrasil \
 		--invoca-enviardadosvenda \
@@ -61,7 +62,7 @@ testall: clean mockuplib
 		--invoca-extrairlogs \
 		--invoca-bloquearsat \
 		--invoca-desbloquearsat \
-		--invoca-trocarcodigodeativacao "
+		--invoca-trocarcodigodeativacao
 
 docs: clean
-	cd docs && pipenv run make html
+	cd docs && $(MAKE) html

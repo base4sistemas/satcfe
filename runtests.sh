@@ -98,7 +98,9 @@ case "$1" in
 
 esac
 
-pipenv run python setup.py test -a "-rs "\
+# Adicione ou remova funções da biblioteca SAT que quer invocar
+# ou deixar de invocar.
+pytest -a "-rs "\
 "--cnpj-ac=$SATCFE_TEST_CNPJ_AC "\
 "--emitente-cnpj=$SATCFE_TEST_EMITENTE_CNPJ "\
 "--emitente-ie=$SATCFE_TEST_EMITENTE_IE "\
@@ -112,4 +114,3 @@ pipenv run python setup.py test -a "-rs "\
 "--acessa-sat "\
 "--invoca-consultarsat "\
 "--invoca-consultarstatusoperacional "
-# adicione ou remova funções da biblioteca SAT que invocar ou deixar de invocar

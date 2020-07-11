@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 #
-# .travis.yml
+# tests/test_consultarsat.py
 #
-# Copyright 2019 Base4 Sistemas Ltda ME
+# Copyright 2015 Base4 Sistemas Ltda ME
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,18 +16,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
-language: python
-dist: bionic
+import pytest
 
-python:
-  - "2.7"
-  - "3.6"
-  - "3.7"
-  - "3.8"
 
-install:
-  - pip install -r requirements/dev.txt
-
-script:
-  - make testall
+@pytest.mark.acessa_sat
+@pytest.mark.invoca_consultarsat
+def test_consultarsat(clientesatlocal):
+    resposta = clientesatlocal.consultar_sat()
+    assert resposta.EEEEE in ('08000',)
+    assert resposta.mensagem == 'SAT em Operação'

@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# .travis.yml
+# tests/__init__.py
 #
 # Copyright 2019 Base4 Sistemas Ltda ME
 #
@@ -15,18 +16,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-language: python
-dist: bionic
-
-python:
-  - "2.7"
-  - "3.6"
-  - "3.7"
-  - "3.8"
-
-install:
-  - pip install -r requirements/dev.txt
-
-script:
-  - make testall

@@ -2,25 +2,33 @@
 Projeto SATCFe
 ==============
 
+.. image:: https://travis-ci.org/base4sistemas/satcfe.svg?branch=master
+    :target: https://travis-ci.org/base4sistemas/satcfe
+    :alt: Build status
+
 .. image:: https://img.shields.io/pypi/status/satcfe.svg
     :target: https://pypi.python.org/pypi/satcfe/
     :alt: Development status
 
-.. image:: https://img.shields.io/pypi/v/satcfe.svg
-    :target: https://pypi.python.org/pypi/satcfe/
-    :alt: PyPI - Latest version
+.. image:: https://img.shields.io/badge/docs-latest-green.svg
+    :target: https://satcfe.readthedocs.io/
+    :alt: Latest documentation
 
-.. image:: https://img.shields.io/pypi/pyversions/satcfe.svg
+.. image:: https://img.shields.io/badge/python%20version-2.7-blue.svg
     :target: https://pypi.python.org/pypi/satcfe/
-    :alt: PyPI - Python version
+    :alt: Supported Python versions
 
 .. image:: https://img.shields.io/pypi/l/satcfe.svg
     :target: https://pypi.python.org/pypi/satcfe/
-    :alt: PyPI - License
+    :alt: License
+
+.. image:: https://img.shields.io/pypi/v/satcfe.svg
+    :target: https://pypi.python.org/pypi/satcfe/
+    :alt: Latest version
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/base4sistemas/satcfe
    :target: https://gitter.im/base4sistemas/satcfe?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-   :alt: Join chat on Gitter
 
 -------
 
@@ -35,16 +43,6 @@ Projeto SATCFe
 
 -------
 
-.. image:: https://travis-ci.org/base4sistemas/satcfe.svg?branch=master
-    :target: https://travis-ci.org/base4sistemas/satcfe
-    :alt: Travis-CI - Build status
-
-.. image:: https://img.shields.io/badge/docs-latest-green.svg
-    :target: http://satcfe.readthedocs.io/
-    :alt: Latest documentation
-
--------
-
 Este projeto refere-se à tecnologia `SAT-CF-e`_ desenvolvida pela Secretaria da
 Fazenda do Estado de São Paulo e faz parte de um grupo de cinco projetos que
 resolvem problemas específicos, mas relacionados.
@@ -53,12 +51,12 @@ Especificamente, este projeto é uma abstração para acesso às funções da
 biblioteca SAT que é fornecida pelos fabricantes dos equipamentos. Para
 maiores informações, consulte a `documentação do projeto <http://satcfe.readthedocs.io/>`_.
 
-Se estiver procurando meios para emitir um extrato do CF-e-SAT, o
+Se estiver procurando meios para imprimir um extrato do CF-e-SAT, o
 `Projeto SATExtrato`_ pode ajudar.
 
 
 Exemplo de Uso
---------------
+==============
 
 Este é um exemplo básico de uso, sobre como consultar o equipamento SAT
 conectado e configurado no computador local:
@@ -83,48 +81,56 @@ Se precisar de ajuda, você pode recorrer à sala de *chat* do projeto
 no `Gitter <https://gitter.im/base4sistemas/satcfe>`_.
 
 
-Execução dos Testes
--------------------
+Desenvolvimento e Testes
+========================
 
-Este é um tópico voltado para aquelas pessoas interessadas no desenvolvimento
-deste projeto em si ou para aqueles que queiram experimentar algum *setup*
-alternativo, como outras versões de Python ou das dependências do projeto.
+Configure o ambiente de desenvolvimento:
+
+.. sourcecode:: shell
+
+    $ git clone git@github.com:base4sistemas/satcfe.git
+    $ cd satcfe
+    $ python -m venv .env
+    $ source .env/bin/activate
+    (.env) $ pip install -r requirements/dev.txt
 
 Para facilitar a execução dos testes e não correr riscos de executar certos
 comandos em um equipamento real (mesmo que seja um equipamento para
 desenvolvimento), os testes podem ser executados contra uma biblioteca de
 simulação, chamada de **mockuplib**, que acompanha o projeto.
 
-Portanto, a maneira mais prática é usando `Pipenv`_ com `tox`_, contra a
-biblioteca de simulação. Primeiro compile a biblioteca de simulação (você irá
-precisar das ferramentas `GNU Make`_ e `GNU GCC`_) e então execute ``tox`` via
-``Pipenv``:
+Primeiro compile a biblioteca de simulação (você irá precisar das
+ferramentas `GNU Make`_ e `GNU GCC`_) e então execute ``tox`` contra as
+versões de interpretadores disponíveis no seu ambiente:
 
-.. sourcecode:: text
+.. sourcecode:: shell
 
-    $ git clone git@github.com:base4sistemas/satcfe.git
-    $ cd satcfe
-    $ make mockuplib
-    $ pipenv install --dev --clear
-    $ pipenv run tox
+    (.env) $ make mockuplib
+    (.env) $ tox
 
-Dê uma olhada no arquivo ``tox.ini`` e procure pela propriedade ``envlist``,
-que relaciona as versões de Python que serão usadas nos testes. Se você quiser
-executar os testes contra uma versão específica de Python, utilize a
-opção ``-e``. Por exemplo, para executar os testes com a versão 3.6 de Python:
+Ou apenas execute ``pytest`` diretamente, para executar apenas os testes que
+não invocam a biblioteca do fabricante:
 
-.. sourcecode:: text
+.. sourcecode:: shell
 
-    $ pipenv run tox -e py36
+    (.env) $ pytest
+
+Um outra maneira, é executar ``pytest`` diretamente contra a biblioteca de
+simulação, que será compilada imediatamente antes de invocar os testes:
+
+.. sourcecode:: shell
+
+    (.env) $ make testall
 
 Existem muitas outras configurações e opções avançadas de testes para
-desenvolvimento desta biblioteca, caso esteja interessado neste tópico, na
-`documentação do projeto <http://satcfe.readthedocs.io/>`_.
+desenvolvimento desta biblioteca, caso esteja interessado neste tópico no
+`Wiki`_ ou na `documentação do projeto <http://satcfe.readthedocs.io/>`_.
+
 
 .. _`SAT-CF-e`: https://portal.fazenda.sp.gov.br/servicos/sat/
 .. _`Projeto SATExtrato`: https://github.com/base4sistemas/satextrato
 .. _`SATComum`: https://github.com/base4sistemas/satcomum
-.. _`Pipenv`: https://pipenv.readthedocs.io/
+.. _`Wiki`: https://github.com/base4sistemas/satcfe/wiki
 .. _`tox`: https://tox.readthedocs.io/
 .. _`GNU Make`: https://www.gnu.org/software/make/
 .. _`GNU GCC`: https://gcc.gnu.org/
