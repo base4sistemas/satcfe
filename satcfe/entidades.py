@@ -216,6 +216,7 @@ Pagamento:
 
 """
 
+import copy
 import re
 import xml.etree.ElementTree as ET
 
@@ -230,54 +231,58 @@ from satcomum import constantes
 
 
 class ExtendedValidator(cerberus.Validator):
-    # Notes on "Upgrading to Cerberus 1.0":
-    # http://docs.python-cerberus.org/en/stable/upgrading.html#data-types
+    types_mapping = cerberus.Validator.types_mapping.copy()
+    types_mapping['decimal'] = cerberus.TypeDefinition(
+            'decimal', (Decimal,), ()
+        )
 
-    def _validate_type_decimal(self, value):
-        if isinstance(value, Decimal):
-            return True
+    def _check_with_uf(self, field, value):
+        if not br.is_uf(value):
+            self._error(field, 'UF invalida: {!r}'.format(value))
 
-    def _validate_type_ipv4(self, value):
-        # <value> str (eg: "10.0.0.1")
+    def _check_with_cnpj(self, field, value):
+        if not br.is_cnpj(value, estrito=True):
+            self._error(field, 'CNPJ invalido: {!r}'.format(value))
+
+    def _check_with_cpf(self, field, value):
+        if not br.is_cpf(value, estrito=True):
+            self._error(field, 'CPF invalido: {!r}'.format(value))
+
+    def _check_with_assinatura_ac(self, field, value):
+        # quaisquer 344 'printable chars' forma uma assinatura AC válida
+        is_valid = (
+                re.match(r'^[ -~]{344}$', value)
+                or value == constantes.ASSINATURA_AC_TESTE
+            )
+        if not is_valid:
+            self._error(field, 'Assinatura AC invalida: {!r}'.format(value))
+
+    def _check_with_ipv4(self, field, value):
         octets = [int(b) for b in value.split('.') if int(b) in range(0, 256)]
-        if len(octets) == 4:
-            return True
-
-    def _validate_type_cnpj(self, value):
-        if br.is_cnpj(value, estrito=True):
-            return True
-
-    def _validate_type_assinatura_ac(self, value):
-        if re.match(r'^[ -~]{344}$', value):
-            # quaisquer 344 'printable chars' forma uma assinatura AC válida
-            return True
-
-        if value == constantes.ASSINATURA_AC_TESTE:
-            return True
+        if len(octets) != 4:
+            self._error(field, 'Endereco IPv4 invalido: {!r}'.format(value))
 
 
 class Entidade(object):
-    """Classe base para todas as classes que representem as entidades da
+    """
+    Classe base para todas as classes que representem as entidades da
     implementação do SAT-CF-e. Aqui, chamaremos de "entidade" as classes que
     representem os grupos de dados que são usados para formar o XML do CF-e de
     venda ou de cancelamento.
 
-    Basicamente, as subclasses precisam sobre-escrever a implementação do
+    Basicamente, as subclasses precisam sobrescrever a implementação do
     método ``_construir_elemento_xml``, definir o atributo ``_schema`` e,
-    quando necessário, implementar uma especialização do validador `Cerberus`_
-    no atributo ``_validator_class``.
-
-    .. _`Cerberus`: http://docs.python-cerberus.org/
+    quando necessário, implementar uma especialização do validador no
+    atributo ``_validator_class``.
 
     """
-
-    _erros = {}
 
     def __init__(self, schema={}, validator_class=None, **kwargs):
         super(Entidade, self).__init__()
         self._schema = schema
         self._validator_class = validator_class or ExtendedValidator
         self._validator = self._validator_class(self._schema)
+        self._errors = {}
 
         # define como atributos e valores desta instância os argumentos
         # nomeados, desde que coincidam com as chaves no schema
@@ -290,25 +295,26 @@ class Entidade(object):
 
     @property
     def erros(self):
-        return dict(Entidade._erros)
+        return copy.deepcopy(self._errors)
 
     def validar(self):
-        if not self._validator.validate(self._schema_fields()):
-            nome_entidade = self.__class__.__name__
-            Entidade._erros[nome_entidade] = self._validator.errors
+        if not self._validator.validate(self._data()):
+            self._errors[self.__class__.__name__] = self._validator.errors
             raise cerberus.DocumentError((
-                    'Entidade "{:s}" possui atributos inválidos.'
-                ).format(nome_entidade))
+                    'Entidade {!r} possui atributos invalidos'
+                ).format(self.__class__.__name__))
 
     def documento(self, *args, **kwargs):
-        """Resulta no documento XML como string, que pode ou não incluir a
+        """
+        Resulta no documento XML como string, que pode ou não incluir a
         declaração XML no início do documento.
         """
         forcar_unicode = kwargs.pop('forcar_unicode', False)
         incluir_xml_decl = kwargs.pop('incluir_xml_decl', True)
         doc = ET.tostring(
                 self._xml(*args, **kwargs),
-                encoding='utf-8').decode('utf-8')
+                encoding='utf-8'
+            ).decode('utf-8')
         if forcar_unicode:
             if incluir_xml_decl:
                 doc = u'{}\n{}'.format(constantes.XML_DECL_UNICODE, doc)
@@ -319,6 +325,9 @@ class Entidade(object):
                 doc = unidecode(doc)
         return doc
 
+    def _data(self):
+        return {k: v for k, v in self.__dict__.items() if k in self._schema}
+
     def _xml(self, *args, **kwargs):
         self.validar()
         return self._construir_elemento_xml(*args, **kwargs)
@@ -326,12 +335,10 @@ class Entidade(object):
     def _construir_elemento_xml(self, *args, **kwargs):
         raise NotImplementedError()
 
-    def _schema_fields(self):
-        return {k: v for k, v in self.__dict__.items() if k in self._schema}
-
 
 class Emitente(Entidade):
-    """Identificação do emitente do CF-e (``emit``, grupo ``C01``).
+    """
+    Identificação do emitente do CF-e (``emit``, grupo ``C01``).
 
     :param str CNPJ: Número do CNPJ do emitente do CF-e, contendo apenas os
         digitos e incluindo os zeros não significativos.
@@ -339,15 +346,15 @@ class Emitente(Entidade):
     :param str IE: Número de Inscrição Estadual do emitente do CF-e, contendo
         apenas digitos.
 
-    :param str IM: *Opcional*. Deve ser informado o número da Inscrição
+    :param str IM: Opcional. Deve ser informado o número da Inscrição
         Municipal quando o CF-e possuir itens com prestação de serviços
         sujeitos ao ISSQN, por exemplo.
 
-    :param str cRegTribISSQN: *Opcional*. Indica o regime especial de
+    :param str cRegTribISSQN: Opcional. Indica o regime especial de
         tributação do ISSQN. Veja as constantes em
         :attr:`~satcomum.constantes.C15_CREGTRIBISSQN_EMIT`.
 
-    :param str indRatISSQN: *Opcional*. Indicador de rateio do desconto sobre o
+    :param str indRatISSQN: Opcional. Indicador de rateio do desconto sobre o
         subtotal entre itens sujeitos à tributação pelo ISSQN. Veja as
         constantes em :attr:`~satcomum.constantes.C16_INDRATISSQN_EMIT`.
 
@@ -356,32 +363,37 @@ class Emitente(Entidade):
     def __init__(self, **kwargs):
         super(Emitente, self).__init__(schema={
                 'CNPJ': {
-                        'type': 'cnpj',
-                        'required': True},
+                        'type': 'string',
+                        'check_with': 'cnpj',
+                        'required': True,
+                    },
                 'IE': {
                         'type': 'string',
                         'required': True,
-                        'regex': r'^\d{2,12}$'},
+                        'regex': r'^\d{2,12}$'
+                    },
                 'IM': {
                         'type': 'string',
                         'required': False,
-                        'regex': r'^\d{1,15}$'},
+                        'regex': r'^\d{1,15}$'
+                    },
                 'cRegTribISSQN': {
                         'type': 'string',
                         'required': False,
                         'allowed': [
                                 v for v, s in constantes.C15_CREGTRIBISSQN_EMIT
-                            ]},
+                            ],
+                    },
                 'indRatISSQN': {
                         'type': 'string',
                         'required': True,
                         'allowed': [
                                 v for v, s in constantes.C16_INDRATISSQN_EMIT
-                            ]},
+                            ],
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
-
         emit = ET.Element('emit')
         ET.SubElement(emit, 'CNPJ').text = self.CNPJ
         ET.SubElement(emit, 'IE').text = self.IE
@@ -398,7 +410,8 @@ class Emitente(Entidade):
 
 
 class Destinatario(Entidade):
-    """Identificação do destinatário do CF-e (``dest``, grupo ``E01``).
+    """
+    Identificação do destinatário do CF-e (``dest``, grupo ``E01``).
 
     :param str CNPJ: Número do CNPJ do destinatário, contendo apenas os
         digitos e incluindo os zeros não significativos. **Não deve ser
@@ -408,101 +421,104 @@ class Destinatario(Entidade):
         incluindo os zeros não significativos. **Não deve ser informado se o
         ``CNPJ`` for informado.**
 
-    :param str xNome: *Opcional*. Nome ou razão social do destinatário.
+    :param str xNome: Opcional. Nome ou razão social do destinatário.
         O nome do destinatário será ignorado no XML do CF-e de cancelamento.
 
     """
 
-    class _Validator(ExtendedValidator):
-
-        def _validate_type_CNPJ_E02(self, value):
-            if br.is_cnpj(value):
-                return True
-
-        def _validate_type_CPF_E03(self, value):
-            if br.is_cpf(value):
-                return True
-
     def __init__(self, **kwargs):
         super(Destinatario, self).__init__(schema={
-                'CNPJ': {'type': 'CNPJ_E02'},  # E02
-                'CPF': {'type': 'CPF_E03'},  # E03
+                'CNPJ': {  # E02
+                        'type': 'string',
+                        'check_with': 'cnpj',
+                        'excludes': 'CPF',
+                        'required': False,
+                    },
+                'CPF': {  # E03
+                        'type': 'string',
+                        'check_with': 'cpf',
+                        'excludes': 'CNPJ',
+                        'required': False,
+                    },
                 'xNome': {  # E04
                         'type': 'string',
                         'required': False,
-                        'minlength': 2, 'maxlength': 60}
-            }, validator_class=Destinatario._Validator, **kwargs)
+                        'minlength': 2,
+                        'maxlength': 60,
+                    }
+            }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
-        if hasattr(self, 'CNPJ') and hasattr(self, 'CPF'):
-            raise cerberus.DocumentError(
-                    (
-                        '{:s} (grupo E01 "dest") atributos "CNPJ" e "CPF" '
-                        'são mutuamente exclusivos.'
-                    ).format(self.__class__.__name__))
-
         is_cancelamento = kwargs.pop('cancelamento', False)
 
         dest = ET.Element('dest')
 
-        if hasattr(self, 'CNPJ'):
-            ET.SubElement(dest, 'CNPJ').text = self.CNPJ
+        if not is_cancelamento:
+            if hasattr(self, 'CNPJ'):
+                ET.SubElement(dest, 'CNPJ').text = self.CNPJ
 
-        if hasattr(self, 'CPF'):
-            ET.SubElement(dest, 'CPF').text = self.CPF
+            if hasattr(self, 'CPF'):
+                ET.SubElement(dest, 'CPF').text = self.CPF
 
-        if hasattr(self, 'xNome') and not is_cancelamento:
-            ET.SubElement(dest, 'xNome').text = self.xNome
+            if hasattr(self, 'xNome'):
+                ET.SubElement(dest, 'xNome').text = self.xNome
 
         return dest
 
 
 class LocalEntrega(Entidade):
-    """Identificação do Local de Entrega (``entrega``, grupo ``G01``).
+    """
+    Identificação do Local de Entrega (``entrega``, grupo ``G01``).
 
     :param str xLgr:
     :param str nro:
-    :param str xCpl: *Opcional*
+    :param str xCpl: Opcional.
     :param str xBairro:
     :param str xMun:
     :param str UF:
 
     """
 
-    class _Validator(ExtendedValidator):
-        def _validate_type_UF_G07(self, value):
-            if br.is_uf(value):
-                return True
-
     def __init__(self, **kwargs):
         super(LocalEntrega, self).__init__(schema={
                 'xLgr': {  # G02
                         'type': 'string',
                         'required': True,
-                        'minlength': 2, 'maxlength': 60},
+                        'minlength': 2,
+                        'maxlength': 60,
+                    },
                 'nro': {  # G03
                         'type': 'string',
                         'required': True,
-                        'minlength': 1, 'maxlength': 60},
+                        'minlength': 1,
+                        'maxlength': 60,
+                    },
                 'xCpl': {  # G04
                         'type': 'string',
                         'required': False,
-                        'minlength': 1, 'maxlength': 60},
+                        'minlength': 1,
+                        'maxlength': 60,
+                    },
                 'xBairro': {  # G05
                         'type': 'string',
                         'required': True,
-                        'minlength': 1, 'maxlength': 60},
+                        'minlength': 1,
+                        'maxlength': 60,
+                    },
                 'xMun': {  # G06
                         'type': 'string',
                         'required': True,
-                        'minlength': 2, 'maxlength': 60},
+                        'minlength': 2,
+                        'maxlength': 60,
+                    },
                 'UF': {  # G07
-                        'type': 'UF_G07',
-                        'required': True},
-            }, validator_class=LocalEntrega._Validator, **kwargs)
+                        'type': 'string',
+                        'check_with': 'uf',
+                        'required': True,
+                    },
+            }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
-
         entrega = ET.Element('entrega')
         ET.SubElement(entrega, 'xLgr').text = self.xLgr
         ET.SubElement(entrega, 'nro').text = self.nro
@@ -518,13 +534,21 @@ class LocalEntrega(Entidade):
 
 
 class Detalhamento(Entidade):
-    """Detalhamento do produto ou serviço do CF-e (``det``, grupo ``H01``).
+    """
+    Detalhamento do produto ou serviço do CF-e (``det``, grupo ``H01``).
 
-    :param ProdutoServico produto:
-    :param Imposto imposto:
-    :param str infAdProd: *Opcional*
+    :param ProdutoServico produto: Produto ou serviço, como uma instância
+        de :class:`ProdutoServico` ao qual o detalhamento se refere.
+
+    :param Imposto imposto: O grupo de tributos incidentes no produto ou
+        serviço ao qual o detalhamento se refere, como uma instância
+        de :class:`Imposto`.
+
+    :param str infAdProd: Opcional. Informações adicionais do produto ou
+        serviço (norma referenciada, informações complementares, etc).
 
     .. note::
+
         O atributo XML ``nItem`` (``H02``) não é determinado aqui, mas
         atribuído automaticamente, conforme a sua posição na lista de
         :attr:`~CFeVenda.detalhamentos`.
@@ -535,24 +559,20 @@ class Detalhamento(Entidade):
         self._produto = produto
         self._imposto = imposto
         super(Detalhamento, self).__init__(schema={
-               'infAdProd': {
+               'infAdProd': {  # V01
                         'type': 'string',
                         'required': False,
-                        'minlength': 1, 'maxlength': 500},
+                        'minlength': 1,
+                        'maxlength': 500,
+                    },
             }, **kwargs)
 
     @property
     def produto(self):
-        """O produto ou serviço como uma instância de :class:`ProdutoServico`
-        ao qual o detalhamento se refere.
-        """
         return self._produto
 
     @property
     def imposto(self):
-        """O grupo de tributos incidentes no produto ou serviço ao qual o
-        detalhamento se refere, como uma instância de :class:`Imposto`.
-        """
         return self._imposto
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -569,21 +589,22 @@ class Detalhamento(Entidade):
 
 
 class ProdutoServico(Entidade):
-    """Produto ou serviço do CF-e (``prod``, grupo ``I01``).
+    """
+    Produto ou serviço do CF-e (``prod``, grupo ``I01``).
 
     :param str cProd:
-    :param str cEAN: *Opcional*
+    :param str cEAN: Opcional.
     :param str xProd:
-    :param str NCM: *Opcional*
+    :param str NCM: Opcional.
     :param str CFOP:
     :param str uCom:
     :param Decimal qCom:
     :param Decimal vUnCom:
     :param str indRegra:
-    :param Decimal vDesc: *Opcional*
-    :param Decimal vOutro: *Opcional*
-    :param list observacoes_fisco: *Opcional* Lista de objetos
-        :class:`ObsFiscoDet`.
+    :param Decimal vDesc: Opcional.
+    :param Decimal vOutro: Opcional.
+    :param list observacoes_fisco: Opcional. Lista de objetos
+        :class:`ObsFiscoDet` representando os campos de uso livre do fisco.
 
     """
 
@@ -593,60 +614,64 @@ class ProdutoServico(Entidade):
                 'cProd': {  # I02
                         'type': 'string',
                         'required': True,
-                        'minlength': 1, 'maxlength': 60},
+                        'minlength': 1,
+                        'maxlength': 60,
+                    },
                 'cEAN': {  # I03
                         'type': 'string',
                         'required': False,
-                        'regex': r'^(\d{8}|\d{12}|\d{13}|\d{14})$'},
+                        'regex': r'^(\d{8}|\d{12}|\d{13}|\d{14})$',
+                    },
                 'xProd': {  # I04
                         'type': 'string',
                         'required': True,
-                        'minlength': 1, 'maxlength': 120},
+                        'minlength': 1,
+                        'maxlength': 120,
+                    },
                 'NCM': {  # I05
                         'type': 'string',
                         'required': False,
-                        'regex': r'^(\d{2}|\d{8})$'},
+                        'regex': r'^(\d{2}|\d{8})$',
+                    },
                 'CFOP': {  # I06
                         'type': 'string',
                         'required': True,
-                        'regex': r'^\d{4}$'},
+                        'regex': r'^\d{4}$',
+                    },
                 'uCom': {  # I07
                         'type': 'string',
                         'required': True,
-                        'minlength': 1, 'maxlength': 6},
+                        'minlength': 1,
+                        'maxlength': 6,
+                    },
                 'qCom': {  # I08
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
                 'vUnCom': {  # I09
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
                 'indRegra': {  # I11
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.I11_INDREGRA]},
+                        'allowed': [v for v, s in constantes.I11_INDREGRA],
+                    },
                 'vDesc': {  # I12
                         'type': 'decimal',
-                        'required': False},
+                        'required': False,
+                    },
                 'vOutro': {  # I13
                         'type': 'decimal',
-                        'required': False},
+                        'required': False,
+                    },
             }, **kwargs)
 
     @property
     def observacoes_fisco(self):
-        """Cada produto, pode opcionalmente, conter uma lista de campos de uso
-        livre do fisco, cujos campos e valores são representados por instâncias
-        da classe :class:`ObsFiscoDet`.
-        """
         return tuple(self._observacoes_fisco or ())
 
     def _construir_elemento_xml(self, *args, **kwargs):
-        if hasattr(self, 'vDesc') and hasattr(self, 'vOutro'):
-            raise cerberus.DocumentError((
-                    '{:s} (grupo H01 "prod") atributos "vDesc" e "vOutro"'
-                    'são mutuamente exclusivos.'
-                ).format(self.__class__.__name__))
-
         prod = ET.Element('prod')
         ET.SubElement(prod, 'cProd').text = self.cProd
 
@@ -678,7 +703,8 @@ class ProdutoServico(Entidade):
 
 
 class ObsFiscoDet(Entidade):
-    """Grupo do campo de uso livre do Fisco (``obsFiscoDet``, grupo ``I17``).
+    """
+    Grupo do campo de uso livre do Fisco (``obsFiscoDet``, grupo ``I17``).
 
     :param str xCampoDet:
     :param str xTextoDet:
@@ -689,11 +715,15 @@ class ObsFiscoDet(Entidade):
                 'xCampoDet': {
                         'type': 'string',
                         'required': True,
-                        'minlength': 1, 'maxlength': 20},
+                        'minlength': 1,
+                        'maxlength': 20,
+                    },
                 'xTextoDet': {
                         'type': 'string',
                         'required': True,
-                        'minlength': 1, 'maxlength': 60},
+                        'minlength': 1,
+                        'maxlength': 60,
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -704,7 +734,8 @@ class ObsFiscoDet(Entidade):
 
 
 class ICMS00(Entidade):
-    """Grupo de tributação do ICMS 00, 20 e 90 (``ICMS00``, grupo ``N02``).
+    """
+    Grupo de tributação do ICMS 00, 20 e 90 (``ICMS00``, grupo ``N02``).
 
     :param str Orig:
     :param str CST:
@@ -716,14 +747,17 @@ class ICMS00(Entidade):
                 'Orig': {  # N06
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.N06_ORIG]},
+                        'allowed': [v for v, s in constantes.N06_ORIG],
+                    },
                 'CST': {  # N07
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.N07_CST_ICMS00]},
+                        'allowed': [v for v, s in constantes.N07_CST_ICMS00],
+                    },
                 'pICMS': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -735,7 +769,8 @@ class ICMS00(Entidade):
 
 
 class ICMS40(Entidade):
-    """Grupo de tributação do ICMS 40, 41 e 60 (``ICMS40``, grupo ``N03``).
+    """
+    Grupo de tributação do ICMS 40, 41 e 60 (``ICMS40``, grupo ``N03``).
 
     :param str Orig:
     :param str CST:
@@ -746,11 +781,13 @@ class ICMS40(Entidade):
                 'Orig': {  # N06
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.N06_ORIG]},
+                        'allowed': [v for v, s in constantes.N06_ORIG],
+                    },
                 'CST': {  # N07
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.N07_CST_ICMS40]},
+                        'allowed': [v for v, s in constantes.N07_CST_ICMS40],
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -761,7 +798,8 @@ class ICMS40(Entidade):
 
 
 class ICMSSN102(Entidade):
-    """Grupo de tributação do ICMS Simples Nacional, CSOSN 102, 300, 400 e 500
+    """
+    Grupo de tributação do ICMS Simples Nacional, CSOSN 102, 300, 400 e 500
     (``ICMSSN102``, grupo ``N04``).
 
     :param str Orig:
@@ -773,13 +811,15 @@ class ICMSSN102(Entidade):
                 'Orig': {  # N06
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.N06_ORIG]},
+                        'allowed': [v for v, s in constantes.N06_ORIG],
+                    },
                 'CSOSN': {  # N10
                         'type': 'string',
                         'required': True,
                         'allowed': [
                                 v for v, s in constantes.N10_CSOSN_ICMSSN102
-                            ]},
+                            ],
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -790,7 +830,8 @@ class ICMSSN102(Entidade):
 
 
 class ICMSSN900(Entidade):
-    """Grupo de tributação do ICMS Simples Nacional, CSOSN 900 (``ICMSSN900``,
+    """
+    Grupo de tributação do ICMS Simples Nacional, CSOSN 900 (``ICMSSN900``,
     grupo ``N05``).
 
     :param str Orig:
@@ -803,16 +844,19 @@ class ICMSSN900(Entidade):
                 'Orig': {  # N06
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.N06_ORIG]},
+                        'allowed': [v for v, s in constantes.N06_ORIG],
+                    },
                 'CSOSN': {  # N10
                         'type': 'string',
                         'required': True,
                         'allowed': [
                                 v for v, s in constantes.N10_CSOSN_ICMSSN900
-                            ]},
+                            ],
+                    },
                 'pICMS': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -824,7 +868,8 @@ class ICMSSN900(Entidade):
 
 
 class PISAliq(Entidade):
-    """Grupo de PIS tributado pela alíquota, CST 01, 02 ou 05 (``PISAliq``,
+    """
+    Grupo de PIS tributado pela alíquota, CST 01, 02 ou 05 (``PISAliq``,
     grupo ``Q02``).
 
     :param str CST:
@@ -837,13 +882,16 @@ class PISAliq(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.Q07_CST_PISALIQ]},
+                        'allowed': [v for v, s in constantes.Q07_CST_PISALIQ],
+                    },
                 'vBC': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
                 'pPIS': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -855,7 +903,8 @@ class PISAliq(Entidade):
 
 
 class PISQtde(Entidade):
-    """Grupo de PIS tributado por quantidade, CST 03 (``PISQtde``,
+    """
+    Grupo de PIS tributado por quantidade, CST 03 (``PISQtde``,
     grupo ``Q03``).
 
     :param str CST:
@@ -868,13 +917,16 @@ class PISQtde(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.Q07_CST_PISQTDE]},
+                        'allowed': [v for v, s in constantes.Q07_CST_PISQTDE],
+                    },
                 'qBCProd': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
                 'vAliqProd': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -886,7 +938,8 @@ class PISQtde(Entidade):
 
 
 class PISNT(Entidade):
-    """Grupo de PIS não tributado, CST 04, 06, 07 08 ou 09 (``PISNT``,
+    """
+    Grupo de PIS não tributado, CST 04, 06, 07 08 ou 09 (``PISNT``,
     grupo ``Q04``).
 
     :param str CST:
@@ -897,7 +950,8 @@ class PISNT(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.Q07_CST_PISNT]},
+                        'allowed': [v for v, s in constantes.Q07_CST_PISNT],
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -907,7 +961,8 @@ class PISNT(Entidade):
 
 
 class PISSN(Entidade):
-    """Grupo de PIS para contribuíntes do Simples Nacional, CST 49 (``PISSN``,
+    """
+    Grupo de PIS para contribuíntes do Simples Nacional, CST 49 (``PISSN``,
     grupo ``Q05``).
 
     :param str CST:
@@ -918,7 +973,8 @@ class PISSN(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.Q07_CST_PISSN]},
+                        'allowed': [v for v, s in constantes.Q07_CST_PISSN],
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -928,20 +984,21 @@ class PISSN(Entidade):
 
 
 class PISOutr(Entidade):
-    """Grupo de PIS para outras operações, CST 99 (``PISOutr``, grupo ``Q06``).
+    """
+    Grupo de PIS para outras operações, CST 99 (``PISOutr``, grupo ``Q06``).
 
     :param str CST:
 
-    :param str vBC: *Opcional* Se informado deverá ser também informado o
+    :param str vBC: Opcional. Se informado deverá ser também informado o
         parâmetro ``pPIS``.
 
-    :param str pPIS: *Opcional* Se informado deverá ser também informado o
+    :param str pPIS: Opcional. Se informado deverá ser também informado o
         parâmetro ``vBC``.
 
-    :param str qBCProd: *Opcional* Se informado deverá ser também informado o
+    :param str qBCProd: Opcional. Se informado deverá ser também informado o
         parâmetro ``vAliqProd``.
 
-    :param str vAliqProd: *Opcional* Se informado deverá ser também informado o
+    :param str vAliqProd: Opcional. Se informado deverá ser também informado o
         parâmetro ``qBCProd``.
 
     .. note::
@@ -956,38 +1013,35 @@ class PISOutr(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.Q07_CST_PISOUTR]},
+                        'allowed': [v for v, s in constantes.Q07_CST_PISOUTR],
+                    },
                 'vBC': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['pPIS']},
+                        'required': True,
+                        'excludes': 'qBCProd',
+                        'dependencies': 'pPIS',
+                    },
                 'pPIS': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['vBC']},
+                        'required': True,
+                        'excludes': 'vAliqProd',
+                        'dependencies': 'vBC',
+                    },
                 'qBCProd': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['vAliqProd']},
+                        'required': True,
+                        'excludes': 'vBC',
+                        'dependencies': 'vAliqProd',
+                    },
                 'vAliqProd': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['qBCProd']},
+                        'required': True,
+                        'excludes': 'pPIS',
+                        'dependencies': 'qBCProd',
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
-        if hasattr(self, 'vBC') and hasattr(self, 'qBCProd'):
-            raise cerberus.DocumentError((
-                    '{:s} (grupo Q06) os atributos "vBC" e "qBCProd" são '
-                    'mutuamente exclusivos.'
-                ).format(self.__class__.__name__))
-
-        elif not hasattr(self, 'vBC') and not hasattr(self, 'qBCProd'):
-            raise cerberus.DocumentError((
-                    '{:s} (grupo Q06) requer que exclusivamente um dos '
-                    'atributos "vBC" ou "qBCProd" seja informado.'
-                ).format(self.__class__.__name__))
-
         pisoutr = ET.Element(self.__class__.__name__)
         ET.SubElement(pisoutr, 'CST').text = self.CST
 
@@ -1003,18 +1057,19 @@ class PISOutr(Entidade):
 
 
 class PISST(Entidade):
-    """Grupo de PIS substituição tributária (``PISST``, grupo ``R01``).
+    """
+    Grupo de PIS substituição tributária (``PISST``, grupo ``R01``).
 
-    :param str vBC: *Opcional* Se informado deverá ser também informado o
+    :param str vBC: Opcional. Se informado deverá ser também informado o
         parâmetro ``pPIS``.
 
-    :param str pPIS: *Opcional* Se informado deverá ser também informado o
+    :param str pPIS: Opcional. Se informado deverá ser também informado o
         parâmetro ``vBC``.
 
-    :param str qBCProd: *Opcional* Se informado deverá ser também informado o
+    :param str qBCProd: Opcional. Se informado deverá ser também informado o
         parâmetro ``vAliqProd``.
 
-    :param str vAliqProd: *Opcional* Se informado deverá ser também informado o
+    :param str vAliqProd: Opcional. Se informado deverá ser também informado o
         parâmetro ``qBCProd``.
 
     .. note::
@@ -1028,35 +1083,31 @@ class PISST(Entidade):
         super(PISST, self).__init__(schema={
                 'vBC': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['pPIS']},
+                        'required': True,
+                        'excludes': 'qBCProd',
+                        'dependencies': 'pPIS',
+                    },
                 'pPIS': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['vBC']},
+                        'required': True,
+                        'excludes': 'vAliqProd',
+                        'dependencies': 'vBC',
+                    },
                 'qBCProd': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['vAliqProd']},
+                        'required': True,
+                        'excludes': 'vBC',
+                        'dependencies': 'vAliqProd',
+                    },
                 'vAliqProd': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['qBCProd']},
+                        'required': True,
+                        'excludes': 'pPIS',
+                        'dependencies': 'qBCProd',
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
-        if hasattr(self, 'vBC') and hasattr(self, 'qBCProd'):
-            raise cerberus.DocumentError((
-                    '{:s} (grupo R01 "PISST") os atributos "vBC" e "qBCProd" '
-                    'são mutuamente exclusivos.'
-                ).format(self.__class__.__name__))
-
-        elif not hasattr(self, 'vBC') and not hasattr(self, 'qBCProd'):
-            raise cerberus.DocumentError((
-                    '{:s} (grupo R01 "PISST") requer que exclusivamente '
-                    'um dos atributos "vBC" ou "qBCProd" seja informado.'
-                ).format(self.__class__.__name__))
-
         pisst = ET.Element(self.__class__.__name__)
 
         if hasattr(self, 'vBC'):
@@ -1071,7 +1122,8 @@ class PISST(Entidade):
 
 
 class COFINSAliq(Entidade):
-    """Grupo de COFINS tributado pela alíquota, CST 01, 02 ou 05
+    """
+    Grupo de COFINS tributado pela alíquota, CST 01, 02 ou 05
     (``COFINSAliq``, grupo ``S02``).
 
     :param str CST:
@@ -1086,13 +1138,16 @@ class COFINSAliq(Entidade):
                         'required': True,
                         'allowed': [
                                 v for v, s in constantes.S07_CST_COFINSALIQ
-                            ]},
+                            ],
+                    },
                 'vBC': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
                 'pCOFINS': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1104,7 +1159,8 @@ class COFINSAliq(Entidade):
 
 
 class COFINSQtde(Entidade):
-    """Grupo de COFINS tributado por quantidade, CST 03 (``COFINSQtde``,
+    """
+    Grupo de COFINS tributado por quantidade, CST 03 (``COFINSQtde``,
     grupo ``S03``).
 
     :param str CST:
@@ -1119,13 +1175,16 @@ class COFINSQtde(Entidade):
                         'required': True,
                         'allowed': [
                                 v for v, s in constantes.S07_CST_COFINSQTDE
-                            ]},
+                            ],
+                    },
                 'qBCProd': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
                 'vAliqProd': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1137,7 +1196,8 @@ class COFINSQtde(Entidade):
 
 
 class COFINSNT(Entidade):
-    """Grupo de COFINS não tributado, CST 04, 06, 07 08 ou 09 (``COFINSNT``,
+    """
+    Grupo de COFINS não tributado, CST 04, 06, 07 08 ou 09 (``COFINSNT``,
     grupo ``S04``).
 
     :param str CST:
@@ -1148,9 +1208,8 @@ class COFINSNT(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [
-                                v for v, s in constantes.S07_CST_COFINSNT
-                            ]},
+                        'allowed': [v for v, s in constantes.S07_CST_COFINSNT],
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1160,7 +1219,8 @@ class COFINSNT(Entidade):
 
 
 class COFINSSN(Entidade):
-    """Grupo de COFINS para contribuíntes do Simples Nacional, CST 49
+    """
+    Grupo de COFINS para contribuíntes do Simples Nacional, CST 49
     (``COFINSSN``, grupo ``S05``).
 
     :param str CST:
@@ -1171,9 +1231,8 @@ class COFINSSN(Entidade):
                 'CST': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [
-                                v for v, s in constantes.S07_CST_COFINSSN
-                            ]},
+                        'allowed': [v for v, s in constantes.S07_CST_COFINSSN],
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1183,21 +1242,22 @@ class COFINSSN(Entidade):
 
 
 class COFINSOutr(Entidade):
-    """Grupo de COFINS para outras operações, CST 99 (``COFINSOutr``,
+    """
+    Grupo de COFINS para outras operações, CST 99 (``COFINSOutr``,
     grupo ``S06``).
 
     :param str CST:
 
-    :param str vBC: *Opcional* Se informado deverá ser também informado o
+    :param str vBC: Opcional. Se informado deverá ser também informado o
         parâmetro ``pCOFINS``.
 
-    :param str pCOFINS: *Opcional* Se informado deverá ser também informado o
+    :param str pCOFINS: Opcional. Se informado deverá ser também informado o
         parâmetro ``vBC``.
 
-    :param str qBCProd: *Opcional* Se informado deverá ser também informado o
+    :param str qBCProd: Opcional. Se informado deverá ser também informado o
         parâmetro ``vAliqProd``.
 
-    :param str vAliqProd: *Opcional* Se informado deverá ser também informado o
+    :param str vAliqProd: Opcional. Se informado deverá ser também informado o
         parâmetro ``qBCProd``.
 
     .. note::
@@ -1214,38 +1274,35 @@ class COFINSOutr(Entidade):
                         'required': True,
                         'allowed': [
                                 v for v, s in constantes.S07_CST_COFINSOUTR
-                            ]},
+                            ],
+                    },
                 'vBC': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['pCOFINS']},
+                        'required': True,
+                        'excludes': 'qBCProd',
+                        'dependencies': 'pCOFINS',
+                    },
                 'pCOFINS': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['vBC']},
+                        'required': True,
+                        'excludes': 'vAliqProd',
+                        'dependencies': 'vBC',
+                    },
                 'qBCProd': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['vAliqProd']},
+                        'required': True,
+                        'excludes': 'vBC',
+                        'dependencies': 'vAliqProd',
+                    },
                 'vAliqProd': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['qBCProd']},
+                        'required': True,
+                        'excludes': 'pCOFINS',
+                        'dependencies': 'qBCProd',
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
-        if hasattr(self, 'vBC') and hasattr(self, 'qBCProd'):
-            raise cerberus.DocumentError((
-                    '{:s} (grupo S06) os atributos "vBC" e "qBCProd" são '
-                    'mutuamente exclusivos.'
-                ).format(self.__class__.__name__))
-
-        elif not hasattr(self, 'vBC') and not hasattr(self, 'qBCProd'):
-            raise cerberus.DocumentError((
-                    '{:s} (grupo S06) requer que exclusivamente um dos '
-                    'atributos "vBC" ou "qBCProd" seja informado.'
-                ).format(self.__class__.__name__))
-
         cofinsoutr = ET.Element(self.__class__.__name__)
         ET.SubElement(cofinsoutr, 'CST').text = self.CST
 
@@ -1261,18 +1318,19 @@ class COFINSOutr(Entidade):
 
 
 class COFINSST(Entidade):
-    """Grupo de COFINS substituição tributária (``COFINSST``, grupo ``T01``).
+    """
+    Grupo de COFINS substituição tributária (``COFINSST``, grupo ``T01``).
 
-    :param str vBC: *Opcional* Se informado deverá ser também informado o
+    :param str vBC: Opcional. Se informado deverá ser também informado o
         parâmetro ``pCOFINS``.
 
-    :param str pCOFINS: *Opcional* Se informado deverá ser também informado o
+    :param str pCOFINS: Opcional. Se informado deverá ser também informado o
         parâmetro ``vBC``.
 
-    :param str qBCProd: *Opcional* Se informado deverá ser também informado o
+    :param str qBCProd: Opcional. Se informado deverá ser também informado o
         parâmetro ``vAliqProd``.
 
-    :param str vAliqProd: *Opcional* Se informado deverá ser também informado o
+    :param str vAliqProd: Opcional. Se informado deverá ser também informado o
         parâmetro ``qBCProd``.
 
     .. note::
@@ -1286,35 +1344,31 @@ class COFINSST(Entidade):
         super(COFINSST, self).__init__(schema={
                 'vBC': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['pCOFINS']},
+                        'required': True,
+                        'excludes': 'qBCProd',
+                        'dependencies': 'pCOFINS',
+                    },
                 'pCOFINS': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['vBC']},
+                        'required': True,
+                        'excludes': 'vAliqProd',
+                        'dependencies': 'vBC',
+                    },
                 'qBCProd': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['vAliqProd']},
+                        'required': True,
+                        'excludes': 'vBC',
+                        'dependencies': 'vAliqProd',
+                    },
                 'vAliqProd': {
                         'type': 'decimal',
-                        'required': False,
-                        'dependencies': ['qBCProd']},
+                        'required': True,
+                        'excludes': 'pCOFINS',
+                        'dependencies': 'qBCProd',
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
-        if hasattr(self, 'vBC') and hasattr(self, 'qBCProd'):
-            raise cerberus.DocumentError((
-                    '{:s} (grupo T01) os atributos "vBC" e "qBCProd" são '
-                    'mutuamente exclusivos.'
-                ).format(self.__class__.__name__))
-
-        elif not hasattr(self, 'vBC') and not hasattr(self, 'qBCProd'):
-            raise cerberus.DocumentError((
-                    '{:s} (grupo T01) requer que exclusivamente um dos '
-                    'atributos "vBC" ou "qBCProd" seja informado.'
-                ).format(self.__class__.__name__))
-
         pisst = ET.Element(self.__class__.__name__)
 
         if hasattr(self, 'vBC'):
@@ -1329,13 +1383,14 @@ class COFINSST(Entidade):
 
 
 class ISSQN(Entidade):
-    """Grupo do ISSQN (``ISSQN``, grupo ``U01``).
+    """
+    Grupo do ISSQN (``ISSQN``, grupo ``U01``).
 
     :param Decimal vDeducISSQN:
     :param Decimal vAliq:
-    :param str cMunFG: *Opcional*
-    :param str cListServ: *Opcional*
-    :param str cServTribMun: *Opcional*
+    :param str cMunFG: Opcional.
+    :param str cListServ: Opcional.
+    :param str cServTribMun: Opcional.
     :param str cNatOp:
     :param str indIncFisc:
     """
@@ -1344,34 +1399,42 @@ class ISSQN(Entidade):
         super(ISSQN, self).__init__(schema={
                 'vDeducISSQN': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
                 'vAliq': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
                 'cMunFG': {
                         'type': 'string',
                         'required': False,
-                        'regex': r'^\d{7}$'},
+                        'regex': r'^\d{7}$',
+                    },
                 'cListServ': {
                         'type': 'string',
                         'required': False,
-                        'regex': r'^\d{2}\.\d{2}$'},
+                        'regex': r'^\d{2}\.\d{2}$',
+                    },
                 'cServTribMun': {
                         'type': 'string',
                         'required': False,
-                        'minlength': 20, 'maxlength': 20},
+                        'minlength': 20,
+                        'maxlength': 20,
+                    },
                 'cNatOp': {
                         'type': 'string',
                         'required': True,
                         'allowed': [
                                 v for v, s in constantes.U09_CNATOP_ISSQN
-                            ]},
+                            ],
+                    },
                 'indIncFisc': {
                         'type': 'string',
                         'required': True,
                         'allowed': [
                                 v for v, s in constantes.U10_INDINCFISC_ISSQN
-                            ]},
+                            ],
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1396,10 +1459,11 @@ class ISSQN(Entidade):
 
 
 class Imposto(Entidade):
-    """Grupo de tributos incidentes no produto ou serviço (``imposto``,
+    """
+    Grupo de tributos incidentes no produto ou serviço (``imposto``,
     grupo ``M01``).
 
-    :param icms: *Opcional* Deve ser uma instância de uma das classes dos
+    :param icms: Opcional. Deve ser uma instância de uma das classes dos
         grupos de ICMS (:class:`ICMS00`, :class:`ICMS40`, :class:`ICMSSN102`
         ou :class:`ICMSSN900`) se o item for um produto tributado pelo ICMS
         ou ``None`` em caso contrário.
@@ -1408,18 +1472,18 @@ class Imposto(Entidade):
         PIS (:class:`PISAliq`, :class:`PISQtde`, :class:`PISNT`, :class:`PISSN`
         ou :class:`PISOutr`).
 
-    :param pisst: *Opcional* Instância de :class:`PISST` ou ``None``.
+    :param pisst: Opcional. Instância de :class:`PISST` ou ``None``.
 
-    :param str cofins: Deve ser uma instância de uma dlas classes dos grupos
+    :param cofins: Deve ser uma instância de uma das classes dos grupos
         de COFINS (:class:`COFINSAliq`, :class:`COFINSQtde`, :class:`COFINSNT`,
         :class:`COFINSSN` ou :class:`COFINSOutr`).
 
-    :param str cofinsst: *Opcional* Instância de :class:`COFINSST` ou ``None``.
+    :param cofinsst: Opcional. Instância de :class:`COFINSST` ou ``None``.
 
-    :param str issqn: *Opcional* Uma instância de :class:`ISSQN` se o item for
+    :param issqn: Opcional. Uma instância de :class:`ISSQN` se o item for
         um serviço tributado pelo ISSQN ou ``None`` em caso contrário.
 
-    :param Decimal vItem12741: *Opcional* Valor aproximado dos tributos do
+    :param Decimal vItem12741: Opcional. Valor aproximado dos tributos do
         produto ou serviço, conforme a Lei 12.741/12.
 
     """
@@ -1442,12 +1506,14 @@ class Imposto(Entidade):
         super(Imposto, self).__init__(schema={
                 'vItem12741': {  # M02
                         'type': 'decimal',
-                        'required': False}
+                        'required': False,
+                    }
             }, **kwargs)
 
     @property
     def icms(self):
-        """Um dos grupos de ICMS (:class:`ICMS00`, :class:`ICMS40`,
+        """
+        Um dos grupos de ICMS (:class:`ICMS00`, :class:`ICMS40`,
         :class:`ICMSSN102` ou :class:`ICMSSN900`) se o item for um produto
         tributado pelo ICMS ou ``None`` em caso contrário.
         """
@@ -1455,35 +1521,40 @@ class Imposto(Entidade):
 
     @property
     def pis(self):
-        """Um dos grupos de PIS (:class:`PISAliq`, :class:`PISQtde`,
+        """
+        Um dos grupos de PIS (:class:`PISAliq`, :class:`PISQtde`,
         :class:`PISNT`, :class:`PISSN` ou :class:`PISOutr`).
         """
         return self._pis
 
     @property
     def pisst(self):
-        """O grupo do PIS Substituição Tributária (:class:`PISST`) se for o
+        """
+        O grupo do PIS Substituição Tributária (:class:`PISST`) se for o
         caso, ou ``None``.
         """
         return self._pisst
 
     @property
     def cofins(self):
-        """Um dos grupos de COFINS (:class:`COFINSAliq`, :class:`COFINSQtde`,
+        """
+        Um dos grupos de COFINS (:class:`COFINSAliq`, :class:`COFINSQtde`,
         :class:`COFINSNT`, :class:`COFINSSN` ou :class:`COFINSOutr`).
         """
         return self._cofins
 
     @property
     def cofinsst(self):
-        """O grupo do COFINS Substituição Tributária (:class:`COFINSST`) se
+        """
+        O grupo do COFINS Substituição Tributária (:class:`COFINSST`) se
         for o caso, ou ``None``.
         """
         return self._cofinsst
 
     @property
     def issqn(self):
-        """O grupo de ISSQN (:class:`ISSQN`) se o item for um serviço
+        """
+        O grupo de ISSQN (:class:`ISSQN`) se o item for um serviço
         tributado pelo ISSQN ou ``None`` em caso contrário.
         """
         return self._issqn
@@ -1527,7 +1598,8 @@ class Imposto(Entidade):
 
 
 class DescAcrEntr(Entidade):
-    """Grupo de valores de entrada de desconto/acréscimo sobre subtotal
+    """
+    Grupo de valores de entrada de desconto/acréscimo sobre subtotal
     (``DescAcrEntr``, grupo ``W19``).
 
     :param Decimal vDescSubtot: Valor de entrada de desconto sobre subtotal.
@@ -1544,19 +1616,17 @@ class DescAcrEntr(Entidade):
         super(DescAcrEntr, self).__init__(schema={
                 'vDescSubtot': {
                         'type': 'decimal',
-                        'required': False},
+                        'excludes': 'vAcresSubtot',
+                        'required': False,
+                    },
                 'vAcresSubtot': {
                         'type': 'decimal',
-                        'required': False},
+                        'excludes': 'vDescSubtot',
+                        'required': False,
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
-        if hasattr(self, 'vAcresSubtot') and hasattr(self, 'vDescSubtot'):
-            raise cerberus.DocumentError((
-                    '{:s} (grupo W19) atributos "vAcresSubtot" e '
-                    '"vDescSubtot" são mutuamente exclusivos.'
-                ).format(self.__class__.__name__))
-
         grupo = ET.Element(self.__class__.__name__)
 
         if hasattr(self, 'vDescSubtot'):
@@ -1573,7 +1643,7 @@ class MeioPagamento(Entidade):
 
     :param str cMP:
     :param Decimal vMP:
-    :param str cAdmC: *Opcional*
+    :param str cAdmC: Opcional.
     """
 
     def __init__(self, **kwargs):
@@ -1581,10 +1651,12 @@ class MeioPagamento(Entidade):
                 'cMP': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in constantes.WA03_CMP_MP]},
+                        'allowed': [v for v, s in constantes.WA03_CMP_MP],
+                    },
                 'vMP': {
                         'type': 'decimal',
-                        'required': True},
+                        'required': True,
+                    },
                 'cAdmC': {
                         'type': 'string',
                         'required': False,
@@ -1592,7 +1664,8 @@ class MeioPagamento(Entidade):
                                 codigo
                                 for codigo, cnpj, nome
                                 in constantes.CREDENCIADORAS_CARTAO
-                            ]},
+                            ],
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1605,9 +1678,10 @@ class MeioPagamento(Entidade):
 
 
 class InformacoesAdicionais(Entidade):
-    """Grupo de informações adicionais (``infAdic``, grupo ``Z01``).
+    """
+    Grupo de informações adicionais (``infAdic``, grupo ``Z01``).
 
-    :param str infCpl: *Opcional*
+    :param str infCpl: Opcional.
     """
 
     def __init__(self, **kwargs):
@@ -1615,7 +1689,9 @@ class InformacoesAdicionais(Entidade):
                 'infCpl': {
                         'type': 'string',
                         'required': False,
-                        'minlength': 1, 'maxlength': 5000},
+                        'minlength': 1,
+                        'maxlength': 5000,
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1626,28 +1702,29 @@ class InformacoesAdicionais(Entidade):
 
 
 class CFeVenda(Entidade):
-    """Representa um CF-e de venda.
+    """
+    Representa um CF-e de venda.
 
     :param Emitente emitente: Identificação do emitente do CF-e.
 
-    :param Destinatario destinatario: *Opcional*. Identificação do
+    :param Destinatario destinatario: Opcional. Identificação do
         destinatário.
 
-    :param LocalEntrega entrega: *Opcional*. Informações do local de entrega.
+    :param LocalEntrega entrega: Opcional. Informações do local de entrega.
 
     :param list detalhamentos: Uma lista de objetos :class:`ProdutoServico` que
         representam os produtos/serviços participantes do CF-e de venda.
 
-    :param DescAcrEntr descontos_acrescimos_subtotal: *Opcional*. Se informado,
+    :param DescAcrEntr descontos_acrescimos_subtotal: Opcional. Se informado,
         deverá ser um objeto :class:`DescAcrEntr` que contenha o valor de
         desconto ou acréscimo sobre o subtotal.
 
     :param list pagamentos: Uma lista de objetos :class:`MeioPagamento` que
         descrevem cada um dos meios de pagamentos usados no CF-e de venda.
 
-    :param InformacoesAdicionais informacoes_adicionais: *Opcional*.
+    :param InformacoesAdicionais informacoes_adicionais: Opcional.
 
-    :param str versaoDadosEnt: *Opcional*. String contendo a versão do layout
+    :param str versaoDadosEnt: Opcional. String contendo a versão do layout
         do arquivo de dados do aplicativo comercial. Se não informado será
         utilizado o valor da constante ``VERSAO_LAYOUT_ARQUIVO_DADOS_AC`` do
         módulo ``constantes`` do
@@ -1663,7 +1740,7 @@ class CFeVenda(Entidade):
         Normalmente este será o número do caixa de onde parte a solicitação de
         cancelamento. Deverá ser um número inteiro entre ``0`` e ``999``.
 
-    :param Decimal vCFeLei12741: *Opcional*. Se informado deve representar a
+    :param Decimal vCFeLei12741: Opcional. Se informado deve representar a
         soma total dos valores aproximados dos tributos, em cumprimento à Lei
         nº 12.741/2012.
 
@@ -1700,20 +1777,28 @@ class CFeVenda(Entidade):
                         'versaoDadosEnt': {
                                 'type': 'string',
                                 'required': True,
-                                'regex': r'^\d{1}\.\d{2}$'},
+                                'regex': r'^\d{1}\.\d{2}$',
+                            },
                         'CNPJ': {
-                                'type': 'cnpj',
-                                'required': True},
+                                'type': 'string',
+                                'check_with': 'cnpj',
+                                'required': True,
+                            },
                         'signAC': {
-                                'type': 'assinatura_ac',
-                                'required': True},
+                                'type': 'string',
+                                'check_with': 'assinatura_ac',
+                                'required': True,
+                            },
                         'numeroCaixa': {
                                 'type': 'integer',
                                 'required': True,
-                                'min': 0, 'max': 999},
+                                'min': 0,
+                                'max': 999,
+                            },
                         'vCFeLei12741': {
                                 'type': 'decimal',
-                                'required': False},
+                                'required': False,
+                            },
                     }, **kwargs)
 
     @property
@@ -1733,34 +1818,38 @@ class CFeVenda(Entidade):
 
     @property
     def detalhamentos(self):
-        """Lista de objetos :class:`Detalhamento`, descrevendo os produtos e
+        """
+        Lista de objetos :class:`Detalhamento`, descrevendo os produtos e
         serviços do CF-e.
         """
         return tuple(self._detalhamentos or ())
 
     @property
     def descontos_acrescimos_subtotal(self):
-        """Os descontos e acréscimos no subtotal do CF-e (:class:`DescAcrEntr`)
+        """
+        Os descontos e acréscimos no subtotal do CF-e (:class:`DescAcrEntr`)
         ou ``None``.
         """
         return self._descontos_acrescimos_subtotal
 
     @property
     def pagamentos(self):
-        """Lista de objetos :class`MeioPagamento`, descrevendo os meios de
+        """
+        Lista de objetos :class`MeioPagamento`, descrevendo os meios de
         pagamento empregados na quitação do CF-e.
         """
         return tuple(self._pagamentos or ())
 
     @property
     def informacoes_adicionais(self):
-        """Informações adicionais do CF-e (:class:`InformacoesAdicionais`)
+        """
+        Informações adicionais do CF-e (:class:`InformacoesAdicionais`)
         ou ``None``.
         """
         return self._informacoes_adicionais
 
     def _xml(self, *args, **kwargs):
-        Entidade._erros.clear()
+        self.erros.clear()
         return super(CFeVenda, self)._xml(*args, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):
@@ -1806,9 +1895,10 @@ class CFeVenda(Entidade):
 
 
 class CFeCancelamento(Entidade):
-    """Representa um CF-e de cancelamento.
+    """
+    Representa um CF-e de cancelamento.
 
-    :param Destinatario destinatario: *Opcional*. Uma instância de
+    :param Destinatario destinatario: Opcional. Uma instância de
         :class:`Destinatario` contendo apenas os dados exigidos para a operação
         de cancelamento (ie. ``CPF`` ou ``CNPJ`` do destinatário).
 
@@ -1834,17 +1924,24 @@ class CFeCancelamento(Entidade):
                 'chCanc': {
                         'type': 'string',
                         'required': True,
-                        'regex': r'^CFe\d{44}$'},
+                        'regex': r'^CFe\d{44}$',
+                    },
                 'CNPJ': {
-                        'type': 'cnpj',
-                        'required': True},
+                        'type': 'string',
+                        'check_with': 'cnpj',
+                        'required': True,
+                    },
                 'signAC': {
-                        'type': 'assinatura_ac',
-                        'required': True},
+                        'type': 'string',
+                        'check_with': 'assinatura_ac',
+                        'required': True,
+                    },
                 'numeroCaixa': {
                         'type': 'integer',
                         'required': True,
-                        'min': 0, 'max': 999},
+                        'min': 0,
+                        'max': 999,
+                    },
             }, **kwargs)
 
     @property
@@ -1853,7 +1950,7 @@ class CFeCancelamento(Entidade):
         return self._destinatario
 
     def _xml(self, *args, **kwargs):
-        Entidade._erros.clear()
+        self.erros.clear()
         return super(CFeCancelamento, self)._xml(*args, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):

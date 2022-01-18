@@ -31,7 +31,7 @@ def test_sem_destinario():
 
     .. sourcecode:: xml
 
-        <dest />
+        <dest/>
 
     """
     dest = Destinatario()
@@ -90,8 +90,8 @@ def test_cnpj_invalido():
     with pytest.raises(cerberus.DocumentError):
         dest._xml()
 
-    assert dest.__class__.__name__ in dest._erros
-    assert 'CNPJ' in dest._erros[dest.__class__.__name__]
+    assert dest.__class__.__name__ in dest.erros
+    assert 'CNPJ' in dest.erros[dest.__class__.__name__]
 
 
 def test_cpf_invalido():
@@ -99,22 +99,28 @@ def test_cpf_invalido():
     with pytest.raises(cerberus.DocumentError):
         dest._xml()
 
-    assert dest.__class__.__name__ in dest._erros
-    assert 'CPF' in dest._erros[dest.__class__.__name__]
+    assert dest.__class__.__name__ in dest.erros
+    assert 'CPF' in dest.erros[dest.__class__.__name__]
 
 
 def test_destinatario_para_cancelamento():
-    """No XML de cancelamento, o nome deverá ser ignorado. XML esperado:
+    """
+    No XML de cancelamento, as tags CNPJ e CPF serão preenchidas pelo
+    equipamento SAT e não há atributo xNome. XML esperado:
 
     .. sourcecode:: xml
 
-        <dest>
-            <CPF>11122233396</CPF>
-        </dest>
+        <dest/>
 
     """
     dest = Destinatario(CPF='11122233396', xNome='Fulano Beltrano')
     el = dest._xml(cancelamento=True)  # xml.etree.ElementTree.Element
     assert el.tag == 'dest'
     assert el.find('xNome') is None
-    assert el.find('CPF').text == '11122233396'
+    assert el.find('CPF') is None
+
+    dest = Destinatario(CNPJ='08427847000169', xNome='Base4 Sistemas')
+    el = dest._xml(cancelamento=True)
+    assert el.tag == 'dest'
+    assert el.find('xNome') is None
+    assert el.find('CNPJ') is None

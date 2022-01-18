@@ -67,5 +67,5 @@ def test_uf_invalida():
     with pytest.raises(cerberus.DocumentError):
         local._xml()
 
-    assert local.__class__.__name__ in local._erros
-    assert 'UF' in local._erros[local.__class__.__name__]
+    assert local.__class__.__name__ in local.erros
+    assert 'UF' in local.erros[local.__class__.__name__]

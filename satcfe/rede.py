@@ -39,48 +39,47 @@ class ConfiguracaoRede(Entidade):
         deverá utilizar. As opções de tipos de rede estão disponíveis na
         constante :attr:`~satcomum.constantes.REDE_TIPOINTER_OPCOES`.
 
-    :param str SSID: *Opcional* Nome da rede sem fio, se for o caso, contendo
-        até 32 caracteres.
+    :param str SSID: Opcional. Nome da rede sem fio contendo até 32 caracteres.
 
-    :param str seg: *Opcional* Tipo de segurança da rede sem fio. As opções
+    :param str seg: Opcional. Tipo de segurança da rede sem fio. As opções
         estão na constante :attr:`~satcomum.constantes.REDE_SEG_OPCOES`.
 
-    :param str codigo: *Opcional* Senha de acesso à rede sem fio, contendo
+    :param str codigo: Opcional. Senha de acesso à rede sem fio, contendo
         até 64 caracteres.
 
     :param str tipoLan: Tipo da rede LAN. As opções estão disponíveis na
         constante :attr:`~satcomum.constantes.REDE_TIPOLAN_OPCOES`.
 
-    :param str lanIP: *Opcional* Endereço IP do equipamento SAT.
+    :param str lanIP: Opcional. Endereço IP do equipamento SAT.
 
-    :param str lanMask: *Opcional* Máscara de sub-rede.
+    :param str lanMask: Opcional. Máscara de sub-rede.
 
-    :param str lanGW: *Opcional* Endereço IP do gateway padrão.
+    :param str lanGW: Opcional. Endereço IP do gateway padrão.
 
-    :param str lanDNS1: *Opcional* Endereço IP do DNS primário.
+    :param str lanDNS1: Opcional. Endereço IP do DNS primário.
 
-    :param str lanDNS2: *Opcional* Endereço IP do DNS secundário.
+    :param str lanDNS2: Opcional. Endereço IP do DNS secundário.
 
-    :param str usuario: *Opcional* Nome do usuário para obtenção do endereço
+    :param str usuario: Opcional. Nome do usuário para obtenção do endereço
         IP, se necessário, contendo até 64 caracteres.
 
-    :param str senha: *Opcional* Senha do usuário para obtenção do endereço IP,
+    :param str senha: Opcional. Senha do usuário para obtenção do endereço IP,
         relacionado ao parâmetro ``usuario``, se necessário, contendo até 32
         caracteres.
 
-    :param str proxy: *Opcional* Indica a configuração de proxy da rede.
+    :param str proxy: Opcional. Indica a configuração de proxy da rede.
         As opções estão disponíveis na
         constante :attr:`~satcomum.constantes.REDE_PROXY_OPCOES`.
 
-    :param str proxy_ip: *Opcional* Endereço IP do servidor proxy.
+    :param str proxy_ip: Opcional. Endereço IP do servidor proxy.
 
-    :param int proxy_porta: *Opcional* Número da porta por onde o servidor de
+    :param int proxy_porta: Opcional. Número da porta por onde o servidor de
         proxy responde.
 
-    :param str proxy_user: *Opcional* Nome do usuário para acesso ao proxy, se
+    :param str proxy_user: Opcional. Nome do usuário para acesso ao proxy, se
         necessário, contendo até 64 caracteres.
 
-    :param str proxy_senha: *Opcional* Senha do usuário para acesso ao proxy,
+    :param str proxy_senha: Opcional. Senha do usuário para acesso ao proxy,
         relacionado ao parâmetro ``proxy_user``, se necessário, contendo
         até 64 caracteres.
 
@@ -91,65 +90,94 @@ class ConfiguracaoRede(Entidade):
                 'tipoInter': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in REDE_TIPOINTER_OPCOES]},
+                        'allowed': [v for v, s in REDE_TIPOINTER_OPCOES],
+                    },
                 'SSID': {
                         'type': 'string',
                         'required': False,
-                        'minlength': 1, 'maxlength': 32},
+                        'minlength': 1,
+                        'maxlength': 32,
+                    },
                 'seg': {
                         'type': 'string',
                         'required': False,
-                        'allowed': [v for v, s in REDE_SEG_OPCOES]},
+                        'allowed': [v for v, s in REDE_SEG_OPCOES],
+                    },
                 'codigo': {
                         'type': 'string',
                         'required': False,
-                        'minlength': 1, 'maxlength': 64},
+                        'minlength': 1,
+                        'maxlength': 64,
+                    },
                 'tipoLan': {
                         'type': 'string',
                         'required': True,
-                        'allowed': [v for v, s in REDE_TIPOLAN_OPCOES]},
+                        'allowed': [v for v, s in REDE_TIPOLAN_OPCOES],
+                    },
                 'lanIP': {
-                        'type': 'ipv4',
-                        'required': False},
+                        'type': 'string',
+                        'check_with': 'ipv4',
+                        'required': False,
+                    },
                 'lanMask': {
-                        'type': 'ipv4',
-                        'required': False},
+                        'type': 'string',
+                        'check_with': 'ipv4',
+                        'required': False,
+                    },
                 'lanGW': {
-                        'type': 'ipv4',
-                        'required': False},
+                        'type': 'string',
+                        'check_with': 'ipv4',
+                        'required': False,
+                    },
                 'lanDNS1': {
-                        'type': 'ipv4',
-                        'required': False},
+                        'type': 'string',
+                        'check_with': 'ipv4',
+                        'required': False,
+                    },
                 'lanDNS2': {
-                        'type': 'ipv4',
-                        'required': False},
+                        'type': 'string',
+                        'check_with': 'ipv4',
+                        'required': False,
+                    },
                 'usuario': {
                         'type': 'string',
                         'required': False,
-                        'minlength': 1, 'maxlength': 64},
+                        'minlength': 1, 'maxlength': 64,
+                    },
                 'senha': {
                         'type': 'string',
                         'required': False,
-                        'minlength': 1, 'maxlength': 64},
+                        'minlength': 1,
+                        'maxlength': 64,
+                    },
                 'proxy': {
                         'type': 'string',
                         'required': False,
-                        'allowed': [v for v, s in REDE_PROXY_OPCOES]},
+                        'allowed': [v for v, s in REDE_PROXY_OPCOES],
+                    },
                 'proxy_ip': {
-                        'type': 'ipv4',
-                        'required': False},
+                        'type': 'string',
+                        'check_with': 'ipv4',
+                        'required': False,
+                    },
                 'proxy_porta': {
                         'type': 'integer',
                         'required': False,
-                        'min': 0, 'max': 65535},
+                        'min': 0,
+                        'max': 65535,
+                    },
                 'proxy_user': {
                         'type': 'string',
                         'required': False,
-                        'minlength': 1, 'maxlength': 64},
+                        'minlength': 1,
+                        'maxlength': 64,
+                    },
                 'proxy_senha': {
                         'type': 'string',
                         'required': False,
-                        'minlength': 1, 'maxlength': 64},
+                        'minlength': 1,
+                        'maxlength': 64,
+                    },
             }, **kwargs)
 
     def _construir_elemento_xml(self, *args, **kwargs):

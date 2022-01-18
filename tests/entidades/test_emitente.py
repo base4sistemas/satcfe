@@ -93,8 +93,8 @@ def test_emitente_todos_atributos_invalidos():
     with pytest.raises(cerberus.DocumentError):
         emit.validar()
 
-    assert emit.__class__.__name__ in emit._erros
-    erros = emit._erros[emit.__class__.__name__]
+    assert emit.__class__.__name__ in emit.erros
+    erros = emit.erros[emit.__class__.__name__]
 
     assert 'CNPJ' in erros
     assert 'IE' in erros

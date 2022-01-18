@@ -159,20 +159,3 @@ def test_todos_os_atributos_informando_vOutro():
     assert el.find('indRegra').text == constantes.I11_ARREDONDAMENTO
     assert el.find('vDesc') is None
     assert el.find('vOutro').text == '0.25'
-
-
-def test_informando_vDesc_e_vOutro():
-    # informando vDesc e vOutro, não deve validar
-    prod = ProdutoServico(
-            cProd='123456',
-            xProd='BORRACHA STAEDTLER',
-            CFOP='5102',
-            uCom='UN',
-            qCom=Decimal('1.0000'),
-            vUnCom=Decimal('5.75'),
-            indRegra='A',
-            vDesc=Decimal('0.25'),
-            vOutro=Decimal('0.25'))
-
-    with pytest.raises(cerberus.DocumentError):
-        prod._xml()

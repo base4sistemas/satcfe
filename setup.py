@@ -44,11 +44,11 @@ def read_version():
 long_description = read('README.rst')
 
 install_requires = [
+        'cerberus>=1,<2',
         'future',
+        'satcomum>=2.2',
         'six',
-        'cerberus',
         'unidecode',
-        'satcomum>=2',
     ]
 
 extras_require = {
