@@ -62,7 +62,8 @@ testall: mockuplib
 		--invoca-extrairlogs \
 		--invoca-bloquearsat \
 		--invoca-desbloquearsat \
-		--invoca-trocarcodigodeativacao
+		--invoca-trocarcodigodeativacao \
+		--invoca-consultarultimasessaofiscal
 
 docs: clean
 	cd docs && $(MAKE) html
