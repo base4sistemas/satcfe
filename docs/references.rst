@@ -15,6 +15,7 @@
 .. _`Portaria CAT 147`: https://portal.fazenda.sp.gov.br/servicos/sat/Paginas/Legislacao.aspx
 .. _`CAT 147`: `Portaria CAT 147`_
 .. _`ICP Brasil`: http://www.iti.gov.br/icp-brasil
+.. _`Base4 Sistemas`: https://github.com/base4sistemas/
 
 .. _`XML`: http://www.w3.org/XML/
 .. _`pipe`: http://unicode-table.com/en/007C/

@@ -52,8 +52,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'SATCFe'
-copyright = '2015-{:d}, Base4 Sistemas Ltda'.format(datetime.today().year)
-author = 'Base4 Sistemas Ltda'
+copyright = '2015-{:d}, Base4 Sistemas EIRELI'.format(datetime.today().year)
+author = 'Base4 Sistemas EIRELI'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -236,7 +236,7 @@ latex_documents = [
             master_doc,
             'SATCFe.tex',
             'SATCFe Documentation',
-            'Base4 Sistemas Ltda',
+            'Base4 Sistemas EIRELI',
             'manual'
         ),
     ]

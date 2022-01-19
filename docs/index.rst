@@ -10,11 +10,11 @@ da `Portaria CAT 147`_ o :term:`SAT-CF-e` (Sistema de Autorização e Transmiss�
 de Cupons Fiscais eletrônicos), em substituição às impressoras fiscais
 (:term:`ECF-IF`).
 
-Esta documentação diz respeito ao projeto `SATCFe`_ desenvolvido pela **Base4
-Sistemas Ltda** com o objetivo de abstrair o acesso ao Equipamento SAT através
-da linguagem `Python`_, tornando trivial o acesso às funções da biblioteca SAT,
-resultando em respostas prontas para serem utilizadas pela aplicação cliente,
-normalmente um software de ponto-de-venda (PDV).
+Esta documentação diz respeito ao projeto `SATCFe`_ desenvolvido
+pela `Base4 Sistemas`_ com o objetivo de abstrair o acesso ao Equipamento SAT
+através da linguagem `Python`_, tornando trivial o acesso às funções da
+biblioteca SAT, resultando em respostas prontas para serem utilizadas pela
+aplicação cliente, normalmente um software de ponto-de-venda (PDV).
 
 A figura abaixo ilustra a topologia básica do SAT-CF-e no estabelecimento
 comercial. Em uma operação típica, o aplicativo comercial envia o CF-e de venda
