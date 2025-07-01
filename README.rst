@@ -36,6 +36,8 @@ Projeto SATCFe
     brazilian portuguese only).
 
 
+**A SEFAZ/SP decidiu por descontinuar o projeto SAT-CF-e.** Para detalhes acesse a `Portaria SRE nº 79 <https://legislacao.fazenda.sp.gov.br/Paginas/Portaria-SRE-79-de-2024.aspx>`_.
+
 Este projeto refere-se à tecnologia `SAT-CF-e`_ desenvolvida pela Secretaria da
 Fazenda do Estado de São Paulo e faz parte de um grupo de cinco projetos que
 resolvem problemas específicos, mas relacionados.
